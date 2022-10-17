@@ -70,6 +70,11 @@ namespace OpenTK_Learning
 
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
 
+            GL.BindTexture(TextureTarget.Texture2DMultisample, R_3D.framebufferTexture);
+            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, 4, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, true);
+            GL.BindTexture(TextureTarget.Texture2D, R_3D.PPtexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+
             GL.Viewport(0, 0, e.Width, e.Height);
             base.OnResize(e);
         }
@@ -304,17 +309,7 @@ namespace OpenTK_Learning
                 ImGui.End();
             }
 
-            // Game Window
-            ImGui.Begin("Game");
-            CameraWidth = ImGui.GetWindowWidth() - 20;
-            CameraHeight = ImGui.GetWindowHeight() - ImGui.GetFontSize() * 3.0f;
-            ImGui.Image((IntPtr)R_3D.PPtexture,
-                new System.Numerics.Vector2(CameraWidth, CameraHeight),
-                new System.Numerics.Vector2(0.0f, CameraHeight / CameraHeight - 0.1f),
-                new System.Numerics.Vector2(CameraWidth / WindowWidth, 0.0f),
-                new System.Numerics.Vector4(1.0f),
-                new System.Numerics.Vector4(1, 0, 0, 1));
-            ImGui.End();
+            UI.LoadGameWindow(ref CameraWidth, ref CameraHeight, WindowWidth);
 
             _controller.Render();
             ImGuiController.CheckGLError("End of frame");
