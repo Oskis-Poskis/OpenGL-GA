@@ -56,6 +56,12 @@ namespace OpenTK_Learning
         int speed = 12;
         float sensitivity = 0.25f;
 
+        public static int FBO;
+        public static int PPfbo;
+        public static int RBO;
+        public static int PPtexture;
+        public static int framebufferTexture;
+
         // Camera transformations
         public static Vector3 position = new Vector3(0.0f, 3.0f, 3.0f);
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
@@ -70,9 +76,9 @@ namespace OpenTK_Learning
 
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
 
-            GL.BindTexture(TextureTarget.Texture2DMultisample, R_3D.framebufferTexture);
+            GL.BindTexture(TextureTarget.Texture2DMultisample, Main.framebufferTexture);
             GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, 4, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, true);
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.PPtexture);
+            GL.BindTexture(TextureTarget.Texture2D, Main.PPtexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
 
             GL.Viewport(0, 0, e.Width, e.Height);
@@ -150,6 +156,49 @@ namespace OpenTK_Learning
             // Load textures
             _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/hex.png", TextureUnit.Texture0);
 
+            
+
+            FBO = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+
+            framebufferTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2DMultisample, framebufferTexture);
+            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, 4, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, true);
+            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2DMultisample, framebufferTexture, 0);
+
+            RBO = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, 4, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
+
+            var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (fboStatus != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine("Framebuffer error: " + fboStatus);
+            }
+
+            PPfbo = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, PPfbo);
+
+            PPtexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, PPtexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, PPtexture, 0);
+
+            var fboStatus2 = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (fboStatus2 != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine("Framebuffer error: " + fboStatus2);
+            }
+
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
             base.OnLoad();
@@ -178,7 +227,7 @@ namespace OpenTK_Learning
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             // Bind FBO and clear color and depth buffer
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, R_3D.FBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
@@ -220,7 +269,18 @@ namespace OpenTK_Learning
                 }
             }
 
-            R_3D.FBOlogic(CameraWidth, CameraHeight);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FBO);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, PPfbo);
+            GL.BlitFramebuffer(0, 0, (int)CameraWidth, (int)CameraHeight, 0, 0, (int)CameraWidth, (int)CameraHeight, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            R_3D.fboShader.Use();
+            GL.BindVertexArray(R_3D.rectVAO);
+            GL.Disable(EnableCap.DepthTest);
+            GL.BindTexture(TextureTarget.Texture2DMultisample, PPtexture);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+
+            //R_3D.FBOlogic(CameraWidth, CameraHeight);
 
             // UI
             _controller.Update(this, (float)args.Time);

@@ -268,72 +268,19 @@ namespace OpenTK_Learning
             GL.VertexAttribPointer(fboShader.GetAttribLocation("aPos"), 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(fboShader.GetAttribLocation("aTexCoord"));
             GL.VertexAttribPointer(fboShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-
             GL.Uniform1(fboShader.GetUniformLocation("screenTexture"), 0);
         }
 
-        public static int FBO;
-        public static int PPfbo;
-        public static int RBO;
-        public static int PPtexture;
-        public static int framebufferTexture;
+        
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
         {
-            FBO = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
-
-            framebufferTexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2DMultisample, framebufferTexture);
-            GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, 4, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, true);
-            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2DMultisample, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2DMultisample, framebufferTexture, 0);
-
-            RBO = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
-            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, 4, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
-
-            var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (fboStatus != FramebufferErrorCode.FramebufferComplete)
-            {
-                Console.WriteLine("Framebuffer error: " + fboStatus);
-            }
-
-            PPfbo = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, PPfbo);
-
-            PPtexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, PPtexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, PPtexture, 0);
-
-            var fboStatus2 = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (fboStatus2 != FramebufferErrorCode.FramebufferComplete)
-            {
-                Console.WriteLine("Framebuffer error: " + fboStatus2);
-            }
+            
         }
 
         public static void FBOlogic(float CameraWidth, float CameraHeight)
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FBO);
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, PPfbo);
-            GL.BlitFramebuffer(0, 0, (int)CameraWidth, (int)CameraHeight, 0, 0, (int)CameraWidth, (int)CameraHeight, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            fboShader.Use();
-            GL.BindVertexArray(rectVAO);
-            GL.Disable(EnableCap.DepthTest);
-            GL.BindTexture(TextureTarget.Texture2DMultisample, PPtexture);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
         }
     }
 }

@@ -72,10 +72,10 @@ namespace OpenTK_Learning
             CameraWidth = ImGui.GetWindowWidth();
             CameraHeight = ImGui.GetWindowHeight();
 
-            ImGui.Image((IntPtr)R_3D.PPtexture,
+            ImGui.Image((IntPtr)Main.PPtexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
                 new System.Numerics.Vector2(0.0f, 1.0f),
-                new System.Numerics.Vector2(1.0f, 0.0f),
+                new System.Numerics.Vector2(CameraWidth / WindowWidth, 0.0f),
                 new System.Numerics.Vector4(1.0f),
                 new System.Numerics.Vector4(1, 0, 0, 1));
             ImGui.End();
