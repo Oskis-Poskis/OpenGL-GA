@@ -46,8 +46,8 @@ namespace OpenTK_Learning
 
         // Camera settings
         public bool firstMove = true;
-        float WindowWidth;
-        float WindowHeight;
+        public static float WindowWidth;
+        public static float WindowHeight;
         float CameraWidth;
         float CameraHeight;
         float Yaw;
