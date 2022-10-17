@@ -18,7 +18,7 @@ namespace OpenTK_Learning
             ImGui.GetStyle().FrameBorderSize = 1f;
             ImGui.GetStyle().TabRounding = 0f;
             ImGui.GetStyle().WindowMenuButtonPosition = ImGuiDir.None;
-            ImGui.GetIO().FontGlobalScale = Game.fontSize;
+            ImGui.GetIO().FontGlobalScale = Main.fontSize;
 
             // Something
             ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
@@ -71,7 +71,7 @@ namespace OpenTK_Learning
             {
                 if (ImGui.MenuItem("Quit", "Alt+F4"))
                 {
-                    Game.CloseWindow = true;
+                    Main.CloseWindow = true;
                 }
 
                 ImGui.EndMenu();
@@ -86,9 +86,9 @@ namespace OpenTK_Learning
             {
                 if (ImGui.BeginMenu("Debug"))
                 {
-                    ImGui.Checkbox("Statistics", ref Game.showStatistics); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 1");
+                    ImGui.Checkbox("Statistics", ref Main.showStatistics); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 1");
                     ImGui.Separator();
-                    ImGui.Checkbox("ImGUI Demo ", ref Game.showDemoWindow);
+                    ImGui.Checkbox("ImGUI Demo ", ref Main.showDemoWindow);
                     ImGui.EndMenu();
                 }
 
@@ -96,13 +96,13 @@ namespace OpenTK_Learning
 
                 if (ImGui.BeginMenu("Editor"))
                 {
-                    ImGui.Checkbox("Show Object Properties", ref Game.showObjectProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 2");
+                    ImGui.Checkbox("Show Object Properties", ref Main.showObjectProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 2");
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Light Properties", ref Game.showLightProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 3");
+                    ImGui.Checkbox("Show Light Properties", ref Main.showLightProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 3");
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Outliner", ref Game.showOutliner); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 4");
+                    ImGui.Checkbox("Show Outliner", ref Main.showOutliner); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 4");
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Settings", ref Game.showSettings); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 5");
+                    ImGui.Checkbox("Show Settings", ref Main.showSettings); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 5");
                 }
                 ImGui.EndMenu();
             }
@@ -565,7 +565,7 @@ namespace OpenTK_Learning
                                 }
                             }
 
-                            R_3D.AddObjectToArray(false, PlaneName, Game.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
+                            R_3D.AddObjectToArray(false, PlaneName, Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
                             R_3D.ConstructObjects();
                         }
 
@@ -583,7 +583,7 @@ namespace OpenTK_Learning
                                 }
                             }
 
-                            R_3D.AddObjectToArray(false, CubeName, Game.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
+                            R_3D.AddObjectToArray(false, CubeName, Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
                             R_3D.ConstructObjects();
                         }
 

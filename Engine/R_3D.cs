@@ -98,12 +98,12 @@ namespace OpenTK_Learning
                 GL.BufferData(BufferTarget.ElementArrayBuffer, Objects[i].Indices.Length * sizeof(uint), Objects[i].Indices, BufferUsageHint.StaticDraw);
 
                 // Set attributes in shaders - vertex positions, UV's and normals
-                GL.EnableVertexAttribArray(Game._PhongShader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Game._PhongShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(Game._PhongShader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(Game._PhongShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-                GL.EnableVertexAttribArray(Game._PhongShader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(Game._PhongShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aPosition"));
+                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aTexCoord"));
+                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aNormal"));
+                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
             }
         }
 
@@ -139,24 +139,24 @@ namespace OpenTK_Learning
         {
             for (int i = 0; i < Objects.Count; i++)
             {
-                Game._PhongShader.Use();
+                Main._PhongShader.Use();
                 GL.BindVertexArray(VAO[i]);
-                SetTransform(Game._PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                SetUniformMatrix(Game._PhongShader, projection, view);
+                SetTransform(Main._PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                SetUniformMatrix(Main._PhongShader, projection, view);
 
-                Vector3 ambient = new Vector3(Game.BG_Color.X, Game.BG_Color.Y, Game.BG_Color.Z);
-                Game._PhongShader.SetVector3("material.ambient", ambient);
-                Game._PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
-                Game._PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
-                Game._PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
+                Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
+                Main._PhongShader.SetVector3("material.ambient", ambient);
+                Main._PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
+                Main._PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
+                Main._PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
 
-                Game._PhongShader.SetFloat("Point.constant", 1.0f);
-                Game._PhongShader.SetFloat("Point.linear", 0.09f);
-                Game._PhongShader.SetFloat("Point.quadratic", 0.032f);
+                Main._PhongShader.SetFloat("Point.constant", 1.0f);
+                Main._PhongShader.SetFloat("Point.linear", 0.09f);
+                Main._PhongShader.SetFloat("Point.quadratic", 0.032f);
 
-                Game._PhongShader.SetVector3("Point.lightColor", Lights[0].LightColor);
-                Game._PhongShader.SetVector3("Point.lightPos", Lights[0].Location);
-                Game._PhongShader.SetVector3("viewPos", Game.position);
+                Main._PhongShader.SetVector3("Point.lightColor", Lights[0].LightColor);
+                Main._PhongShader.SetVector3("Point.lightPos", Lights[0].Location);
+                Main._PhongShader.SetVector3("viewPos", Main.position);
 
                 GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
