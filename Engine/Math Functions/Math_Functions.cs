@@ -1,7 +1,6 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OpenTK_Learning
 {
@@ -36,6 +35,15 @@ namespace OpenTK_Learning
             if (toggleBool == false) _bool = true;
 
             return _bool;
+        }
+
+        public static Vector3 FromVector(Assimp.Vector3D vec)
+        {
+            Vector3 v;
+            v.X = vec.X;
+            v.Y = vec.Y;
+            v.Z = vec.Z;
+            return v;
         }
 
         // FPS calc

@@ -61,6 +61,8 @@ namespace OpenTK_Learning
         public static bool showSettings = false;
         public static bool CloseWindow = false;
 
+        bool isCursorOnGameWindow;
+
         // Camera settings
         public bool firstMove = true;
         public static float WindowWidth;
@@ -96,42 +98,31 @@ namespace OpenTK_Learning
             base.OnResize(e);
         }
 
-        private Vector3 FromVector(Vector3D vec)
-        {
-            Vector3 v;
-            v.X = vec.X;
-            v.Y = vec.Y;
-            v.Z = vec.Z;
-            return v;
-        }
-
         // Runs after Run();
         protected override void OnLoad()
         {
             AssimpContext importer = new AssimpContext();
             Scene m_model = importer.ImportFile(
                 "./../../../Resources/3D_Models/Monkey.fbx",
-                PostProcessPreset.TargetRealTimeMaximumQuality);
+                PostProcessPreset.TargetRealTimeMaximumQuality |
+                PostProcessSteps.FlipWindingOrder);
 
             VertexData[] importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
+            //m_model.RootNode.Transform.
             for (int i = 0; i < importedData.Length; i++)
             {
                 importedData[i] = new VertexData(
-                    FromVector(m_model.Meshes[0].Vertices[i]),
-                    FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
-                    FromVector(m_model.Meshes[0].Normals[i]));
+                    Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
+                    Math_Functions.FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
+                    Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
             }
 
-            int[] importindices = new int[m_model.Meshes[0].Vertices.Count];
-            importindices = m_model.Meshes[0].GetIndices();
+            int[] importindices = m_model.Meshes[0].GetIndices();
             string importname = m_model.Meshes[0].Name;
 
             Console.WriteLine("Imported mesh " + "'" +importname + "'" +
                 "\nVertices: " + m_model.Meshes[0].Vertices.Count +
                 "\nIndices: " + m_model.Meshes[0].GetIndices().Length.ToString());
-
-            //OBJ_Loader.LoadOBJ("./../../../Resources/3D_Files/Icosphere.obj");
-            R_3D.GenFBO(CameraWidth, CameraHeight);
 
             IsVisible = true;
             VSync = VSyncMode.On;
@@ -163,30 +154,21 @@ namespace OpenTK_Learning
             };
 
             // Add default objects
-            R_3D.AddObjectToArray(false,
-                "Cube",                     // Name
-                M_Default,                  // Material
-                new Vector3(2f),    // Scale
-                new Vector3(0f, 4f, 0f),    // Location
+            R_3D.AddObjectToArray(false, "Cube", M_Default,
+                new Vector3(2f),           // Scale
+                new Vector3(0f, 4f, 0f),   // Location
                 new Vector3(45f, 0f, 0f),  // Rotation
-                Cube.vertices,
-                Cube.indices);
-            R_3D.AddObjectToArray(false,
-                "Plane",          // Name
-                M_Floor,          // Material
+                Cube.vertices, Cube.indices);
+            R_3D.AddObjectToArray(false, "Plane", M_Floor,
                 new Vector3(10f), // Scale
                 new Vector3(0f),  // Location
                 new Vector3(0f),  // Rotation
-                Plane.vertices,
-                Plane.indices);
-            R_3D.AddObjectToArray(false,
-                importname,                     // Name
-                M_Default,                  // Material
-                new Vector3(2f),    // Scale
+                Plane.vertices, Plane.indices);
+            R_3D.AddObjectToArray(false, importname, M_Default,
+                new Vector3(2f),            // Scale
                 new Vector3(4f, 4f, 0f),    // Location
-                new Vector3(0f),  // Rotation
-                importedData,
-                importindices);
+                new Vector3(-90f, 0f, 0f),  // Rotation
+                importedData, importindices);
 
             // Generate all the data shit
             R_3D.ConstructObjects();
@@ -197,6 +179,7 @@ namespace OpenTK_Learning
             R_3D.ConstructLights();
 
             // Generate two screen triangles
+            R_3D.GenFBO(CameraWidth, CameraHeight);
             R_3D.GenScreenRect();
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
@@ -216,7 +199,10 @@ namespace OpenTK_Learning
 
             // Draw 3D objects
             {
-                GeneralInput(args);
+                if (isCursorOnGameWindow)
+                {
+                    GeneralInput(args);
+                }
 
                 // Camera pos and FOV
                 Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
@@ -261,6 +247,9 @@ namespace OpenTK_Learning
             if (showLightProperties) UI.LoadLightProperties(ref selectedLight, spacing);
             if (showOutliner) UI.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
 
+            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RectOnly) == true) isCursorOnGameWindow = true;
+            else isCursorOnGameWindow = false;
+
             if (showSettings)
             {
                 // Settings
@@ -286,6 +275,7 @@ namespace OpenTK_Learning
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
 
                 if (ImGui.TreeNode("Camera"))
                 {

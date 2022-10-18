@@ -65,6 +65,7 @@
     <None Include="Resources\3D_Models\Cube.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Sphere.fbx" />
+    <None Include="Resources\3D_Models\Torus.fbx" />
     <None Include="Resources\Shaders\default.frag" />
     <None Include="Resources\Shaders\default.geom" />
     <None Include="Resources\Shaders\default.vert" />
