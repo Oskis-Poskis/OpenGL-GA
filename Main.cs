@@ -136,7 +136,7 @@ namespace OpenTK_Learning
             _PhongShader = new Shader("./../../../Resources/shaders/default.vert", "./../../../Resources/shaders/default.frag", true);
             _LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
             // Load textures
-            _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/hex.png", TextureUnit.Texture0);
+            _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/Checker.png", TextureUnit.Texture0);
 
             M_Default = new R_3D.Material
             {
@@ -199,10 +199,7 @@ namespace OpenTK_Learning
 
             // Draw 3D objects
             {
-                if (isCursorOnGameWindow)
-                {
-                    GeneralInput(args);
-                }
+                GeneralInput(args);
 
                 // Camera pos and FOV
                 Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
@@ -246,9 +243,6 @@ namespace OpenTK_Learning
             if (showObjectProperties) UI.LoadObjectProperties(ref selectedObject, spacing);
             if (showLightProperties) UI.LoadLightProperties(ref selectedLight, spacing);
             if (showOutliner) UI.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
-
-            if (ImGui.IsWindowHovered(ImGuiHoveredFlags.RectOnly) == true) isCursorOnGameWindow = true;
-            else isCursorOnGameWindow = false;
 
             if (showSettings)
             {
@@ -417,11 +411,13 @@ namespace OpenTK_Learning
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
+            /*
             if (IsKeyPressed(Keys.D1)) showStatistics = Math_Functions.ToggleBool(showStatistics);
             if (IsKeyPressed(Keys.D2)) showObjectProperties = Math_Functions.ToggleBool(showObjectProperties);
             if (IsKeyPressed(Keys.D3)) showLightProperties = Math_Functions.ToggleBool(showLightProperties);
             if (IsKeyPressed(Keys.D4)) showOutliner = Math_Functions.ToggleBool(showOutliner);
             if (IsKeyPressed(Keys.D5)) showSettings = Math_Functions.ToggleBool(showSettings);
+            */
 
             base.OnKeyDown(e);
         }

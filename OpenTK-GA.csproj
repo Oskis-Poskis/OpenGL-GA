@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\Images\Checker.png" />
     <Content Include="Resources\Images\failedtoload.png" />
     <Content Include="Resources\Images\grid.png" />
     <Content Include="Resources\Images\hex.png" />
@@ -62,8 +63,10 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
+    <None Include="Resources\3D_Models\Smg-12.fbx" />
     <None Include="Resources\3D_Models\Sphere.fbx" />
     <None Include="Resources\3D_Models\Torus.fbx" />
     <None Include="Resources\Shaders\default.frag" />
