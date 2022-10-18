@@ -109,11 +109,10 @@ namespace OpenTK_Learning
         protected override void OnLoad()
         {
             AssimpContext importer = new AssimpContext();
-            importer.SetConfig(new NormalSmoothingAngleConfig(66.0f));
             Scene m_model = importer.ImportFile(
                 "./../../../Resources/3D_Models/Monkey.fbx",
                 PostProcessPreset.TargetRealTimeMaximumQuality |
-                PostProcessSteps.FixInFacingNormals);
+                PostProcessSteps.MakeLeftHanded);
 
             VertexData[] importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
             for (int i = 0; i < importedData.Length; i++)
@@ -126,6 +125,7 @@ namespace OpenTK_Learning
 
             int[] importindices = new int[m_model.Meshes[0].Vertices.Count];
             importindices = m_model.Meshes[0].GetIndices();
+            string importname = m_model.Meshes[0].Name;
 
             Console.WriteLine(m_model.Meshes[0].GetIndices().Length.ToString());
             Console.WriteLine("Num vertices " + m_model.Meshes[0].Vertices.Count);
@@ -182,7 +182,7 @@ namespace OpenTK_Learning
                 Plane.vertices,
                 Plane.indices);
             R_3D.AddObjectToArray(false,
-                "Monkey",                     // Name
+                importname,                     // Name
                 M_Default,                  // Material
                 new Vector3(2f),    // Scale
                 new Vector3(4f, 4f, 0f),    // Location
@@ -195,7 +195,7 @@ namespace OpenTK_Learning
 
             // Add lights
             R_3D.AddLightToArray("Light1", new Vector3(1.0f), _LightShader, new Vector3(1f), new Vector3(4f, 6f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
-            R_3D.AddLightToArray("Light2", new Vector3(1.0f), _LightShader, new Vector3(-1f, -1f, 0f), new Vector3(-4f, 4f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
+            //R_3D.AddLightToArray("Light2", new Vector3(1.0f), _LightShader, new Vector3(-1f, -1f, 0f), new Vector3(-4f, 4f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles

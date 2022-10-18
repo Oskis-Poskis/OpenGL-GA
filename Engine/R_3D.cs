@@ -154,8 +154,8 @@ namespace OpenTK_Learning
                 Main._PhongShader.SetFloat("Point.linear", 0.09f);
                 Main._PhongShader.SetFloat("Point.quadratic", 0.032f);
 
-                Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
-                Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
+                //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
+                //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
 
                 Main._PhongShader.SetVector3("Point.lightColor", Lights[0].LightColor);
                 Main._PhongShader.SetVector3("Point.lightPos", Lights[0].Location);
