@@ -111,8 +111,7 @@ namespace OpenTK_Learning
             AssimpContext importer = new AssimpContext();
             Scene m_model = importer.ImportFile(
                 "./../../../Resources/3D_Models/Monkey.fbx",
-                PostProcessPreset.TargetRealTimeMaximumQuality |
-                PostProcessSteps.MakeLeftHanded);
+                PostProcessPreset.TargetRealTimeMaximumQuality);
 
             VertexData[] importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
             for (int i = 0; i < importedData.Length; i++)
@@ -127,10 +126,9 @@ namespace OpenTK_Learning
             importindices = m_model.Meshes[0].GetIndices();
             string importname = m_model.Meshes[0].Name;
 
-            Console.WriteLine(m_model.Meshes[0].GetIndices().Length.ToString());
-            Console.WriteLine("Num vertices " + m_model.Meshes[0].Vertices.Count);
-            Console.WriteLine("Num normals " + m_model.Meshes[0].Normals.Count);
-            Console.WriteLine("Num tex " + m_model.Meshes[0].TextureCoordinateChannels[0].Count);
+            Console.WriteLine("Imported mesh " + "'" +importname + "'" +
+                "\nVertices: " + m_model.Meshes[0].Vertices.Count +
+                "\nIndices: " + m_model.Meshes[0].GetIndices().Length.ToString());
 
             //OBJ_Loader.LoadOBJ("./../../../Resources/3D_Files/Icosphere.obj");
             R_3D.GenFBO(CameraWidth, CameraHeight);
