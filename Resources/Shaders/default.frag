@@ -22,14 +22,19 @@ struct PointLight {
     float quadratic;
 }; 
 
+struct DirectionalLight {
+    vec3 direction;
+    vec3 color;
+};
+
 uniform Material material;
 uniform PointLight Point;
-
+uniform DirectionalLight dirLight;
 uniform vec3 viewPos;
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
-    vec3 ambient = Point.lightColor * material.ambient;
+    vec3 ambient = material.ambient;
 
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.lightPos - FragPos);
@@ -38,9 +43,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.lightColor * (spec * material.specular);  
+    vec3 specular = spec * material.specular;
     
-    float _distance = length(Point.lightPos - FragPos);
+    float _distance = length(light.lightPos - FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * _distance + light.quadratic * (_distance * _distance));
 
     ambient *= attenuation;
@@ -48,7 +53,27 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     specular *= attenuation;
 
     return (ambient + diffuse + specular);
-} 
+}
+
+vec3 CalcDirectionalLight(DirectionalLight directLight)
+{
+    vec3 ambient = material.ambient * material.diffuse;
+  	
+    // diffuse 
+    vec3 norm = normalize(Normal);
+    // vec3 lightDir = normalize(light.position - FragPos);
+    vec3 lightDir = normalize(-directLight.direction);  
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = directLight.color * diff * material.diffuse;
+    
+    // specular
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = spec * material.specular;
+        
+    return (ambient + diffuse + specular);
+}
 
 out vec4 fragColor;
 uniform sampler2D texture0;
@@ -58,5 +83,8 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    fragColor = vec4(CalcPointLight(Point, Normal, FragPos, viewDir), 1.0);
+    vec3 result = CalcDirectionalLight(dirLight);
+    result += CalcPointLight(Point, Normal, FragPos, viewDir);
+
+    fragColor = vec4(result, 1.0);
 }

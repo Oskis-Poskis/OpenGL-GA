@@ -37,8 +37,8 @@
 	
   <ItemGroup>
     <PackageReference Include="ImGui.NET" Version="1.87.3" />
-    <PackageReference Include="OpenTK" Version="4.7.4" />
-    <PackageReference Include="StbImageSharp" Version="2.27.11" />
+    <PackageReference Include="OpenTK" Version="4.7.5" />
+    <PackageReference Include="StbImageSharp" Version="2.27.13" />
   </ItemGroup>
 	
   <ItemGroup>

@@ -43,7 +43,7 @@ namespace OpenTK_Learning
             public int[] Indices;
             public Vector3 Location;
             public Vector3 Rotation;
-            public Vector3 Scale;
+            public Vector3 Direction;
         }
 
         public static void AddObjectToArray(bool _rel, string name, Material material, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
@@ -63,7 +63,7 @@ namespace OpenTK_Learning
             Objects.Add(_object);
         }
 
-        public static void AddLightToArray(string name, Vector3 lightColor, Shader shader, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
+        public static void AddLightToArray(string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
@@ -74,7 +74,7 @@ namespace OpenTK_Learning
                 Indices = indices,
                 Location = location,
                 Rotation = rotation,
-                Scale = scale
+                Direction = direction
             };
             Array.Resize(ref VAOlights, VAOlights.Length + 1);
             Lights.Add(_light);
@@ -154,6 +154,9 @@ namespace OpenTK_Learning
                 Main._PhongShader.SetFloat("Point.linear", 0.09f);
                 Main._PhongShader.SetFloat("Point.quadratic", 0.032f);
 
+                Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
+                Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
+
                 Main._PhongShader.SetVector3("Point.lightColor", Lights[0].LightColor);
                 Main._PhongShader.SetVector3("Point.lightPos", Lights[0].Location);
                 Main._PhongShader.SetVector3("viewPos", Main.position);
@@ -169,9 +172,7 @@ namespace OpenTK_Learning
             {
                 Lights[i].Shader.Use();
                 GL.BindVertexArray(VAOlights[i]);
-                SetTransform(Lights[i].Shader, MakeLightTransform(Lights[i].Scale, Lights[i].Location, Lights[i].Rotation));
-                // Matrix4 lightLoc = Matrix4.CreateTranslation(Lights[i].Location);
-                // GL.UniformMatrix4(Lights[i].Shader.GetUniformLocation("location"), true, ref lightLoc);
+                SetTransform(Lights[i].Shader, MakeLightTransform(new Vector3(1.0f), Lights[i].Location, Lights[i].Rotation));
                 SetUniformMatrix(Lights[i].Shader, projection, view);
                 SetMaterialProperties(Lights[i].Shader, Lights[i].LightColor, "lightcolor");
 
@@ -271,11 +272,45 @@ namespace OpenTK_Learning
             GL.Uniform1(fboShader.GetUniformLocation("screenTexture"), 0);
         }
 
-        
+
+        public static int FBO;
+        public static int RBO;
+        public static int framebufferTexture;
+        public static int framebufferTexture2;
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
         {
-            
+            FBO = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+
+            framebufferTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, framebufferTexture, 0);
+
+            RBO = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
+
+            framebufferTexture2 = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, framebufferTexture, 0);
+
+            var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (fboStatus != FramebufferErrorCode.FramebufferComplete)
+            {
+                Console.WriteLine("Framebuffer error: " + fboStatus);
+            }
         }
 
         public static void FBOlogic(float CameraWidth, float CameraHeight)
