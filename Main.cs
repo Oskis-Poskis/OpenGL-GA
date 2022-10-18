@@ -5,6 +5,9 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using Assimp.Configs;
+using Assimp;
+using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
 namespace OpenTK_Learning
 {
@@ -93,9 +96,42 @@ namespace OpenTK_Learning
             base.OnResize(e);
         }
 
+        private Vector3 FromVector(Vector3D vec)
+        {
+            Vector3 v;
+            v.X = vec.X;
+            v.Y = vec.Y;
+            v.Z = vec.Z;
+            return v;
+        }
+
         // Runs after Run();
         protected override void OnLoad()
         {
+            AssimpContext importer = new AssimpContext();
+            importer.SetConfig(new NormalSmoothingAngleConfig(66.0f));
+            Scene m_model = importer.ImportFile(
+                "./../../../Resources/3D_Models/Monkey.fbx",
+                PostProcessPreset.TargetRealTimeMaximumQuality |
+                PostProcessSteps.FixInFacingNormals);
+
+            VertexData[] importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
+            for (int i = 0; i < importedData.Length; i++)
+            {
+                importedData[i] = new VertexData(
+                    FromVector(m_model.Meshes[0].Vertices[i]),
+                    FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
+                    FromVector(m_model.Meshes[0].Normals[i]));
+            }
+
+            int[] importindices = new int[m_model.Meshes[0].Vertices.Count];
+            importindices = m_model.Meshes[0].GetIndices();
+
+            Console.WriteLine(m_model.Meshes[0].GetIndices().Length.ToString());
+            Console.WriteLine("Num vertices " + m_model.Meshes[0].Vertices.Count);
+            Console.WriteLine("Num normals " + m_model.Meshes[0].Normals.Count);
+            Console.WriteLine("Num tex " + m_model.Meshes[0].TextureCoordinateChannels[0].Count);
+
             //OBJ_Loader.LoadOBJ("./../../../Resources/3D_Files/Icosphere.obj");
             R_3D.GenFBO(CameraWidth, CameraHeight);
 
@@ -145,13 +181,21 @@ namespace OpenTK_Learning
                 new Vector3(0f),  // Rotation
                 Plane.vertices,
                 Plane.indices);
+            R_3D.AddObjectToArray(false,
+                "Monkey",                     // Name
+                M_Default,                  // Material
+                new Vector3(2f),    // Scale
+                new Vector3(4f, 4f, 0f),    // Location
+                new Vector3(0f),  // Rotation
+                importedData,
+                importindices);
 
             // Generate all the data shit
             R_3D.ConstructObjects();
 
             // Add lights
             R_3D.AddLightToArray("Light1", new Vector3(1.0f), _LightShader, new Vector3(1f), new Vector3(4f, 6f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
-            R_3D.AddLightToArray("Light2", new Vector3(1.0f), _LightShader, new Vector3(1f), new Vector3(-4f, 4f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
+            R_3D.AddLightToArray("Light2", new Vector3(1.0f), _LightShader, new Vector3(-1f, -1f, 0f), new Vector3(-4f, 4f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles

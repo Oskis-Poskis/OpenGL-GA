@@ -186,6 +186,8 @@ namespace OpenTK_Learning
             ImGui.Separator();
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
             ImGui.Text(R_3D.Objects[selectedObject].Name);
+            ImGui.SameLine(); ImGui.Text("Vertices " + (R_3D.Objects[selectedObject].VertData.Length).ToString());
+            ImGui.SameLine(); ImGui.Text("Triangles " + (R_3D.Objects[selectedObject].Indices.Length).ToString());
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 60);
 
