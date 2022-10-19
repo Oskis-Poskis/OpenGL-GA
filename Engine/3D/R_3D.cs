@@ -149,7 +149,6 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
                 Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
                 Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
-
                 Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
 
                 for (int j = 0; j < Lights.Count; j++)
@@ -318,9 +317,17 @@ namespace OpenTK_Learning
             }
         }
 
-        public static void FBOlogic(float CameraWidth, float CameraHeight)
+        public static void FBOlogic()
         {
+            fboShader.Use();
+            GL.BindVertexArray(rectVAO);
+            GL.Disable(EnableCap.DepthTest);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture2);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace OpenTK_Learning
         }
 
         private Texture _diffuseMap;
-        static Shader LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
+        public static Shader LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
         public static Shader PhongShader = new Shader("./../../../Resources/shaders/default.vert", "./../../../Resources/shaders/default.frag", true);
 
         public static R_3D.Material M_Default;
@@ -43,6 +43,7 @@ namespace OpenTK_Learning
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
         public static float fontSize = 1.0f;
+        public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 5f;
         int selectedObject = 0;
@@ -67,6 +68,8 @@ namespace OpenTK_Learning
         int FOV = 90;
         int speed = 12;
         float sensitivity = 0.25f;
+
+        public static float lineWidth = 0.1f;
 
         ImGuiController _controller;
 
@@ -193,7 +196,10 @@ namespace OpenTK_Learning
                 _diffuseMap.Use(TextureUnit.Texture0);
 
                 // Main function for drawing the array of objects
+                if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 R_3D.DrawObjects(projection, view);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 R_3D.DrawLights(projection, view);
 
                 // Editor navigation on right click
@@ -203,15 +209,7 @@ namespace OpenTK_Learning
                 }
             }
 
-            R_3D.fboShader.Use();
-            GL.BindVertexArray(R_3D.rectVAO);
-            GL.Disable(EnableCap.DepthTest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, R_3D.FBO);
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture2);
+            R_3D.FBOlogic();
 
             // UI
             _controller.Update(this, (float)args.Time);
@@ -232,22 +230,18 @@ namespace OpenTK_Learning
             {
                 // Settings
                 ImGui.Begin("Settings");
-
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                if (ImGui.Checkbox("V-Sync", ref vsynconoff))
+                if (ImGui.TreeNode("Rendering"))
                 {
-                    if (vsynconoff == false)
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.Checkbox("V-Sync", ref vsynconoff))
                     {
-                        VSync = VSyncMode.Off;
+                        if (vsynconoff == false) VSync = VSyncMode.Off;
+                        if (vsynconoff == true) VSync = VSyncMode.On;
                     }
-
-                    if (vsynconoff == true)
-                    {
-                        VSync = VSyncMode.On;
-                    }
+                    ImGui.Checkbox("Wireframe", ref wireframeonoff);
+                    ImGui.TreePop();
                 }
 
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -289,10 +283,10 @@ namespace OpenTK_Learning
                     if (ImGui.SliderFloat("Font Size", ref fontSize, 0.8f, 2.0f, "%.1f"))
                     {
                         ImGui.GetIO().FontGlobalScale = fontSize;
-                    }
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f"))
+
+                        if (ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f")) ;
                         ImGui.TreePop();
+                    }
                 }
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();

@@ -29,7 +29,7 @@ struct DirectionalLight {
 
 uniform Material material;
 
-#define MAX_PointsLights 2
+#define MAX_PointsLights 16
 uniform int NR_PointLights;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;

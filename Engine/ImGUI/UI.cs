@@ -183,8 +183,6 @@ namespace OpenTK_Learning
             ImGui.Begin("Object Properties");
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-            ImGui.Separator();
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
             ImGui.Text(R_3D.Objects[selectedObject].Name);
             ImGui.SameLine(); ImGui.Text("Vertices " + (R_3D.Objects[selectedObject].VertData.Length).ToString());
             ImGui.SameLine(); ImGui.Text("Triangles " + (R_3D.Objects[selectedObject].Indices.Length).ToString());
@@ -360,8 +358,6 @@ namespace OpenTK_Learning
             ImGui.Begin("Light Properties");
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-            ImGui.Separator();
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
             ImGui.Text(R_3D.Lights[selectedLight].Name);
 
@@ -371,7 +367,7 @@ namespace OpenTK_Learning
             {
                 if (selectedLight > 0)
                 {
-                    R_3D.Objects.RemoveAt(selectedLight);
+                    R_3D.Lights.RemoveAt(selectedLight);
                     selectedLight -= 1;
                 }
             }
@@ -467,6 +463,10 @@ namespace OpenTK_Learning
                 ImGui.TreePop();
             }
 
+            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+            ImGui.Separator();
+            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
             if (ImGui.TreeNode("Settings"))
             {
 
@@ -555,7 +555,6 @@ namespace OpenTK_Learning
                     if (ImGui.BeginTabItem("Primitives"))
                     {
                         ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
                         if (ImGui.Button("Plane"))
                         {
                             string PlaneName = "Plane";
@@ -595,7 +594,22 @@ namespace OpenTK_Learning
 
                     if (ImGui.BeginTabItem("Lights"))
                     {
-                        ImGui.Text(":)");
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        if (ImGui.Button("Point Lights"))
+                        {
+                            string LightName = "PointLight";
+
+                            for (int i = 0; i < R_3D.Lights.Count; i++)
+                            {
+                                if (R_3D.Lights[i].Name == LightName)
+                                {
+                                    LightName += i.ToString();
+                                }
+                            }
+
+                            R_3D.AddLightToArray(LightName, new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_3D.ConstructLights();
+                        }
                         ImGui.EndTabItem();
                     }
 
