@@ -108,6 +108,7 @@ namespace OpenTK_Learning
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
             GL.Enable(EnableCap.StencilTest);
+            GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
             GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); 
 
             // Load textures
@@ -206,12 +207,10 @@ namespace OpenTK_Learning
 
                 GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
                 GL.StencilMask(0x00);
-                GL.Disable(EnableCap.DepthTest);    
-                
+                GL.Disable(EnableCap.DepthTest);
                 PhongShader.SetInt("outline", 1);
                 R_3D.DrawOneObject(selectedObject, projection, view);
                 PhongShader.SetInt("outline", 0);
-
                 GL.StencilMask(0xFF);
                 GL.StencilFunc(StencilFunction.Always, 0, 0xFF);
                 GL.Enable(EnableCap.DepthTest);

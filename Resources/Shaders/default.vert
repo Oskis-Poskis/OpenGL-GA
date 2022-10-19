@@ -28,7 +28,7 @@ void main(void)
     //Normal = aNormal * mat3(transpose(inverse(transform)));
     //FragPos = vec3(vec4(aPosition, 1.0) * transform);
 
-    if (outline == true) gl_Position = vec4(aPosition + aNormal * 0.1, 1.0) * transform * view;
+    if (outline == true) gl_Position = vec4(aPosition + aNormal * 0.025, 1.0) * transform * view;
     else gl_Position = vec4(aPosition, 1.0) * transform * view;
     
     data_out.FragPos = vec3(vec4(aPosition, 1.0) * transform);
