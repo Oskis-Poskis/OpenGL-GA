@@ -1,9 +1,9 @@
 # OpenGL-GA
 Simple OpenTK Game Engine WIP
 -----------------------------
-GUI using ImGUI.NET
+GUI using [ImGUI.NET](https://www.nuget.org/packages/ImGui.NET)
 
-Model loading using AssimpNet
+Model loading using [AssimpNet](https://www.nuget.org/packages/AssimpNet)
 
 ## Links
 Youtube: [Oskar Kassander](https://www.youtube.com/c/OskarKassander/featured)
