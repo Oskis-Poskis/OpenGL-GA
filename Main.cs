@@ -150,7 +150,7 @@ namespace OpenTK_Learning
             {
                 for (int j = 0; j < numit; j++)
                 {
-                    R_3D.AddObjectToArray(false, R_Loading.importname, M_Default,
+                    R_3D.AddObjectToArray(false, R_Loading.importname + Math_Functions.RandInt(1, 1000), M_Default,
                         new Vector3(1.0f),            // Scale
                         new Vector3(i * 3 - (numit/2 * 3), j * 3 + 6, 0f),    // Location
                         new Vector3(-90f, 0f, 0f),  // Rotation
@@ -165,6 +165,7 @@ namespace OpenTK_Learning
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/PointLightMesh.fbx");
             R_3D.AddLightToArray("PointLight", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 15, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.AddLightToArray("PointLight.2", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray("DirLight.2", new Vector3(1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles
@@ -300,9 +301,10 @@ namespace OpenTK_Learning
                     {
                         ImGui.GetIO().FontGlobalScale = fontSize;
 
-                        if (ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f")) ;
                         ImGui.TreePop();
                     }
+
+                    ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f");
                 }
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();

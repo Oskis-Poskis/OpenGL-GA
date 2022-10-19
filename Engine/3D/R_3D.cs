@@ -151,14 +151,16 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
                 Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
 
+                // Placeholder directional light
+                Main.PhongShader.SetVector3("dirLight.direction", Lights[2].Direction);
+                Main.PhongShader.SetVector3("dirLight.color", Lights[2].LightColor);
+
+                // Points Lights
                 for (int j = 0; j < Lights.Count; j++)
                 {
                     Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
                     Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
                     Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
-
-                    //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
-                    //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
 
                     Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
                     Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
@@ -188,9 +190,6 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
                 Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
                 Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
-
-                //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
-                //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
 
                 Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
                 Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);

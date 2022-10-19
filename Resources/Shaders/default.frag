@@ -60,7 +60,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     return (ambient + diffuse + specular);
 }
 
-vec3 CalcDirectionalLight(DirectionalLight directLight)
+vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color)
 {
     vec3 ambient = material.ambient;
   	
@@ -69,7 +69,7 @@ vec3 CalcDirectionalLight(DirectionalLight directLight)
     // vec3 lightDir = normalize(light.position - FragPos);
     vec3 lightDir = normalize(-directLight.direction);  
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = directLight.color * diff * material.diffuse;
+    vec3 diffuse = directLight.color * diff * color;
     
     // specular
     vec3 viewDir = normalize(viewPos - FragPos);
@@ -87,18 +87,19 @@ void main()
 {
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 tex = vec3(1);
-    //vec3 tex = vec3(texture(texture0, texCoord));
-
-    //CalcDirectionalLight(dirLight);
+    //vec3 tex = vec3(1);
+    vec3 tex = vec3(texture(texture0, texCoord));
 
     if (outline == true) fragColor = vec4(1.0, 0.5, 0.0, 1.0);
         
     else
     {
         vec3 result = vec3(0);
+        result += CalcDirectionalLight(dirLight, tex);
         for(int i = 0; i < NR_PointLights; i++)
+        {
             result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, tex);
+        }
 
         fragColor = vec4(result, 1.0);
     }
