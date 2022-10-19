@@ -46,7 +46,7 @@ namespace OpenTK_Learning
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 5f;
-        int selectedObject = 0;
+        int selectedObject = 2;
         int selectedLight = 0;
 
         // Window bools
@@ -107,7 +107,8 @@ namespace OpenTK_Learning
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
-            // Bind and use shaders
+            GL.Enable(EnableCap.StencilTest);
+            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); 
 
             // Load textures
             _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/Checker.png", TextureUnit.Texture0);
@@ -124,7 +125,7 @@ namespace OpenTK_Learning
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector3(0.75f),
                 specular = new Vector3(0.5f),
-                shininess = 4.0f
+                shininess = 64.0f
             };
 
             // Add default objects
@@ -181,7 +182,7 @@ namespace OpenTK_Learning
             // Bind FBO and clear color and depth buffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, R_3D.FBO);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
             // Draw 3D objects
@@ -198,7 +199,23 @@ namespace OpenTK_Learning
                 // Main function for drawing the array of objects
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
+                GL.StencilMask(0xFF);
                 R_3D.DrawObjects(projection, view);
+
+                GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
+                GL.StencilMask(0x00);
+                GL.Disable(EnableCap.DepthTest);    
+                
+                PhongShader.SetInt("outline", 1);
+                R_3D.DrawOneObject(selectedObject, projection, view);
+                PhongShader.SetInt("outline", 0);
+
+                GL.StencilMask(0xFF);
+                GL.StencilFunc(StencilFunction.Always, 0, 0xFF);
+                GL.Enable(EnableCap.DepthTest);
+
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 R_3D.DrawLights(projection, view);
 

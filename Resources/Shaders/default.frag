@@ -34,6 +34,7 @@ uniform int NR_PointLights;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
 
+uniform bool outline;
 uniform vec3 viewPos;
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color)
@@ -91,9 +92,17 @@ void main()
 
     //CalcDirectionalLight(dirLight);
 
-    vec3 result = vec3(0);
-    for(int i = 0; i < NR_PointLights; i++)
-        result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, tex);
+    if (outline == true)
+    {
+        fragColor = vec4(1.0);
+    }
+        
+    else
+    {
+        vec3 result = vec3(0);
+        for(int i = 0; i < NR_PointLights; i++)
+            result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, tex);
 
-    fragColor = vec4(result, 1.0);
+        fragColor = vec4(result, 1.0);
+    }
 }

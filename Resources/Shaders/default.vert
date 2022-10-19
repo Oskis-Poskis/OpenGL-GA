@@ -7,6 +7,7 @@ layout (location = 2) in vec3 aNormal;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 transform;
+uniform bool outline;
 
 //out vec2 TexCoord;
 //out vec3 FragPos;
@@ -27,7 +28,9 @@ void main(void)
     //Normal = aNormal * mat3(transpose(inverse(transform)));
     //FragPos = vec3(vec4(aPosition, 1.0) * transform);
 
-    gl_Position = vec4(aPosition, 1.0) * transform * view;
+    if (outline == true) gl_Position = vec4(aPosition + aNormal * 0.1, 1.0) * transform * view;
+    else gl_Position = vec4(aPosition, 1.0) * transform * view;
+    
     data_out.FragPos = vec3(vec4(aPosition, 1.0) * transform);
     data_out.Normal = aNormal * mat3(transpose(inverse(transform)));;
     data_out.texCoord = aTexCoord;

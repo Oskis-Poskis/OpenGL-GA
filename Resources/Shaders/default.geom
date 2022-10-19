@@ -15,7 +15,6 @@ in DATA
     mat4 projection;
 } data_in[];
 
-
 // Default main function
 void main()
 {

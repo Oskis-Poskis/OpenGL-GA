@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
@@ -22,7 +20,7 @@ namespace OpenTK_Learning
 
             // Something
             ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(40f, 40f, 40f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(25f, 25f, 25f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new System.Numerics.Vector4(60f, 60f, 60f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
 
@@ -37,10 +35,10 @@ namespace OpenTK_Learning
             ImGui.PushStyleColor(ImGuiCol.TabUnfocused, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TabUnfocusedActive, new System.Numerics.Vector4(40f, 40f, 40f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TabHovered, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
-
+            
             // Header
-            ImGui.PushStyleColor(ImGuiCol.Header, new System.Numerics.Vector4(60f, 60f, 60f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.Header, new System.Numerics.Vector4(51f, 77f, 128f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new System.Numerics.Vector4(51f, 77f, 128f, 180f) / 255);
             ImGui.PushStyleColor(ImGuiCol.HeaderActive, new System.Numerics.Vector4(100f, 100f, 100f, 255f) / 255);
 
             // Rezising bar
@@ -181,11 +179,22 @@ namespace OpenTK_Learning
         {
             // Object Properties
             ImGui.Begin("Object Properties");
-
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
             ImGui.Text(R_3D.Objects[selectedObject].Name);
-            ImGui.SameLine(); ImGui.Text("Vertices " + (R_3D.Objects[selectedObject].VertData.Length).ToString());
-            ImGui.SameLine(); ImGui.Text("Triangles " + (R_3D.Objects[selectedObject].Indices.Length).ToString());
+            string inpstr = R_3D.Objects[selectedObject].Name;
+            if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30))
+            {
+                R_3D.Objects[selectedObject] = new R_3D.Object
+                {
+                    RelTransform = R_3D.Objects[selectedObject].RelTransform,
+                    Name = inpstr,
+                    Material = R_3D.Objects[selectedObject].Material,
+                    VertData = R_3D.Objects[selectedObject].VertData,
+                    Indices = R_3D.Objects[selectedObject].Indices,
+                    Location = R_3D.Objects[selectedObject].Location,
+                    Rotation = R_3D.Objects[selectedObject].Rotation,
+                    Scale = R_3D.Objects[selectedObject].Scale
+                };
+            }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 60);
 
@@ -231,7 +240,8 @@ namespace OpenTK_Learning
                     R_3D.Objects[selectedObject].Location.X,
                     R_3D.Objects[selectedObject].Location.Y,
                     R_3D.Objects[selectedObject].Location.Z);
-                if (ImGui.DragFloat3("Location", ref _loc, 0.1f))
+                ImGui.Text("Location");
+                if (ImGui.DragFloat3("##Location", ref _loc, 0.1f))
                 {
                     R_3D.Objects[selectedObject] = new R_3D.Object
                     {
@@ -271,7 +281,8 @@ namespace OpenTK_Learning
                     R_3D.Objects[selectedObject].Rotation.X,
                     R_3D.Objects[selectedObject].Rotation.Y,
                     R_3D.Objects[selectedObject].Rotation.Z);
-                if (ImGui.DragFloat3("Rotation", ref _rot))
+                ImGui.Text("Rotation");
+                if (ImGui.DragFloat3("##Rotation", ref _rot))
                 {
                     R_3D.Objects[selectedObject] = new R_3D.Object
                     {
@@ -311,7 +322,8 @@ namespace OpenTK_Learning
                     R_3D.Objects[selectedObject].Scale.X,
                     R_3D.Objects[selectedObject].Scale.Y,
                     R_3D.Objects[selectedObject].Scale.Z);
-                if (ImGui.DragFloat3("Scale", ref _scale, 0.1f))
+                ImGui.Text("Scale");
+                if (ImGui.DragFloat3("##Scale", ref _scale, 0.1f))
                 {
                     R_3D.Objects[selectedObject] = new R_3D.Object
                     {
@@ -342,11 +354,18 @@ namespace OpenTK_Learning
                     };
                 }
 
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
                 ImGui.TreePop();
+            }
+
+            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+            ImGui.Separator();
+            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+            if (ImGui.TreeNode("Information"))
+            {
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                ImGui.Text("Vertices: " + (R_3D.Objects[selectedObject].VertData.Length).ToString());
+                ImGui.Text("Triangles: " + (R_3D.Objects[selectedObject].Indices.Length).ToString());
             }
 
             ImGui.End();
@@ -356,10 +375,22 @@ namespace OpenTK_Learning
         {
             // Object Properties
             ImGui.Begin("Light Properties");
-
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
             ImGui.Text(R_3D.Lights[selectedLight].Name);
+            string inpstr = R_3D.Lights[selectedLight].Name;
+            if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30))
+            {
+                R_3D.Lights[selectedLight] = new R_3D.Light
+                {
+                    Name = inpstr,
+                    LightColor = R_3D.Lights[selectedLight].LightColor,
+                    Shader = R_3D.Lights[selectedLight].Shader,
+                    VertData = R_3D.Lights[selectedLight].VertData,
+                    Indices = R_3D.Lights[selectedLight].Indices,
+                    Location = R_3D.Lights[selectedLight].Location,
+                    Rotation = R_3D.Lights[selectedLight].Rotation,
+                    Direction = R_3D.Lights[selectedLight].Direction
+                };
+            }
 
             ImGui.SameLine(ImGui.GetWindowWidth() - 60);
 
@@ -385,7 +416,8 @@ namespace OpenTK_Learning
                     R_3D.Lights[selectedLight].Location.X,
                     R_3D.Lights[selectedLight].Location.Y,
                     R_3D.Lights[selectedLight].Location.Z);
-                if (ImGui.DragFloat3("Location", ref _loc, 0.1f))
+                ImGui.Text("Location");
+                if (ImGui.DragFloat3("##Location", ref _loc, 0.1f))
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
@@ -425,7 +457,8 @@ namespace OpenTK_Learning
                     R_3D.Lights[selectedLight].Rotation.X,
                     R_3D.Lights[selectedLight].Rotation.Y,
                     R_3D.Lights[selectedLight].Rotation.Z);
-                if (ImGui.DragFloat3("Rotation", ref _rot))
+                ImGui.Text("Rotation");
+                if (ImGui.DragFloat3("##Rotation", ref _rot))
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
@@ -456,10 +489,6 @@ namespace OpenTK_Learning
                     };
                 }
 
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
                 ImGui.TreePop();
             }
 
@@ -469,13 +498,14 @@ namespace OpenTK_Learning
 
             if (ImGui.TreeNode("Settings"))
             {
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                 System.Numerics.Vector3 _color = new System.Numerics.Vector3(
                     R_3D.Lights[selectedLight].LightColor.X,
                     R_3D.Lights[selectedLight].LightColor.Y,
                     R_3D.Lights[selectedLight].LightColor.Z);
-
-                if (ImGui.ColorEdit3("Light Color", ref _color))
+                ImGui.Text("Light Color");
+                if (ImGui.ColorEdit3("##Light Color", ref _color))
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
@@ -499,7 +529,8 @@ namespace OpenTK_Learning
                     R_3D.Lights[selectedLight].Direction.X,
                     R_3D.Lights[selectedLight].Direction.Y,
                     R_3D.Lights[selectedLight].Direction.Z);
-                if (ImGui.SliderFloat3("Direction", ref direction, -1.0f, 1.0f))
+                ImGui.Text("Direction");
+                if (ImGui.SliderFloat3("##Direction", ref direction, -1.0f, 1.0f))
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
@@ -542,6 +573,7 @@ namespace OpenTK_Learning
         {
             // Outliner
             ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(25, 25, 25, 255) / 255);
+
             ImGui.Begin("Outliner");
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -630,49 +662,31 @@ namespace OpenTK_Learning
             string[] _objects = new string[R_3D.Objects.Count];
             string[] _lights = new string[R_3D.Lights.Count];
 
-            ImGui.Text("Objects");
-            ImGui.SameLine();
-            HelpMarker("List of objects in the scene");
-            ImGui.SameLine(ImGui.GetWindowWidth() / 2);
-            ImGui.Text("Lights");
-            ImGui.SameLine();
-            HelpMarker("List of lights in the scene");
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() * 0.5f - 10, ImGui.GetWindowHeight() / 2)))
-            {
-                for (int i = 0; i < R_3D.Objects.Count; i++)
-                {
-                    _objects[i] = R_3D.Objects[i].Name;
-
-                    if (ImGui.Selectable(_objects[i], selectedObject == i))
-                    {
-                        selectedObject = i;
-                    }
-
-                    ImGui.SameLine(ImGui.GetColumnWidth() - 30);
-                    ImGui.Text((i + 1).ToString());
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
-                }
-
-                ImGui.EndListBox();
-            }
-
-            ImGui.SameLine();
-
-            if (ImGui.BeginListBox("##LightsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() * 0.5f - 10, ImGui.GetWindowHeight() / 2)))
+            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 100)))
             {
                 for (int i = 0; i < R_3D.Lights.Count; i++)
                 {
                     _lights[i] = R_3D.Lights[i].Name;
-
-                    if (ImGui.Selectable(_lights[i], selectedLight == i))
+                    if (ImGui.Selectable("  " + _lights[i], selectedLight == i))
                     {
                         selectedLight = i;
                     }
 
-                    ImGui.SameLine(ImGui.GetColumnWidth() - 30);
-                    ImGui.Text((i + 1).ToString());
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+                }
+
+                ImGui.Separator();
+                ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+
+                for (int i = 0; i < R_3D.Objects.Count; i++)
+                {
+                    _objects[i] = R_3D.Objects[i].Name;
+
+                    if (ImGui.Selectable("  " + _objects[i], selectedObject == i))
+                    {
+                        selectedObject = i;
+                    }
+
                     ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
                 }
 

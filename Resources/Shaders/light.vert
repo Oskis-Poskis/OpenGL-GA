@@ -13,7 +13,6 @@ out vec3 Normal;
 out vec2 TexCoord;
 out mat4 Projection;
 
-
 void main(void)
 {
     gl_Position = vec4(aPosition, 1.0) * transform * view * projection;
