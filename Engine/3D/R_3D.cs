@@ -98,12 +98,12 @@ namespace OpenTK_Learning
                 GL.BufferData(BufferTarget.ElementArrayBuffer, Objects[i].Indices.Length * sizeof(uint), Objects[i].Indices, BufferUsageHint.StaticDraw);
 
                 // Set attributes in shaders - vertex positions, UV's and normals
-                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-                GL.EnableVertexAttribArray(Main._PhongShader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(Main._PhongShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aPosition"));
+                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aTexCoord"));
+                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aNormal"));
+                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
             }
         }
 
@@ -139,30 +139,32 @@ namespace OpenTK_Learning
         {
             for (int i = 0; i < Objects.Count; i++)
             {
-                Main._PhongShader.Use();
+                Main.PhongShader.Use();
                 GL.BindVertexArray(VAO[i]);
-                SetTransform(Main._PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                SetUniformMatrix(Main._PhongShader, projection, view);
+                SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                SetUniformMatrix(Main.PhongShader, projection, view);
 
                 Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
-                Main._PhongShader.SetVector3("material.ambient", ambient);
-                Main._PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
-                Main._PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
-                Main._PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
+                Main.PhongShader.SetVector3("material.ambient", ambient);
+                Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
+                Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
+                Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
+
+                Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
 
                 for (int j = 0; j < Lights.Count; j++)
                 {
-                    Main._PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
-                    Main._PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
-                    Main._PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
+                    Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
+                    Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
+                    Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
 
                     //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
                     //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
 
-                    Main._PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                    Main._PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                    Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                    Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
                 }
-                Main._PhongShader.SetVector3("viewPos", Main.position);
+                Main.PhongShader.SetVector3("viewPos", Main.position);
 
                 GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }

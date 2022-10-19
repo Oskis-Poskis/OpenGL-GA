@@ -34,16 +34,14 @@ namespace OpenTK_Learning
             CameraWidth = Size.X;
         }
 
-        ImGuiController _controller;
-
         private Texture _diffuseMap;
-        public static Shader _PhongShader;
-        static Shader _LightShader;
+        static Shader LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
+        public static Shader PhongShader = new Shader("./../../../Resources/shaders/default.vert", "./../../../Resources/shaders/default.frag", true);
 
         public static R_3D.Material M_Default;
         public static R_3D.Material M_Floor;
 
-        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.2f);
+        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
         public static float fontSize = 1.0f;
         bool vsynconoff = true;
         float spacing = 5f;
@@ -60,7 +58,6 @@ namespace OpenTK_Learning
         public static bool CloseWindow = false;
 
         // Camera settings
-        public bool firstMove = true;
         public static float WindowWidth;
         public static float WindowHeight;
         float CameraWidth;
@@ -71,25 +68,27 @@ namespace OpenTK_Learning
         int speed = 12;
         float sensitivity = 0.25f;
 
+        ImGuiController _controller;
+
         // Camera transformations
-        public static Vector3 position = new Vector3(0.0f, 3.0f, 3.0f);
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        public static Vector3 position = new Vector3(0.0f, 3.0f, 3.0f);
 
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
+            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture2);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+
+            _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
+
             // Matches window scale to new resize
             WindowWidth = e.Width;
             WindowHeight = e.Height;
 
-            _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
-
-            GL.BindTexture(TextureTarget.Texture2DMultisample, R_3D.framebufferTexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture2);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            
             GL.Viewport(0, 0, e.Width, e.Height);
             base.OnResize(e);
         }
@@ -106,8 +105,7 @@ namespace OpenTK_Learning
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
             // Bind and use shaders
-            _PhongShader = new Shader("./../../../Resources/shaders/default.vert", "./../../../Resources/shaders/default.frag", true);
-            _LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
+
             // Load textures
             _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/Checker.png", TextureUnit.Texture0);
 
@@ -148,8 +146,8 @@ namespace OpenTK_Learning
                 for (int j = 0; j < numit; j++)
                 {
                     R_3D.AddObjectToArray(false, R_Loading.importname, M_Default,
-                        new Vector3(1f),            // Scale
-                        new Vector3(i * 3 - (numit/2 * 3), j * 3 + 4, 0f),    // Location
+                        new Vector3(1.0f),            // Scale
+                        new Vector3(i * 3 - (numit/2 * 3), j * 3 + 6, 0f),    // Location
                         new Vector3(-90f, 0f, 0f),  // Rotation
                         R_Loading.importedData, R_Loading.importindices);
                 }
@@ -160,8 +158,8 @@ namespace OpenTK_Learning
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/PointLightMesh.fbx");
-            R_3D.AddLightToArray(R_Loading.importname, new Vector3(0f, 0f, 1f), _LightShader, new Vector3(1f), new Vector3(3f, 12f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(R_Loading.importname + "2", new Vector3(1f, 0f, 0f), _LightShader, new Vector3(1f), new Vector3(-3f, 6f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray("PointLight", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 15, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray("PointLight.2", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles

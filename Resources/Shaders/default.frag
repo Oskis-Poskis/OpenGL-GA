@@ -29,8 +29,9 @@ struct DirectionalLight {
 
 uniform Material material;
 
-#define NR_POINT_LIGHTS 2
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+#define MAX_PointsLights 2
+uniform int NR_PointLights;
+uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
 
 uniform vec3 viewPos;
@@ -60,7 +61,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
 
 vec3 CalcDirectionalLight(DirectionalLight directLight)
 {
-    vec3 ambient = material.ambient * material.diffuse;
+    vec3 ambient = material.ambient;
   	
     // diffuse 
     vec3 norm = normalize(Normal);
@@ -85,12 +86,13 @@ void main()
 {
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 tex = vec3(texture(texture0, texCoord));
+    vec3 tex = vec3(1);
+    //vec3 tex = vec3(texture(texture0, texCoord));
 
     //CalcDirectionalLight(dirLight);
 
     vec3 result = vec3(0);
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    for(int i = 0; i < NR_PointLights; i++)
         result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, tex);
 
     fragColor = vec4(result, 1.0);

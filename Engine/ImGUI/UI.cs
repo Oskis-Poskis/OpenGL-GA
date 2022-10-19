@@ -77,7 +77,7 @@ namespace OpenTK_Learning
                 new System.Numerics.Vector2(0.0f, 1.0f),
                 new System.Numerics.Vector2(1.0f, 0.0f),
                 new System.Numerics.Vector4(1.0f),
-                new System.Numerics.Vector4(1, 0, 0, 1));
+                new System.Numerics.Vector4(1, 1, 1, 0.2f));
             ImGui.End();
         }
 

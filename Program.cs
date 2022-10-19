@@ -4,8 +4,7 @@
     {
         static void Main()
         {
-            using Main game = new Main(1700, 900, "OpenGL - GA");
-
+            using Main game = new Main(1800, 900, "OpenGL - GA");
             game.Run();
         }
     }
