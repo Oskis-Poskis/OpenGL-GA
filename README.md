@@ -5,6 +5,6 @@ GUI using ImGUI.NET
 
 Model loading using AssimpNet
 
-Youtube: https://www.youtube.com/c/OskarKassander/featured
+Youtube: [Oskar Kassander](https://www.youtube.com/c/OskarKassander/featured)
 
-Reddit: https://www.reddit.com/user/oskis69
+Reddit: [oskis69](https://www.reddit.com/user/oskis69)
