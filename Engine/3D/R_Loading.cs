@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Assimp;
 using Assimp.Configs;
 
 namespace OpenTK_Learning
 {
-    class R_Load
+    class R_Loading
     {
         static Scene m_model;
         public static VertexData[] importedData;

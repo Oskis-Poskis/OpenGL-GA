@@ -129,42 +129,39 @@ namespace OpenTK_Learning
             // Add default objects
             R_3D.AddObjectToArray(false, "Cube", M_Default,
                 new Vector3(2f),           // Scale
-                new Vector3(0f, 8f, 0f),   // Location
-                new Vector3(45f, 0f, 0f),  // Rotation
+                new Vector3(0f, 2f, 0f),  // Location
+                new Vector3(0f),  // Rotation
                 Cube.vertices, Cube.indices);
             R_3D.AddObjectToArray(false, "Plane", M_Floor,
-                new Vector3(10f), // Scale
+                new Vector3(15f), // Scale
                 new Vector3(0f),  // Location
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
 
-            R_Load.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
-            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
-                new Vector3(1f),            // Scale
-                new Vector3(4f, 4f, 0f),    // Location
-                new Vector3(-90f, 0f, 0f),  // Rotation
-                R_Load.importedData, R_Load.importindices);
+            // Load model into temporary variables
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
 
-            R_Load.LoadModel("./../../../Resources/3D_Models/Smg-12.fbx");
-            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
-                new Vector3(1f),            // Scale
-                new Vector3(-4f, 4f, 0f),    // Location
-                new Vector3(-90f, 0f, 0f),  // Rotation
-                R_Load.importedData, R_Load.importindices);
+            // Spawn i * j objects using the temporary assigned variables
+            int numit = 5;
+            for (int i = 0; i < numit; i++)
+            {
+                for (int j = 0; j < numit; j++)
+                {
+                    R_3D.AddObjectToArray(false, R_Loading.importname, M_Default,
+                        new Vector3(1f),            // Scale
+                        new Vector3(i * 3 - (numit/2 * 3), j * 3 + 4, 0f),    // Location
+                        new Vector3(-90f, 0f, 0f),  // Rotation
+                        R_Loading.importedData, R_Loading.importindices);
+                }
+            }
 
-            R_Load.LoadModel("./../../../Resources/3D_Models/Sphere.fbx");
-            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
-                new Vector3(1f),            // Scale
-                new Vector3(0f, 4f, 0f),    // Location
-                new Vector3(-90f, 0f, 0f),  // Rotation
-                R_Load.importedData, R_Load.importindices);
-
-            // Generate all the data shit
+            // Generate VAO, VBO and EBO
             R_3D.ConstructObjects();
 
             // Add lights
-            R_3D.AddLightToArray("Light1", new Vector3(1.0f), _LightShader, new Vector3(1f), new Vector3(4f, 6f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
-            //R_3D.AddLightToArray("Light2", new Vector3(1.0f), _LightShader, new Vector3(-1f, -1f, 0f), new Vector3(-4f, 4f, 4f), new Vector3(0f), Cube.vertices, Cube.indices);
+            R_Loading.LoadModel("./../../../Engine/Engine_Resources/PointLightMesh.fbx");
+            R_3D.AddLightToArray(R_Loading.importname, new Vector3(0f, 0f, 1f), _LightShader, new Vector3(1f), new Vector3(3f, 12f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(R_Loading.importname + "2", new Vector3(1f, 0f, 0f), _LightShader, new Vector3(1f), new Vector3(-3f, 6f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles

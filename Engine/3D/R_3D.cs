@@ -150,15 +150,18 @@ namespace OpenTK_Learning
                 Main._PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
                 Main._PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
 
-                Main._PhongShader.SetFloat("Point.constant", 1.0f);
-                Main._PhongShader.SetFloat("Point.linear", 0.09f);
-                Main._PhongShader.SetFloat("Point.quadratic", 0.032f);
+                for (int j = 0; j < Lights.Count; j++)
+                {
+                    Main._PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
+                    Main._PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
+                    Main._PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
 
-                //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
-                //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
+                    //Main._PhongShader.SetVector3("dirLight.direction", Lights[1].Direction);
+                    //Main._PhongShader.SetVector3("dirLight.color", Lights[1].LightColor);
 
-                Main._PhongShader.SetVector3("Point.lightColor", Lights[0].LightColor);
-                Main._PhongShader.SetVector3("Point.lightPos", Lights[0].Location);
+                    Main._PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                    Main._PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                }
                 Main._PhongShader.SetVector3("viewPos", Main.position);
 
                 GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
