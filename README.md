@@ -1,2 +1,5 @@
 # OpenGL-GA
-My game engine files
+Simple OpenTK Game Engine WIP
+
+GUI using ImGUI.NET
+Model loading using AssimpNet
