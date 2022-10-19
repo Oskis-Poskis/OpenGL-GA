@@ -5,8 +5,6 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using Assimp.Configs;
-using Assimp;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 
 namespace OpenTK_Learning
@@ -45,7 +43,7 @@ namespace OpenTK_Learning
         public static R_3D.Material M_Default;
         public static R_3D.Material M_Floor;
 
-        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.3f);
+        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.2f);
         public static float fontSize = 1.0f;
         bool vsynconoff = true;
         float spacing = 5f;
@@ -60,8 +58,6 @@ namespace OpenTK_Learning
         public static bool showOutliner = true;
         public static bool showSettings = false;
         public static bool CloseWindow = false;
-
-        bool isCursorOnGameWindow;
 
         // Camera settings
         public bool firstMove = true;
@@ -101,29 +97,6 @@ namespace OpenTK_Learning
         // Runs after Run();
         protected override void OnLoad()
         {
-            AssimpContext importer = new AssimpContext();
-            Scene m_model = importer.ImportFile(
-                "./../../../Resources/3D_Models/Monkey.fbx",
-                PostProcessPreset.TargetRealTimeMaximumQuality |
-                PostProcessSteps.FlipWindingOrder);
-
-            VertexData[] importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
-            //m_model.RootNode.Transform.
-            for (int i = 0; i < importedData.Length; i++)
-            {
-                importedData[i] = new VertexData(
-                    Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
-                    Math_Functions.FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
-                    Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
-            }
-
-            int[] importindices = m_model.Meshes[0].GetIndices();
-            string importname = m_model.Meshes[0].Name;
-
-            Console.WriteLine("Imported mesh " + "'" +importname + "'" +
-                "\nVertices: " + m_model.Meshes[0].Vertices.Count +
-                "\nIndices: " + m_model.Meshes[0].GetIndices().Length.ToString());
-
             IsVisible = true;
             VSync = VSyncMode.On;
 
@@ -143,20 +116,20 @@ namespace OpenTK_Learning
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector3(1.0f),
                 specular = new Vector3(0.5f),
-                shininess = 64.0f
+                shininess = 96.0f
             };
             M_Floor = new R_3D.Material
             {
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector3(0.75f),
                 specular = new Vector3(0.5f),
-                shininess = 8.0f
+                shininess = 4.0f
             };
 
             // Add default objects
             R_3D.AddObjectToArray(false, "Cube", M_Default,
                 new Vector3(2f),           // Scale
-                new Vector3(0f, 4f, 0f),   // Location
+                new Vector3(0f, 8f, 0f),   // Location
                 new Vector3(45f, 0f, 0f),  // Rotation
                 Cube.vertices, Cube.indices);
             R_3D.AddObjectToArray(false, "Plane", M_Floor,
@@ -164,11 +137,27 @@ namespace OpenTK_Learning
                 new Vector3(0f),  // Location
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
-            R_3D.AddObjectToArray(false, importname, M_Default,
-                new Vector3(2f),            // Scale
+
+            R_Load.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
+            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
+                new Vector3(1f),            // Scale
                 new Vector3(4f, 4f, 0f),    // Location
                 new Vector3(-90f, 0f, 0f),  // Rotation
-                importedData, importindices);
+                R_Load.importedData, R_Load.importindices);
+
+            R_Load.LoadModel("./../../../Resources/3D_Models/Smg-12.fbx");
+            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
+                new Vector3(1f),            // Scale
+                new Vector3(-4f, 4f, 0f),    // Location
+                new Vector3(-90f, 0f, 0f),  // Rotation
+                R_Load.importedData, R_Load.importindices);
+
+            R_Load.LoadModel("./../../../Resources/3D_Models/Sphere.fbx");
+            R_3D.AddObjectToArray(false, R_Load.importname, M_Default,
+                new Vector3(1f),            // Scale
+                new Vector3(0f, 4f, 0f),    // Location
+                new Vector3(-90f, 0f, 0f),  // Rotation
+                R_Load.importedData, R_Load.importindices);
 
             // Generate all the data shit
             R_3D.ConstructObjects();
