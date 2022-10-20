@@ -1,6 +1,7 @@
 ﻿using System;
 using Assimp;
 using Assimp.Configs;
+using OpenTK.Mathematics;
 
 namespace OpenTK_Learning
 {
@@ -23,12 +24,23 @@ namespace OpenTK_Learning
             importindices = m_model.Meshes[0].GetIndices();
             importname = m_model.Meshes[0].Name;
 
-            for (int i = 0; i < importedData.Length; i++)
+            for (int i = 0; i < m_model.Meshes[0].Vertices.Count; i++)
             {
-                importedData[i] = new VertexData(
+                if (m_model.Meshes[0].HasTextureCoords(0) == true)
+                {
+                    importedData[i] = new VertexData(
                     Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
                     Math_Functions.FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
                     Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
+                }
+
+                else
+                {
+                    importedData[i] = new VertexData(
+                    Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
+                    new Vector2(0),
+                    Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
+                }
             }
 
             DebugImport();

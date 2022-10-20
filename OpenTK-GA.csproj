@@ -24,8 +24,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="obj\**" />
     <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="obj\**" />
     <EmbeddedResource Remove="Resources\**" />
+    <None Remove="obj\**" />
     <None Remove="Resources\**" />
   </ItemGroup>
 
@@ -63,8 +66,12 @@
   </ItemGroup>
 	
   <ItemGroup>
+    <None Include="OpenTK-GA.sln" />
+    <None Include="Resources\3D_Models\Complex.fbx" />
     <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />
+    <None Include="Resources\3D_Models\DarkMark-46.fbx" />
+    <None Include="Resources\3D_Models\MiniSMG.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Smg-12.fbx" />
     <None Include="Resources\3D_Models\Sphere.fbx" />

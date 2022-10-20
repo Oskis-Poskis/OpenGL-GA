@@ -143,7 +143,6 @@ namespace OpenTK_Learning
 
             // Load model into temporary variables
             R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
-
             // Spawn i * j objects using the temporary assigned variables
             int numit = 5;
             for (int i = 0; i < numit; i++)
@@ -158,15 +157,22 @@ namespace OpenTK_Learning
                 }
             }
 
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Torus.fbx");
+            R_3D.AddObjectToArray(false, R_Loading.importname, M_Default,
+                        new Vector3(1.0f),            // Scale
+                        new Vector3(0, 5, 2),    // Location
+                        new Vector3(-90f, 0f, 0f),  // Rotation
+                        R_Loading.importedData, R_Loading.importindices);
+
             // Generate VAO, VBO and EBO
             R_3D.ConstructObjects();
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            R_3D.AddLightToArray(0.5f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(1, 0, "PointLight", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(1, 0, "PointLight.2", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(1, 0, "PointLight.3", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(0.75f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            //R_3D.AddLightToArray(1, 0, "Green PL", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles
