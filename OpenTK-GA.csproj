@@ -69,15 +69,6 @@
     <None Include="Resources\3D_Models\Smg-12.fbx" />
     <None Include="Resources\3D_Models\Sphere.fbx" />
     <None Include="Resources\3D_Models\Torus.fbx" />
-    <None Include="Resources\Shaders\outline.vert" />
-    <None Include="Resources\Shaders\outline.frag" />
-    <None Include="Resources\Shaders\default.frag" />
-    <None Include="Resources\Shaders\default.geom" />
-    <None Include="Resources\Shaders\default.vert" />
-    <None Include="Resources\Shaders\framebuffer.frag" />
-    <None Include="Resources\Shaders\framebuffer.vert" />
-    <None Include="Resources\Shaders\light.frag" />
-    <None Include="Resources\Shaders\light.vert" />
   </ItemGroup>
 
 </Project>

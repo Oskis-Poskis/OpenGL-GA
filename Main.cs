@@ -35,8 +35,8 @@ namespace OpenTK_Learning
         }
 
         private Texture _diffuseMap;
-        public static Shader LightShader = new Shader("./../../../Resources/shaders/light.vert", "./../../../Resources/shaders/light.frag");
-        public static Shader PhongShader = new Shader("./../../../Resources/shaders/default.vert", "./../../../Resources/shaders/default.frag", true);
+        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/light.vert", "./../../../Engine/Engine_Resources/shaders/light.frag");
+        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/default.vert", "./../../../Engine/Engine_Resources/shaders/default.frag", true);
 
         public static R_3D.Material M_Default;
         public static R_3D.Material M_Floor;
@@ -162,10 +162,11 @@ namespace OpenTK_Learning
             R_3D.ConstructObjects();
 
             // Add lights
-            R_Loading.LoadModel("./../../../Engine/Engine_Resources/PointLightMesh.fbx");
-            R_3D.AddLightToArray("PointLight", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 15, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray("PointLight.2", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray("DirLight.2", new Vector3(1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            R_3D.AddLightToArray(0.5f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(1, 0, "PointLight", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(1, 0, "PointLight.2", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            R_3D.AddLightToArray(1, 0, "PointLight.3", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
             // Generate two screen triangles

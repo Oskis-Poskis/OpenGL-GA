@@ -36,6 +36,8 @@ namespace OpenTK_Learning
 
         public struct Light
         {
+            public float Strength;
+            public int Type;
             public string Name;
             public Vector3 LightColor;
             public Shader Shader;
@@ -63,10 +65,12 @@ namespace OpenTK_Learning
             Objects.Add(_object);
         }
 
-        public static void AddLightToArray(string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, int type, string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
+                Strength = strength,
+                Type = type,
                 Name = name,
                 LightColor = lightColor,
                 Shader = shader,
@@ -77,7 +81,7 @@ namespace OpenTK_Learning
                 Direction = direction
             };
             Array.Resize(ref VAOlights, VAOlights.Length + 1);
-            Lights.Add(_light);
+            Lights.Insert(0, _light);
         }
 
         // Create buffers for all objects in array
@@ -149,23 +153,40 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
                 Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
                 Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
-                Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
+                Main.PhongShader.SetVector3("viewPos", Main.position);
 
-                // Placeholder directional light
-                Main.PhongShader.SetVector3("dirLight.direction", Lights[2].Direction);
-                Main.PhongShader.SetVector3("dirLight.color", Lights[2].LightColor);
-
-                // Points Lights
+                int numPL = Lights.Count;
                 for (int j = 0; j < Lights.Count; j++)
                 {
-                    Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
-                    Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
-                    Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
-
-                    Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                    Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                    if (Lights[j].Type != 0)
+                    {
+                        numPL -= 1;
+                    }
                 }
-                Main.PhongShader.SetVector3("viewPos", Main.position);
+
+                Main.PhongShader.SetInt("NR_PointLights", numPL);
+
+                // Lights
+                for (int j = 0; j < Lights.Count; j++)
+                {
+                    switch (Lights[j].Type)
+                    {
+                        case 0:
+                            Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
+                            Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
+                            Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
+                            Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                            Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                            Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                            break;
+
+                        case 1:
+                            Main.PhongShader.SetVector3("dirLight.direction", Lights[Lights.Count-1].Direction);
+                            Main.PhongShader.SetVector3("dirLight.color", Lights[Lights.Count-1].LightColor);
+                            Main.PhongShader.SetFloat("dirLight.strength", Lights[Lights.Count - 1].Strength);
+                            break;
+                    }
+                }
 
                 GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
@@ -278,7 +299,7 @@ namespace OpenTK_Learning
             return transform;
         }
 
-        public static Shader fboShader = new Shader("./../../../Resources/shaders/framebuffer.vert", "./../../../Resources/shaders/framebuffer.frag");
+        public static Shader fboShader = new Shader("./../../../Engine/Engine_Resources/shaders/framebuffer.vert", "./../../../Engine/Engine_Resources/shaders/framebuffer.frag");
         public static int rectVAO, rectVBO;
         static readonly float[] rectVerts = new float[]
         {

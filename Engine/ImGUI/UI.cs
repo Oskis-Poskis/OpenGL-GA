@@ -365,7 +365,7 @@ namespace OpenTK_Learning
             {
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Text("Vertices: " + (R_3D.Objects[selectedObject].VertData.Length).ToString());
-                ImGui.Text("Triangles: " + (R_3D.Objects[selectedObject].Indices.Length).ToString());
+                ImGui.Text("Triangles: " + (R_3D.Objects[selectedObject].Indices.Length / 3).ToString());
             }
 
             ImGui.End();
@@ -381,6 +381,8 @@ namespace OpenTK_Learning
             {
                 R_3D.Lights[selectedLight] = new R_3D.Light
                 {
+                    Strength = R_3D.Lights[selectedLight].Strength,
+                    Type = R_3D.Lights[selectedLight].Type,
                     Name = inpstr,
                     LightColor = R_3D.Lights[selectedLight].LightColor,
                     Shader = R_3D.Lights[selectedLight].Shader,
@@ -421,6 +423,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Lights[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -437,6 +441,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Objects[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -462,6 +468,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Lights[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -478,6 +486,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Lights[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -509,6 +519,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Lights[selectedLight].Name,
                         LightColor = new Vector3(_color.X, _color.Y, _color.Z),
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -534,6 +546,8 @@ namespace OpenTK_Learning
                 {
                     R_3D.Lights[selectedLight] = new R_3D.Light
                     {
+                        Strength = R_3D.Lights[selectedLight].Strength,
+                        Type = R_3D.Lights[selectedLight].Type,
                         Name = R_3D.Lights[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
@@ -542,6 +556,29 @@ namespace OpenTK_Learning
                         Location = R_3D.Lights[selectedLight].Location,
                         Rotation = R_3D.Lights[selectedLight].Rotation,
                         Direction = new Vector3(direction.X, direction.Y, direction.Z)
+                    };
+                }
+
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                ImGui.Separator();
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                float strength = R_3D.Lights[selectedLight].Strength;
+                ImGui.Text("Strength");
+                if (ImGui.InputFloat("##Strength", ref strength, 0.1f))
+                {
+                    R_3D.Lights[selectedLight] = new R_3D.Light
+                    {
+                        Strength = strength,
+                        Type = R_3D.Lights[selectedLight].Type,
+                        Name = R_3D.Lights[selectedLight].Name,
+                        LightColor = R_3D.Lights[selectedLight].LightColor,
+                        Shader = R_3D.Lights[selectedLight].Shader,
+                        VertData = R_3D.Lights[selectedLight].VertData,
+                        Indices = R_3D.Lights[selectedLight].Indices,
+                        Location = R_3D.Lights[selectedLight].Location,
+                        Rotation = R_3D.Lights[selectedLight].Rotation,
+                        Direction = R_3D.Lights[selectedLight].Direction
                     };
                 }
 
@@ -639,7 +676,8 @@ namespace OpenTK_Learning
                                 }
                             }
 
-                            R_3D.AddLightToArray(LightName, new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+                            R_3D.AddLightToArray(1, 0, LightName, new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructLights();
                         }
                         ImGui.EndTabItem();

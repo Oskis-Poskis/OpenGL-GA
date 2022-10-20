@@ -12,7 +12,7 @@ namespace OpenTK_Learning
         public readonly int Handle;
         private readonly Dictionary<string, int> _uniformLocations;
 
-        public Shader(string vertPath, string fragPath, bool useGeomShader = false, string geomPath = "./../../../Resources/shaders/default.geom")
+        public Shader(string vertPath, string fragPath, bool useGeomShader = false, string geomPath = "./../../../Engine/Engine_Resources/shaders/default.geom")
         {
             int geometryShader = 0;
 
@@ -127,6 +127,12 @@ namespace OpenTK_Learning
         {
             GL.UseProgram(Handle);
             GL.Uniform3(_uniformLocations[name], data);
+        }
+
+        public void SetVector4(string name, Vector4 data)
+        {
+            GL.UseProgram(Handle);
+            GL.Uniform4(_uniformLocations[name], data);
         }
     }
 }
