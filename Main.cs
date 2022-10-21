@@ -5,7 +5,6 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
 using static OpenTK_Learning.R_3D;
 
 namespace OpenTK_Learning
@@ -45,7 +44,7 @@ namespace OpenTK_Learning
         public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
-        public static float fontSize = 1.0f;
+        public static float fontSize = 0.9f;
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 5f;
@@ -84,7 +83,7 @@ namespace OpenTK_Learning
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
 
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
@@ -122,16 +121,16 @@ namespace OpenTK_Learning
             M_Car = new Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 1),
+                diffuse = new Vector4(1, 1, 1, 0),
                 specular = new Vector3(0.5f),
-                shininess = 96.0f
+                shininess = 64.0f
             };
             M_Floor = new Material
             {
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector4(0.5f, 0.5f, 0.5f, 0),
                 specular = new Vector3(0.5f),
-                shininess = 64.0f
+                shininess = 32.0f
             };
 
             // Add default objects
@@ -147,10 +146,11 @@ namespace OpenTK_Learning
                 Plane.vertices, Plane.indices);
 
             // Load model into temporary variables
-            //R_Loading.LoadModel("./../../../Resources/3D_Models/.fbx");
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
+
             // Spawn i * j objects using the temporary assigned variables
-            /*
             int numit = 5;
+            
             for (int i = 0; i < numit; i++)
             {
                 for (int j = 0; j < numit; j++)
@@ -162,21 +162,23 @@ namespace OpenTK_Learning
                         R_Loading.importedData, R_Loading.importindices);
                 }
             }
-            */
+            
 
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
+            
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Griever.obj");
             AddObjectToArray(false, R_Loading.importname, M_Car,
                         new Vector3(2f),            // Scale
                         new Vector3(0, 4, 0),    // Location
-                        new Vector3(180f, -90f, 0f),  // Rotation
+                        new Vector3(180f, 90f, 0f),  // Rotation
                         R_Loading.importedData, R_Loading.importindices);
-
+            
             // Generate VAO, VBO and EBO
             ConstructObjects();
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddLightToArray(0.75f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+
+            AddLightToArray(0.75f, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Green PL", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);

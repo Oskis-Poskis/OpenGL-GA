@@ -145,7 +145,7 @@ namespace OpenTK_Learning
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Text("Objects: " + R_3D.Objects.Count.ToString());
+                ImGui.Text("Objects: " + (R_3D.Objects.Count + R_3D.Lights.Count).ToString());
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -454,49 +454,52 @@ namespace OpenTK_Learning
                     };
                 }
 
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                // Rotation
-                System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
-                    R_3D.Lights[selectedLight].Rotation.X,
-                    R_3D.Lights[selectedLight].Rotation.Y,
-                    R_3D.Lights[selectedLight].Rotation.Z);
-                ImGui.Text("Rotation");
-                if (ImGui.DragFloat3("##Rotation", ref _rot))
+                if (R_3D.Lights[selectedLight].Type == 2)
                 {
-                    R_3D.Lights[selectedLight] = new R_3D.Light
-                    {
-                        Strength = R_3D.Lights[selectedLight].Strength,
-                        Type = R_3D.Lights[selectedLight].Type,
-                        Name = R_3D.Lights[selectedLight].Name,
-                        LightColor = R_3D.Lights[selectedLight].LightColor,
-                        Shader = R_3D.Lights[selectedLight].Shader,
-                        VertData = R_3D.Lights[selectedLight].VertData,
-                        Indices = R_3D.Lights[selectedLight].Indices,
-                        Location = R_3D.Lights[selectedLight].Location,
-                        Rotation = new Vector3(_rot.X, _rot.Y, _rot.Z),
-                        Direction = R_3D.Lights[selectedLight].Direction
-                    };
-                }
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                ImGui.SameLine();
-                if (ImGui.Button("##2", new System.Numerics.Vector2(20f)))
-                {
-                    R_3D.Lights[selectedLight] = new R_3D.Light
+                    // Rotation
+                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
+                        R_3D.Lights[selectedLight].Rotation.X,
+                        R_3D.Lights[selectedLight].Rotation.Y,
+                        R_3D.Lights[selectedLight].Rotation.Z);
+                    ImGui.Text("Rotation");
+                    if (ImGui.DragFloat3("##Rotation", ref _rot))
                     {
-                        Strength = R_3D.Lights[selectedLight].Strength,
-                        Type = R_3D.Lights[selectedLight].Type,
-                        Name = R_3D.Lights[selectedLight].Name,
-                        LightColor = R_3D.Lights[selectedLight].LightColor,
-                        Shader = R_3D.Lights[selectedLight].Shader,
-                        VertData = R_3D.Lights[selectedLight].VertData,
-                        Indices = R_3D.Lights[selectedLight].Indices,
-                        Location = R_3D.Lights[selectedLight].Location,
-                        Rotation = new Vector3(0.0f),
-                        Direction = R_3D.Lights[selectedLight].Direction
-                    };
+                        R_3D.Lights[selectedLight] = new R_3D.Light
+                        {
+                            Strength = R_3D.Lights[selectedLight].Strength,
+                            Type = R_3D.Lights[selectedLight].Type,
+                            Name = R_3D.Lights[selectedLight].Name,
+                            LightColor = R_3D.Lights[selectedLight].LightColor,
+                            Shader = R_3D.Lights[selectedLight].Shader,
+                            VertData = R_3D.Lights[selectedLight].VertData,
+                            Indices = R_3D.Lights[selectedLight].Indices,
+                            Location = R_3D.Lights[selectedLight].Location,
+                            Rotation = new Vector3(_rot.X, _rot.Y, _rot.Z),
+                            Direction = R_3D.Lights[selectedLight].Direction
+                        };
+                    }
+
+                    ImGui.SameLine();
+                    if (ImGui.Button("##2", new System.Numerics.Vector2(20f)))
+                    {
+                        R_3D.Lights[selectedLight] = new R_3D.Light
+                        {
+                            Strength = R_3D.Lights[selectedLight].Strength,
+                            Type = R_3D.Lights[selectedLight].Type,
+                            Name = R_3D.Lights[selectedLight].Name,
+                            LightColor = R_3D.Lights[selectedLight].LightColor,
+                            Shader = R_3D.Lights[selectedLight].Shader,
+                            VertData = R_3D.Lights[selectedLight].VertData,
+                            Indices = R_3D.Lights[selectedLight].Indices,
+                            Location = R_3D.Lights[selectedLight].Location,
+                            Rotation = new Vector3(0.0f),
+                            Direction = R_3D.Lights[selectedLight].Direction
+                        };
+                    }
                 }
 
                 ImGui.TreePop();
@@ -532,9 +535,6 @@ namespace OpenTK_Learning
                     };
                 }
 
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                 // Light direction
                 System.Numerics.Vector3 direction = new System.Numerics.Vector3(
@@ -543,6 +543,10 @@ namespace OpenTK_Learning
                     R_3D.Lights[selectedLight].Direction.Z);
                 if (R_3D.Lights[selectedLight].Type == 1)
                 {
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
                     ImGui.Text("Direction");
                     if (ImGui.SliderFloat3("##Direction", ref direction, -1.0f, 1.0f))
                     {

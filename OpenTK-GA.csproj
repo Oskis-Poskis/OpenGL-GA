@@ -70,14 +70,12 @@
   <ItemGroup>
     <None Include="OpenTK-GA.sln" />
     <None Include="Resources\3D_Models\Car.fbx" />
-    <None Include="Resources\3D_Models\Complex.fbx" />
     <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />
-    <None Include="Resources\3D_Models\DarkMark-46.fbx" />
+    <None Include="Resources\3D_Models\Griever.obj" />
     <None Include="Resources\3D_Models\MiniSMG.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Smg-12.fbx" />
-    <None Include="Resources\3D_Models\Torus.fbx" />
   </ItemGroup>
 
 </Project>
