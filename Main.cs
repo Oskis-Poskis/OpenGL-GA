@@ -86,8 +86,6 @@ namespace OpenTK_Learning
         {
             GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.BindTexture(TextureTarget.Texture2D, R_3D.framebufferTexture2);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
 
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
 
@@ -110,29 +108,25 @@ namespace OpenTK_Learning
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
-            GL.Enable(EnableCap.StencilTest);
-            GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
-            GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); 
-
             // Load textures
             diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
-            //normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_normal.png", TextureUnit.Texture0);
+            normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/NormTest/Car_normal.png", TextureUnit.Texture0);
 
-            M_Default = new R_3D.Material
+            M_Default = new Material
             {
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector4(1, 1, 1, 0),
                 specular = new Vector3(0.5f),
                 shininess = 96.0f
             };
-            M_Car = new R_3D.Material
+            M_Car = new Material
             {
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector4(1, 1, 1, 1),
                 specular = new Vector3(0.5f),
                 shininess = 96.0f
             };
-            M_Floor = new R_3D.Material
+            M_Floor = new Material
             {
                 ambient = new Vector3(0.1f),
                 diffuse = new Vector4(0.5f, 0.5f, 0.5f, 0),
@@ -141,54 +135,56 @@ namespace OpenTK_Learning
             };
 
             // Add default objects
-            R_3D.AddObjectToArray(false, "Cube", M_Default,
+            AddObjectToArray(false, "Cube", M_Default,
                 new Vector3(2f),           // Scale
-                new Vector3(0f, 2f, 0f),  // Location
+                new Vector3(0f, 1f, 0f),  // Location
                 new Vector3(0f),  // Rotation
                 Cube.vertices, Cube.indices);
-            R_3D.AddObjectToArray(false, "Plane", M_Floor,
+            AddObjectToArray(false, "Plane", M_Floor,
                 new Vector3(15f), // Scale
                 new Vector3(0f),  // Location
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
 
             // Load model into temporary variables
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
+            //R_Loading.LoadModel("./../../../Resources/3D_Models/.fbx");
             // Spawn i * j objects using the temporary assigned variables
+            /*
             int numit = 5;
             for (int i = 0; i < numit; i++)
             {
                 for (int j = 0; j < numit; j++)
                 {
-                    R_3D.AddObjectToArray(false, R_Loading.importname + Math_Functions.RandInt(1, 1000), M_Default,
+                    AddObjectToArray(false, R_Loading.importname + Math_Functions.RandInt(1, 1000), M_Default,
                         new Vector3(1.0f),            // Scale
                         new Vector3(i * 3 - (numit/2 * 3), j * 3 + 6, 0f),    // Location
                         new Vector3(-90f, 0f, 0f),  // Rotation
                         R_Loading.importedData, R_Loading.importindices);
                 }
             }
+            */
 
             R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
-            R_3D.AddObjectToArray(false, R_Loading.importname, M_Car,
+            AddObjectToArray(false, R_Loading.importname, M_Car,
                         new Vector3(2f),            // Scale
-                        new Vector3(0, 5, 6),    // Location
+                        new Vector3(0, 4, 0),    // Location
                         new Vector3(180f, -90f, 0f),  // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO
-            R_3D.ConstructObjects();
+            ConstructObjects();
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            R_3D.AddLightToArray(0.75f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(0.75f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Green PL", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.ConstructLights();
+            ConstructLights();
 
             // Generate two screen triangles
-            R_3D.GenFBO(CameraWidth, CameraHeight);
-            R_3D.GenScreenRect();
+            GenFBO(CameraWidth, CameraHeight);
+            GenScreenRect();
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
@@ -200,9 +196,9 @@ namespace OpenTK_Learning
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             // Bind FBO and clear color and depth buffer
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, R_3D.FBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
 
             // Draw 3D objects
@@ -214,29 +210,17 @@ namespace OpenTK_Learning
                 Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
                 // Use texture
-                diffuseMap.Use(TextureUnit.Texture0);
-                //normalMap.Use(TextureUnit.Texture1);
+                diffuseMap.Use(TextureUnit.Texture1);
+                normalMap.Use(TextureUnit.Texture2);
 
                 // Main function for drawing the array of objects
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
-                GL.StencilMask(0xFF);
-                R_3D.DrawObjects(projection, view);
-
-                GL.StencilFunc(StencilFunction.Notequal, 1, 0xFF);
-                GL.StencilMask(0x00);
-                GL.Disable(EnableCap.DepthTest);
-                PhongShader.SetInt("outline", 1);
-                R_3D.DrawOneObject(selectedObject, projection, view);
-                PhongShader.SetInt("outline", 0);
-                GL.StencilMask(0xFF);
-                GL.StencilFunc(StencilFunction.Always, 0, 0xFF);
-                GL.Enable(EnableCap.DepthTest);
+                DrawObjects(projection, view);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                R_3D.DrawLights(projection, view);
+                DrawLights(projection, view);
 
                 // Editor navigation on right click
                 if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
@@ -245,7 +229,7 @@ namespace OpenTK_Learning
                 }
             }
 
-            R_3D.FBOlogic();
+            FBOlogic();
 
             // UI
             _controller.Update(this, (float)args.Time);

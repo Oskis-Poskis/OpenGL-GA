@@ -156,8 +156,8 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
                 Main.PhongShader.SetVector3("viewPos", Main.position);
 
-                Main.PhongShader.SetInt("diffuseMap", 0);
-                //Main.PhongShader.SetInt("normalMap", 1);
+                Main.PhongShader.SetInt("diffuseMap", 1);
+                Main.PhongShader.SetInt("normalMap", 2);
 
                 int numPL = Lights.Count;
                 for (int j = 0; j < Lights.Count; j++)
@@ -335,7 +335,6 @@ namespace OpenTK_Learning
         public static int FBO;
         public static int RBO;
         public static int framebufferTexture;
-        public static int framebufferTexture2;
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
         {
@@ -356,15 +355,6 @@ namespace OpenTK_Learning
             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
 
-            framebufferTexture2 = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, framebufferTexture, 0);
-
             var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (fboStatus != FramebufferErrorCode.FramebufferComplete)
             {
@@ -381,8 +371,8 @@ namespace OpenTK_Learning
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture2);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
         }
     }
 }

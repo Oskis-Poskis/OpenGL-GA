@@ -15,6 +15,7 @@ uniform bool outline;
 
 out DATA
 {
+    mat4 transform;
     vec3 FragPos;
     vec3 Normal;
 	vec2 texCoord;
@@ -31,6 +32,7 @@ void main(void)
     if (outline == true) gl_Position = vec4(aPosition + aNormal * 0.025, 1.0) * transform * view;
     else gl_Position = vec4(aPosition, 1.0) * transform * view;
     
+    data_out.transform = transform;
     data_out.FragPos = vec3(vec4(aPosition, 1.0) * transform);
     data_out.Normal = aNormal * mat3(transpose(inverse(transform)));;
     data_out.texCoord = aTexCoord;
