@@ -32,9 +32,9 @@ struct DirectionalLight {
 #define MAX_PointsLights 16
 uniform int NR_PointLights;
 uniform int NR_DirLights;
-uniform Material material;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
+uniform Material material;
 
 uniform vec3 viewPos;
 uniform sampler2D diffuseMap;
@@ -80,6 +80,13 @@ vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
     return (ambient + diffuse + specular) * directLight.strength;
 }
 
+uniform highp float NoiseAmount;
+highp float NoiseCalc = NoiseAmount / 255;
+highp float random(highp vec2 coords) {
+   return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
+}
+
+
 out vec4 fragColor;
 
 void main()
@@ -99,17 +106,17 @@ void main()
     // Else regular color
     else col = vec3(material.diffuse);
 
-    // Multiple directional Lights
-    for (int i = 0; i < NR_DirLights; i++)
-    {
-        result += CalcDirectionalLight(dirLight, col, norm);
-    }
+    // Directional Lights
+    if (NR_DirLights == 1) result += CalcDirectionalLight(dirLight, col, norm);
 
     // Multiple Point Lights
     for (int i = 0; i < NR_PointLights; i++)
     {
         result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
     }
+
+    // Reduce color banding
+    result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
     // Final Color
     fragColor = vec4(result, 1.0);

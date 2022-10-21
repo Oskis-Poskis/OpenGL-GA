@@ -8,9 +8,9 @@ namespace OpenTK_Learning
     class R_3D
     {
         public static List<Object> Objects = new List<Object>();
-        public static int[] VAO = new int[10];
+        public static int[] VAO = new int[0];
         public static List<Light> Lights = new List<Light>();
-        public static int[] VAOlights = new int[10];
+        public static int[] VAOlights = new int[0];
 
         // Material struct
         public struct Material
@@ -62,7 +62,8 @@ namespace OpenTK_Learning
                 Rotation = rotation,
                 Scale = scale
             };
-            Array.Resize(ref VAO, VAO.Length + 1);
+            Array.Resize(ref VAO, Objects.Count + 1);
+            Console.WriteLine("Object Array VAO Size: " + VAO.Length);
             Objects.Add(_object);
         }
 
@@ -81,7 +82,8 @@ namespace OpenTK_Learning
                 Rotation = rotation,
                 Direction = direction
             };
-            Array.Resize(ref VAOlights, VAOlights.Length + 1);
+            Array.Resize(ref VAOlights, Lights.Count + 1);
+            Console.WriteLine("Light Array VAO Size: " + VAOlights.Length);
             Lights.Insert(0, _light);
         }
 

@@ -443,7 +443,7 @@ namespace OpenTK_Learning
                     {
                         Strength = R_3D.Lights[selectedLight].Strength,
                         Type = R_3D.Lights[selectedLight].Type,
-                        Name = R_3D.Objects[selectedLight].Name,
+                        Name = R_3D.Lights[selectedLight].Name,
                         LightColor = R_3D.Lights[selectedLight].LightColor,
                         Shader = R_3D.Lights[selectedLight].Shader,
                         VertData = R_3D.Lights[selectedLight].VertData,
@@ -599,7 +599,7 @@ namespace OpenTK_Learning
             ImGui.End();
         }
 
-        static void HelpMarker(string desc)
+        public static void HelpMarker(string desc)
         {
             ImGui.TextDisabled("(?)");
 
@@ -685,6 +685,25 @@ namespace OpenTK_Learning
 
                             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
                             R_3D.AddLightToArray(1, 0, LightName, new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_3D.ConstructLights();
+                        }
+
+                        ImGui.SameLine();
+
+                        if (ImGui.Button("Directional Light"))
+                        {
+                            string LightName = "DirectionalLight";
+
+                            for (int i = 0; i < R_3D.Lights.Count; i++)
+                            {
+                                if (R_3D.Lights[i].Name == LightName)
+                                {
+                                    LightName += i.ToString();
+                                }
+                            }
+
+                            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+                            R_3D.AddLightToArray(0.75f, 1, LightName, new Vector3(1f), Main.LightShader, new Vector3(1, -1, -1), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructLights();
                         }
                         ImGui.EndTabItem();

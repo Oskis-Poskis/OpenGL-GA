@@ -44,11 +44,11 @@ namespace OpenTK_Learning
         public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
-        public static float fontSize = 0.9f;
+        public static float fontSize = 0.8f;
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
-        float spacing = 5f;
-        int selectedObject = 2;
+        float spacing = 2f;
+        int selectedObject = 0;
         int selectedLight = 0;
 
         // Window bools
@@ -67,9 +67,12 @@ namespace OpenTK_Learning
         float CameraHeight;
         float Yaw;
         float Pitch = -90f;
-        int FOV = 90;
+        int FOV = 75;
         int speed = 12;
         float sensitivity = 0.25f;
+
+        // Rendering
+        public static float NoiseAmount = 0.5f;
 
         public static float lineWidth = 0.1f;
 
@@ -178,9 +181,11 @@ namespace OpenTK_Learning
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
 
-            AddLightToArray(0.75f, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(0.75f, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(1, -1, -1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(1, 0, "Point Light", new Vector3(1f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             ConstructLights();
+
+            PhongShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Generate two screen triangles
             GenFBO(CameraWidth, CameraHeight);
@@ -290,6 +295,9 @@ namespace OpenTK_Learning
                     {
                         GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
                     }
+                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PhongShader.SetFloat("NoiseAmount", NoiseAmount);
                     ImGui.TreePop();
                 }
 
