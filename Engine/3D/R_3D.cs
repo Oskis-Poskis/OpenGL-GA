@@ -21,7 +21,7 @@ namespace OpenTK_Learning
             public float shininess;
         }
 
-        // Struct with object data to assign in the array of objects
+        // Struct with object data
         public struct Object
         {
             public string Name;
@@ -34,6 +34,7 @@ namespace OpenTK_Learning
             public bool RelTransform;
         }
 
+        // Struct with light data
         public struct Light
         {
             public float Strength;
@@ -146,7 +147,7 @@ namespace OpenTK_Learning
                 Main.PhongShader.Use();
                 GL.BindVertexArray(VAO[i]);
                 SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                SetUniformMatrix(Main.PhongShader, projection, view);
+                SetProjView(Main.PhongShader, projection, view);
 
                 Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
                 Main.PhongShader.SetVector3("material.ambient", ambient);
@@ -159,23 +160,17 @@ namespace OpenTK_Learning
                 Main.PhongShader.SetInt("diffuseMap", 1);
                 Main.PhongShader.SetInt("normalMap", 2);
 
-                int numPL = Lights.Count;
-                for (int j = 0; j < Lights.Count; j++)
-                {
-                    if (Lights[j].Type != 0)
-                    {
-                        numPL -= 1;
-                    }
-                }
-
-                Main.PhongShader.SetInt("NR_PointLights", numPL);
+                int numPL = 0;
+                int numDL = 0;
 
                 // Lights
                 for (int j = 0; j < Lights.Count; j++)
                 {
                     switch (Lights[j].Type)
                     {
+                        // Set each Point Light in FS
                         case 0:
+                            numPL += 1;
                             Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
                             Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
                             Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
@@ -184,47 +179,26 @@ namespace OpenTK_Learning
                             Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
                             break;
 
+                        // Set each Directional Light in FS
                         case 1:
-                            Main.PhongShader.SetVector3("dirLight.direction", Lights[Lights.Count-1].Direction);
-                            Main.PhongShader.SetVector3("dirLight.color", Lights[Lights.Count-1].LightColor);
-                            Main.PhongShader.SetFloat("dirLight.strength", Lights[Lights.Count - 1].Strength);
+                            numDL += 1;
+                            Main.PhongShader.SetVector3("dirLight.direction", Lights[j].Direction);
+                            Main.PhongShader.SetVector3("dirLight.color", Lights[j].LightColor);
+                            Main.PhongShader.SetFloat("dirLight.strength", Lights[j].Strength);
                             break;
                     }
                 }
 
+                // Set the for loop length in FS shader
+                Main.PhongShader.SetInt("NR_DirLights", numDL);
+                Main.PhongShader.SetInt("NR_PointLights", numPL);
+
+                // Draw objects with indices
                 GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
         }
 
-        public static void DrawOneObject(int i, Matrix4 projection, Matrix4 view)
-        {
-            Main.PhongShader.Use();
-            GL.BindVertexArray(VAO[i]);
-            SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-            SetUniformMatrix(Main.PhongShader, projection, view);
-
-            Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
-            Main.PhongShader.SetVector3("material.ambient", ambient);
-            Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
-            Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
-            Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
-            Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
-
-            for (int j = 0; j < Lights.Count; j++)
-            {
-                Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
-                Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
-                Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
-
-                Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-            }
-            Main.PhongShader.SetVector3("viewPos", Main.position);
-
-            GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
-        }
-
-        // Draw the array of objects
+        // Draw the array of lights
         public static void DrawLights(Matrix4 projection, Matrix4 view)
         {
             for (int i = 0; i < Lights.Count; i++)
@@ -232,24 +206,18 @@ namespace OpenTK_Learning
                 Lights[i].Shader.Use();
                 GL.BindVertexArray(VAOlights[i]);
                 SetTransform(Lights[i].Shader, MakeLightTransform(new Vector3(1.0f), Lights[i].Location, Lights[i].Rotation));
-                SetUniformMatrix(Lights[i].Shader, projection, view);
-                SetMaterialProperties(Lights[i].Shader, Lights[i].LightColor, "lightcolor");
+                SetProjView(Lights[i].Shader, projection, view);
+                GL.Uniform3(Lights[i].Shader.GetUniformLocation("lightcolor"), Lights[i].LightColor);
 
                 GL.DrawElements(PrimitiveType.Triangles, Lights[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
         }
 
         // Set uniforms in shader
-        public static void SetUniformMatrix(Shader shader, Matrix4 projection, Matrix4 view)
+        public static void SetProjView(Shader shader, Matrix4 projection, Matrix4 view)
         {
             GL.UniformMatrix4(shader.GetUniformLocation("projection"), true, ref projection);
             GL.UniformMatrix4(shader.GetUniformLocation("view"), true, ref view);
-        }
-
-        // Set material properties
-        public static void SetMaterialProperties(Shader shader, Vector3 color, string var)
-        {
-            GL.Uniform3(shader.GetUniformLocation(var), color);
         }
 
         // Set transform in shader
@@ -330,7 +298,6 @@ namespace OpenTK_Learning
             GL.VertexAttribPointer(fboShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
             GL.Uniform1(fboShader.GetUniformLocation("screenTexture"), 0);
         }
-
 
         public static int FBO;
         public static int RBO;

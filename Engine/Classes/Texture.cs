@@ -9,12 +9,12 @@ namespace OpenTK_Learning
     {
         public readonly int Handle;
 
-        public static Texture LoadFromFile(string path, TextureUnit textureUnit)
+        public static Texture LoadFromFile(string path, TextureUnit textureUnit, string type = "RGBA")
         {
             // Replace path if it's invalid or unsupported file format
             if (!File.Exists(path))
             {
-                path = "./../../../Resources/Images/failedtoload.png";
+                path = "./../../../Engine/Engine_Resources/Images/failedtoload.png";
             }
 
             int handle = GL.GenTexture();
@@ -27,7 +27,6 @@ namespace OpenTK_Learning
             using (Stream stream = File.OpenRead(path))
             {
                 ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
             }
 

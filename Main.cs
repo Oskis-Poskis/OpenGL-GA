@@ -135,9 +135,9 @@ namespace OpenTK_Learning
 
             // Add default objects
             AddObjectToArray(false, "Cube", M_Default,
-                new Vector3(2f),           // Scale
+                new Vector3(2f),          // Scale
                 new Vector3(0f, 1f, 0f),  // Location
-                new Vector3(0f),  // Rotation
+                new Vector3(0f),          // Rotation
                 Cube.vertices, Cube.indices);
             AddObjectToArray(false, "Plane", M_Floor,
                 new Vector3(15f), // Scale
@@ -148,9 +148,9 @@ namespace OpenTK_Learning
             // Load model into temporary variables
             R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
 
+            /*
             // Spawn i * j objects using the temporary assigned variables
             int numit = 5;
-            
             for (int i = 0; i < numit; i++)
             {
                 for (int j = 0; j < numit; j++)
@@ -162,15 +162,15 @@ namespace OpenTK_Learning
                         R_Loading.importedData, R_Loading.importindices);
                 }
             }
-            
+            */
 
-            
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Griever.obj");
+            // A car
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
             AddObjectToArray(false, R_Loading.importname, M_Car,
-                        new Vector3(2f),            // Scale
-                        new Vector3(0, 4, 0),    // Location
-                        new Vector3(180f, 90f, 0f),  // Rotation
-                        R_Loading.importedData, R_Loading.importindices);
+                new Vector3(2f),            // Scale
+                new Vector3(0, 4, 0),       // Location
+                new Vector3(180f, 90f, 0f), // Rotation
+                R_Loading.importedData, R_Loading.importindices);
             
             // Generate VAO, VBO and EBO
             ConstructObjects();
@@ -179,9 +179,7 @@ namespace OpenTK_Learning
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
 
             AddLightToArray(0.75f, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            //R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            //R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            //R_3D.AddLightToArray(1, 0, "Green PL", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             ConstructLights();
 
             // Generate two screen triangles

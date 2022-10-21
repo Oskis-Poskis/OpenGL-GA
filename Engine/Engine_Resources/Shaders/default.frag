@@ -1,5 +1,4 @@
 ﻿#version 330 core
-
 in vec2 texCoord;
 in vec3 FragPos;
 in vec3 Normal;
@@ -9,8 +8,8 @@ struct Material
     vec3 ambient;
     vec3 diffuse;
     int diffMap;
-    vec3 specular;
 
+    vec3 specular;
     float shininess;
 };
 
@@ -30,16 +29,18 @@ struct DirectionalLight {
     float strength;
 };
 
-uniform Material material;
-
 #define MAX_PointsLights 16
 uniform int NR_PointLights;
+uniform int NR_DirLights;
+uniform Material material;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
 
-uniform bool outline;
 uniform vec3 viewPos;
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
 
+// Calculate a directional light with color
 vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
@@ -62,16 +63,15 @@ vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, ve
     return (ambient + diffuse + specular) * light.strength;
 }
 
+// Calculate a point light with color
 vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
   	
-    // vec3 lightDir = normalize(light.position - FragPos);
     vec3 lightDir = normalize(-directLight.direction);  
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = directLight.color * diff * color;
-    
-    // specular
+
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
@@ -81,28 +81,36 @@ vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
 }
 
 out vec4 fragColor;
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
 
 void main()
 {
+    vec3 result = vec3(0);
     vec3 col;
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    // If has a diffuse map
     if (material.diffMap == 1)
     {
         col = vec3(texture(diffuseMap, texCoord));
         norm = norm;
-        vec3 empty = vec3(texture(normalMap, texCoord)); // Placeholder for using texture
+        vec3 empty = vec3(texture(normalMap, texCoord)); // Placeholder for using normal texture
     }
-    else col = vec3(1);
+    // Else regular color
+    else col = vec3(material.diffuse);
 
-    vec3 result = CalcDirectionalLight(dirLight, col, norm); // Sun light
-    for(int i = 0; i < NR_PointLights; i++) // All point lights
+    // Multiple directional Lights
+    for (int i = 0; i < NR_DirLights; i++)
+    {
+        result += CalcDirectionalLight(dirLight, col, norm);
+    }
+
+    // Multiple Point Lights
+    for (int i = 0; i < NR_PointLights; i++)
     {
         result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
     }
 
+    // Final Color
     fragColor = vec4(result, 1.0);
 }

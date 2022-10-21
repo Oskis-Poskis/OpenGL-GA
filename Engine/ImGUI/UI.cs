@@ -671,7 +671,7 @@ namespace OpenTK_Learning
                     if (ImGui.BeginTabItem("Lights"))
                     {
                         ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                        if (ImGui.Button("Point Lights"))
+                        if (ImGui.Button("Point Light"))
                         {
                             string LightName = "PointLight";
 
