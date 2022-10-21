@@ -6,6 +6,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using PrimitiveType = OpenTK.Graphics.OpenGL4.PrimitiveType;
+using static OpenTK_Learning.R_3D;
 
 namespace OpenTK_Learning
 {
@@ -34,12 +35,14 @@ namespace OpenTK_Learning
             CameraWidth = Size.X;
         }
 
-        private Texture _diffuseMap;
+        private Texture diffuseMap;
+        private Texture normalMap;
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/light.vert", "./../../../Engine/Engine_Resources/shaders/light.frag");
         public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/default.vert", "./../../../Engine/Engine_Resources/shaders/default.frag", true);
 
-        public static R_3D.Material M_Default;
-        public static R_3D.Material M_Floor;
+        public static Material M_Default;
+        public static Material M_Car;
+        public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
         public static float fontSize = 1.0f;
@@ -112,19 +115,27 @@ namespace OpenTK_Learning
             GL.StencilOp(StencilOp.Keep, StencilOp.Keep, StencilOp.Replace); 
 
             // Load textures
-            _diffuseMap = Texture.LoadFromFile("./../../../Resources/Images/Checker.png", TextureUnit.Texture0);
+            diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
+            //normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_normal.png", TextureUnit.Texture0);
 
             M_Default = new R_3D.Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector3(1.0f),
+                diffuse = new Vector4(1, 1, 1, 0),
+                specular = new Vector3(0.5f),
+                shininess = 96.0f
+            };
+            M_Car = new R_3D.Material
+            {
+                ambient = new Vector3(0.1f),
+                diffuse = new Vector4(1, 1, 1, 1),
                 specular = new Vector3(0.5f),
                 shininess = 96.0f
             };
             M_Floor = new R_3D.Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector3(0.75f),
+                diffuse = new Vector4(0.5f, 0.5f, 0.5f, 0),
                 specular = new Vector3(0.5f),
                 shininess = 64.0f
             };
@@ -157,11 +168,11 @@ namespace OpenTK_Learning
                 }
             }
 
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Torus.fbx");
-            R_3D.AddObjectToArray(false, R_Loading.importname, M_Default,
-                        new Vector3(1.0f),            // Scale
-                        new Vector3(0, 5, 2),    // Location
-                        new Vector3(-90f, 0f, 0f),  // Rotation
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
+            R_3D.AddObjectToArray(false, R_Loading.importname, M_Car,
+                        new Vector3(2f),            // Scale
+                        new Vector3(0, 5, 6),    // Location
+                        new Vector3(180f, -90f, 0f),  // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO
@@ -170,8 +181,8 @@ namespace OpenTK_Learning
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
             R_3D.AddLightToArray(0.75f, 1, "DirLight.2", new Vector3(1f, 1f, 1f), LightShader, new Vector3(0.75f, -0.6f, -0.75f), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            //R_3D.AddLightToArray(1, 0, "Blue PL", new Vector3(0f, 0f, 1f), LightShader, new Vector3(1f), new Vector3(3f, 14, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            //R_3D.AddLightToArray(1, 0, "Red PL", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(-3f, 8f, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             //R_3D.AddLightToArray(1, 0, "Green PL", new Vector3(0f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(0f, 11, 4f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             R_3D.ConstructLights();
 
@@ -203,7 +214,8 @@ namespace OpenTK_Learning
                 Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
                 // Use texture
-                _diffuseMap.Use(TextureUnit.Texture0);
+                diffuseMap.Use(TextureUnit.Texture0);
+                //normalMap.Use(TextureUnit.Texture1);
 
                 // Main function for drawing the array of objects
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);

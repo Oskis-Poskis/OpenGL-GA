@@ -33,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\3D_Models\Car_diffuse.jpg" />
+    <Content Include="Resources\3D_Models\Car_normal.png" />
     <Content Include="Resources\Images\Checker.png" />
     <Content Include="Resources\Images\failedtoload.png" />
     <Content Include="Resources\Images\grid.png" />
@@ -67,6 +69,7 @@
 	
   <ItemGroup>
     <None Include="OpenTK-GA.sln" />
+    <None Include="Resources\3D_Models\Car.fbx" />
     <None Include="Resources\3D_Models\Complex.fbx" />
     <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />

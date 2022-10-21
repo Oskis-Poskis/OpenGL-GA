@@ -8,6 +8,7 @@ struct Material
 {
     vec3 ambient;
     vec3 diffuse;
+    int diffMap;
     vec3 specular;
 
     float shininess;
@@ -39,11 +40,10 @@ uniform DirectionalLight dirLight;
 uniform bool outline;
 uniform vec3 viewPos;
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color)
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
 
-    vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = light.lightColor * (diff * material.diffuse * color);
@@ -62,12 +62,10 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     return (ambient + diffuse + specular) * light.strength;
 }
 
-vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color)
+vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
   	
-    // diffuse 
-    vec3 norm = normalize(Normal);
     // vec3 lightDir = normalize(light.position - FragPos);
     vec3 lightDir = normalize(-directLight.direction);  
     float diff = max(dot(norm, lightDir), 0.0);
@@ -83,22 +81,27 @@ vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color)
 }
 
 out vec4 fragColor;
-uniform sampler2D texture0;
+uniform sampler2D diffuseMap;
+//uniform sampler2D normalMap;
 
 void main()
 {
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 tex = vec3(1);
-    //vec3 tex = vec3(texture(texture0, texCoord));
+
+    vec3 col;
+    //vec3 nor = vec3(texture(normalMap, texCoord));
+
+    if (material.diffMap == 1) col = vec3(texture(diffuseMap, texCoord));
+    else col = vec3(1);
 
     if (outline == false)
     {
-        vec3 result = CalcDirectionalLight(dirLight, tex);
+        vec3 result = CalcDirectionalLight(dirLight, col, norm);
 
         for(int i = 0; i < NR_PointLights; i++)
         {
-            result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, tex);
+            result += CalcPointLight(pointLights[i], Normal, FragPos, viewDir, col, norm);
         }
 
         fragColor = vec4(result, 1.0);

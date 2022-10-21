@@ -16,7 +16,7 @@ namespace OpenTK_Learning
         public struct Material
         {
             public Vector3 ambient;
-            public Vector3 diffuse;
+            public Vector4 diffuse;
             public Vector3 specular;
             public float shininess;
         }
@@ -150,10 +150,14 @@ namespace OpenTK_Learning
 
                 Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
                 Main.PhongShader.SetVector3("material.ambient", ambient);
-                Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
+                Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
+                Main.PhongShader.SetInt("material.diffMap", (int)Objects[i].Material.diffuse.W);
                 Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
                 Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
                 Main.PhongShader.SetVector3("viewPos", Main.position);
+
+                Main.PhongShader.SetInt("diffuseMap", 0);
+                //Main.PhongShader.SetInt("normalMap", 1);
 
                 int numPL = Lights.Count;
                 for (int j = 0; j < Lights.Count; j++)
@@ -201,7 +205,7 @@ namespace OpenTK_Learning
 
             Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
             Main.PhongShader.SetVector3("material.ambient", ambient);
-            Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse);
+            Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
             Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
             Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
             Main.PhongShader.SetInt("NR_PointLights", Lights.Count);
@@ -377,7 +381,7 @@ namespace OpenTK_Learning
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture2);
         }
     }
