@@ -60,6 +60,8 @@ namespace OpenTK_Learning
 
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+            io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
 
             CreateDeviceResources();
             SetKeyMappings();

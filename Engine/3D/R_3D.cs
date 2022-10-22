@@ -38,6 +38,8 @@ namespace OpenTK_Learning
         public struct Light
         {
             public float Strength;
+            public float Radius;
+            public float FallOff;
             public int Type;
             public string Name;
             public Vector3 LightColor;
@@ -67,11 +69,13 @@ namespace OpenTK_Learning
             Objects.Add(_object);
         }
 
-        public static void AddLightToArray(float strength, int type, string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
                 Strength = strength,
+                Radius = radius,
+                FallOff = falloff,
                 Type = type,
                 Name = name,
                 LightColor = lightColor,
@@ -141,62 +145,80 @@ namespace OpenTK_Learning
             }
         }
 
+        public static int numPL;
+        public static int numDL;
+
         // Draw the array of objects
-        public static void DrawObjects(Matrix4 projection, Matrix4 view)
+        public static void DrawObjects(Matrix4 projection, Matrix4 view, bool overrideShader)
         {
-            for (int i = 0; i < Objects.Count; i++)
+            if (overrideShader == false)
             {
-                Main.PhongShader.Use();
-                GL.BindVertexArray(VAO[i]);
-                SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                SetProjView(Main.PhongShader, projection, view);
-
-                Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
-                Main.PhongShader.SetVector3("material.ambient", ambient);
-                Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
-                Main.PhongShader.SetInt("material.diffMap", (int)Objects[i].Material.diffuse.W);
-                Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
-                Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
-                Main.PhongShader.SetVector3("viewPos", Main.position);
-
-                Main.PhongShader.SetInt("diffuseMap", 1);
-                Main.PhongShader.SetInt("normalMap", 2);
-
-                int numPL = 0;
-                int numDL = 0;
-
-                // Lights
-                for (int j = 0; j < Lights.Count; j++)
+                for (int i = 0; i < Objects.Count; i++)
                 {
-                    switch (Lights[j].Type)
+                    Main.PhongShader.Use();
+                    GL.BindVertexArray(VAO[i]);
+                    SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetProjView(Main.PhongShader, projection, view);
+
+                    Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
+                    Main.PhongShader.SetVector3("material.ambient", ambient);
+                    Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
+                    Main.PhongShader.SetInt("material.diffMap", (int)Objects[i].Material.diffuse.W);
+                    Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
+                    Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
+                    Main.PhongShader.SetVector3("viewPos", Main.position);
+
+                    Main.PhongShader.SetInt("diffuseMap", 1);
+                    Main.PhongShader.SetInt("normalMap", 2);
+
+                    numPL = 0;
+                    numDL = 0;
+
+                    // Lights
+                    for (int j = 0; j < Lights.Count; j++)
                     {
-                        // Set each Point Light in FS
-                        case 0:
-                            numPL += 1;
-                            Main.PhongShader.SetFloat("pointLights[" + j + "].constant", 1.0f);
-                            Main.PhongShader.SetFloat("pointLights[" + j + "].linear", 0.09f);
-                            Main.PhongShader.SetFloat("pointLights[" + j + "].quadratic", 0.032f);
-                            Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                            Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-                            Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                            break;
+                        switch (Lights[j].Type)
+                        {
+                            // Set each Point Light in FS
+                            case 0:
+                                numPL += 1;
+                                Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                                Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                                Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                                Main.PhongShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
+                                break;
 
-                        // Set each Directional Light in FS
-                        case 1:
-                            numDL += 1;
-                            Main.PhongShader.SetVector3("dirLight.direction", Lights[j].Direction);
-                            Main.PhongShader.SetVector3("dirLight.color", Lights[j].LightColor);
-                            Main.PhongShader.SetFloat("dirLight.strength", Lights[j].Strength);
-                            break;
+                            // Set each Directional Light in FS
+                            case 1:
+                                numDL += 1;
+                                Main.PhongShader.SetVector3("dirLight.direction", Lights[j].Direction);
+                                Main.PhongShader.SetVector3("dirLight.color", Lights[j].LightColor);
+                                Main.PhongShader.SetFloat("dirLight.strength", Lights[j].Strength);
+                                break;
+                        }
                     }
+
+                    // Set the for loop length in FS shader
+                    Main.PhongShader.SetInt("NR_DirLights", numDL);
+                    Main.PhongShader.SetInt("NR_PointLights", numPL);
+
+                    // Draw objects with indices
+                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
+            }
 
-                // Set the for loop length in FS shader
-                Main.PhongShader.SetInt("NR_DirLights", numDL);
-                Main.PhongShader.SetInt("NR_PointLights", numPL);
+            else
+            {
+                for (int i = 0; i < Objects.Count; i++)
+                {
+                    Main.shadowShader.Use();
+                    GL.BindVertexArray(VAO[i]);
+                    GL.UniformMatrix4(Main.shadowShader.GetUniformLocation("lightProjection"), true, ref Main.lightProjection);
 
-                // Draw objects with indices
-                GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+                    // Draw objects with indices
+                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+                }
             }
         }
 
@@ -333,15 +355,7 @@ namespace OpenTK_Learning
 
         public static void FBOlogic()
         {
-            fboShader.Use();
-            GL.BindVertexArray(rectVAO);
-            GL.Disable(EnableCap.DepthTest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            
         }
     }
 }

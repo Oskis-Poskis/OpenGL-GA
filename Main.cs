@@ -38,6 +38,7 @@ namespace OpenTK_Learning
         private Texture normalMap;
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/light.vert", "./../../../Engine/Engine_Resources/shaders/light.frag");
         public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/default.vert", "./../../../Engine/Engine_Resources/shaders/default.frag", true);
+        public static Shader shadowShader = new Shader("./../../../Engine/Engine_Resources/shaders/shadowMap.vert", "./../../../Engine/Engine_Resources/shaders/shadowMap.frag");
 
         public static Material M_Default;
         public static Material M_Car;
@@ -99,6 +100,13 @@ namespace OpenTK_Learning
             base.OnResize(e);
         }
 
+        public static int depthMap;
+        int depthMapFBO;
+        int SHADOW_WIDTH = 2048;
+        int SHADOW_HEIGHT = 2048;
+
+        public static Matrix4 lightProjection;
+
         // Runs after Run();
         protected override void OnLoad()
         {
@@ -109,6 +117,31 @@ namespace OpenTK_Learning
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
+
+            depthMapFBO = GL.GenFramebuffer();
+
+            depthMap = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, depthMap);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, SHADOW_WIDTH, SHADOW_HEIGHT, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, depthMapFBO);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, depthMap, 0);
+            GL.DrawBuffer(DrawBufferMode.None);
+            GL.ReadBuffer(ReadBufferMode.None);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+
+            //Matrix4 orthoProj = Matrix4.CreateOrthographicOffCenter(-35, 35, -35, 35, 0.1f, 75);
+            Matrix4 orthoProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
+            Matrix4 lightView = Matrix4.LookAt(20 * new Vector3(10, 8, 10), new Vector3(0), new Vector3(0, 1, 1));
+            lightProjection = lightView * orthoProj;
+
+            shadowShader.Use();
+            GL.UniformMatrix4(shadowShader.GetUniformLocation("lightProjection"), true, ref lightProjection);
 
             // Load textures
             diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
@@ -124,14 +157,14 @@ namespace OpenTK_Learning
             M_Car = new Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 0),
+                diffuse = new Vector4(1, 1, 1, 1),
                 specular = new Vector3(0.5f),
                 shininess = 64.0f
             };
             M_Floor = new Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector4(0.5f, 0.5f, 0.5f, 0),
+                diffuse = new Vector4(1, 1, 1, 0),
                 specular = new Vector3(0.5f),
                 shininess = 32.0f
             };
@@ -151,22 +184,6 @@ namespace OpenTK_Learning
             // Load model into temporary variables
             R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
 
-            /*
-            // Spawn i * j objects using the temporary assigned variables
-            int numit = 5;
-            for (int i = 0; i < numit; i++)
-            {
-                for (int j = 0; j < numit; j++)
-                {
-                    AddObjectToArray(false, R_Loading.importname + Math_Functions.RandInt(1, 1000), M_Default,
-                        new Vector3(1.0f),            // Scale
-                        new Vector3(i * 3 - (numit/2 * 3), j * 3 + 6, 0f),    // Location
-                        new Vector3(-90f, 0f, 0f),  // Rotation
-                        R_Loading.importedData, R_Loading.importindices);
-                }
-            }
-            */
-
             // A car
             R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
             AddObjectToArray(false, R_Loading.importname, M_Car,
@@ -181,8 +198,8 @@ namespace OpenTK_Learning
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
 
-            AddLightToArray(0.75f, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(1, -1, -1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            AddLightToArray(1, 0, "Point Light", new Vector3(1f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(0.75f, 5, 1, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(1, -1, -1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             ConstructLights();
 
             PhongShader.SetFloat("NoiseAmount", NoiseAmount);
@@ -200,19 +217,28 @@ namespace OpenTK_Learning
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
+            // Camera pos and FOV
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
+            Matrix4 view = Matrix4.LookAt(position, position + front, up);
+            GL.Enable(EnableCap.DepthTest);
+            
+            /*
+            GL.Viewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, depthMapFBO);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+
+            DrawObjects(projection, view, true);
+            */
+
             // Bind FBO and clear color and depth buffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+            GL.Viewport(0, 0, (int)WindowWidth, (int)WindowHeight);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Enable(EnableCap.DepthTest);
-
+            
             // Draw 3D objects
             {
                 GeneralInput(args);
-
-                // Camera pos and FOV
-                Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
-                Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
                 // Use texture
                 diffuseMap.Use(TextureUnit.Texture1);
@@ -222,7 +248,12 @@ namespace OpenTK_Learning
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                DrawObjects(projection, view);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, depthMap);
+                GL.UniformMatrix4(Main.shadowShader.GetUniformLocation("lightProjection"), true, ref Main.lightProjection);
+
+
+                DrawObjects(projection, view, true);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 DrawLights(projection, view);
@@ -233,6 +264,14 @@ namespace OpenTK_Learning
                     MouseInput();
                 }
             }
+
+            fboShader.Use();
+            GL.BindVertexArray(rectVAO);
+            GL.Disable(EnableCap.DepthTest);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             FBOlogic();
 
@@ -335,26 +374,12 @@ namespace OpenTK_Learning
 
         private void MouseInput()
         {
-            if (Yaw > 89.0f)
-            {
-                Yaw = 89.0f;
-            }
-
-            else if (Yaw < -89.0f)
-            {
-                Yaw = -89.0f;
-            }
-
-            else
-            {
-                Yaw -= MouseState.Delta.Y * sensitivity;
-            }
-
             Pitch += MouseState.Delta.X * sensitivity;
-
-            front.X = (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(Pitch));
-            front.Y = (float)Math.Sin(MathHelper.DegreesToRadians(Yaw));
-            front.Z = (float)Math.Cos(MathHelper.DegreesToRadians(Yaw)) * (float)Math.Sin(MathHelper.DegreesToRadians(Pitch));
+            Yaw -= MouseState.Delta.Y * sensitivity;
+            
+            front.X = (float)Math.Cos(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89))) * (float)Math.Cos(MathHelper.DegreesToRadians(Pitch));
+            front.Y = (float)Math.Sin(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89)));
+            front.Z = (float)Math.Cos(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89))) * (float)Math.Sin(MathHelper.DegreesToRadians(Pitch));
             front = Vector3.Normalize(front);
         }
 

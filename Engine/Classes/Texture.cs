@@ -9,7 +9,7 @@ namespace OpenTK_Learning
     {
         public readonly int Handle;
 
-        public static Texture LoadFromFile(string path, TextureUnit textureUnit, string type = "RGBA")
+        public static Texture LoadFromFile(string path, TextureUnit textureUnit)
         {
             // Replace path if it's invalid or unsupported file format
             if (!File.Exists(path))

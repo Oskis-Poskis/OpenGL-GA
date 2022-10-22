@@ -17,9 +17,8 @@ struct PointLight {
     vec3 lightPos;
     vec3 lightColor;
 
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
+    float compression;
     float strength;
 }; 
 
@@ -40,6 +39,10 @@ uniform vec3 viewPos;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 
+const float constant = 1;
+const float linear = 0.09;
+const float quadratic = 0.032;
+
 // Calculate a directional light with color
 vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, vec3 norm)
 {
@@ -54,7 +57,9 @@ vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, ve
     vec3 specular = spec * light.lightColor * material.specular;
     
     float _distance = length(light.lightPos - FragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * _distance + light.quadratic * (_distance * _distance));
+    //float attenuation = 1.0 / (constant + linear * _distance + quadratic * (_distance * _distance));
+
+    float attenuation = pow(smoothstep(light.radius, 0, _distance), light.compression);
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -110,10 +115,7 @@ void main()
     if (NR_DirLights == 1) result += CalcDirectionalLight(dirLight, col, norm);
 
     // Multiple Point Lights
-    for (int i = 0; i < NR_PointLights; i++)
-    {
-        result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
-    }
+    for (int i = 0; i < NR_PointLights; i++) result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
 
     // Reduce color banding
     result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
