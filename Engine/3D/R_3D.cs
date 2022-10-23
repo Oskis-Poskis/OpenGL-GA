@@ -138,10 +138,6 @@ namespace OpenTK_Learning
                 // Set attributes in shaders - vertex positions, UV's and normals
                 GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aPosition"));
                 GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-                GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
             }
         }
 
@@ -212,9 +208,10 @@ namespace OpenTK_Learning
             {
                 for (int i = 0; i < Objects.Count; i++)
                 {
-                    Main.shadowShader.Use();
+                    Main.WireframeShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    GL.UniformMatrix4(Main.shadowShader.GetUniformLocation("lightProjection"), true, ref Main.lightProjection);
+                    SetTransform(Main.WireframeShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetProjView(Main.WireframeShader, projection, view);
 
                     // Draw objects with indices
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
@@ -295,11 +292,11 @@ namespace OpenTK_Learning
             return transform;
         }
 
-        public static Shader fboShader = new Shader("./../../../Engine/Engine_Resources/shaders/framebuffer.vert", "./../../../Engine/Engine_Resources/shaders/framebuffer.frag");
+        public static Shader fboShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/framebuffer.vert", "./../../../Engine/Engine_Resources/shaders/Misc/framebuffer.frag");
         public static int rectVAO, rectVBO;
         static readonly float[] rectVerts = new float[]
         {
-            1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
             -1.0f, -1.0f,  0.0f, 0.0f,
             -1.0f,  1.0f,  0.0f, 1.0f,
 
@@ -334,7 +331,7 @@ namespace OpenTK_Learning
 
             framebufferTexture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 2, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
@@ -351,11 +348,6 @@ namespace OpenTK_Learning
             {
                 Console.WriteLine("Framebuffer error: " + fboStatus);
             }
-        }
-
-        public static void FBOlogic()
-        {
-            
         }
     }
 }

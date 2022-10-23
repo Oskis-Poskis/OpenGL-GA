@@ -747,6 +747,7 @@ namespace OpenTK_Learning
                                 new Vector3(180f, 90f, 0f), // Rotation
                                 R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructObjects();
+                            Main.selectedObject = R_3D.Objects.Count - 1;
                         }
 
                         ImGui.EndTabItem();

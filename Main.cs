@@ -36,9 +36,9 @@ namespace OpenTK_Learning
 
         private Texture diffuseMap;
         private Texture normalMap;
-        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/light.vert", "./../../../Engine/Engine_Resources/shaders/light.frag");
-        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/default.vert", "./../../../Engine/Engine_Resources/shaders/default.frag", true);
-        public static Shader shadowShader = new Shader("./../../../Engine/Engine_Resources/shaders/shadowMap.vert", "./../../../Engine/Engine_Resources/shaders/shadowMap.frag");
+        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/default.frag", true);
+        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
+        public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static Material M_Default;
         public static Material M_Car;
@@ -49,7 +49,7 @@ namespace OpenTK_Learning
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 2f;
-        int selectedObject = 0;
+        public static int selectedObject = 0;
         int selectedLight = 0;
 
         // Window bools
@@ -87,10 +87,12 @@ namespace OpenTK_Learning
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-
+            
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
+
+            GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Matches window scale to new resize
             WindowWidth = e.Width;
@@ -99,13 +101,6 @@ namespace OpenTK_Learning
             GL.Viewport(0, 0, e.Width, e.Height);
             base.OnResize(e);
         }
-
-        public static int depthMap;
-        int depthMapFBO;
-        int SHADOW_WIDTH = 2048;
-        int SHADOW_HEIGHT = 2048;
-
-        public static Matrix4 lightProjection;
 
         // Runs after Run();
         protected override void OnLoad()
@@ -118,30 +113,7 @@ namespace OpenTK_Learning
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
-            depthMapFBO = GL.GenFramebuffer();
-
-            depthMap = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, depthMap);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent, SHADOW_WIDTH, SHADOW_HEIGHT, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, depthMapFBO);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, depthMap, 0);
-            GL.DrawBuffer(DrawBufferMode.None);
-            GL.ReadBuffer(ReadBufferMode.None);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-
-            //Matrix4 orthoProj = Matrix4.CreateOrthographicOffCenter(-35, 35, -35, 35, 0.1f, 75);
-            Matrix4 orthoProj = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
-            Matrix4 lightView = Matrix4.LookAt(20 * new Vector3(10, 8, 10), new Vector3(0), new Vector3(0, 1, 1));
-            lightProjection = lightView * orthoProj;
-
-            shadowShader.Use();
-            GL.UniformMatrix4(shadowShader.GetUniformLocation("lightProjection"), true, ref lightProjection);
+            GL.LineWidth(1.5f);
 
             // Load textures
             diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
@@ -221,14 +193,6 @@ namespace OpenTK_Learning
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
             Matrix4 view = Matrix4.LookAt(position, position + front, up);
             GL.Enable(EnableCap.DepthTest);
-            
-            /*
-            GL.Viewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, depthMapFBO);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
-
-            DrawObjects(projection, view, true);
-            */
 
             // Bind FBO and clear color and depth buffer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
@@ -248,14 +212,11 @@ namespace OpenTK_Learning
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, depthMap);
-                GL.UniformMatrix4(Main.shadowShader.GetUniformLocation("lightProjection"), true, ref Main.lightProjection);
-
-
-                DrawObjects(projection, view, true);
-
+                // Draw all objects
+                DrawObjects(projection, view, wireframeonoff);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                
+                // Draw all lights
                 DrawLights(projection, view);
 
                 // Editor navigation on right click
@@ -268,12 +229,10 @@ namespace OpenTK_Learning
             fboShader.Use();
             GL.BindVertexArray(rectVAO);
             GL.Disable(EnableCap.DepthTest);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-            FBOlogic();
 
             // UI
             _controller.Update(this, (float)args.Time);
