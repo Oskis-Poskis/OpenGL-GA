@@ -17,7 +17,7 @@ namespace OpenTK_Learning
             {
                 Title = title,
                 Size = new Vector2i(width, height),
-                WindowBorder = WindowBorder.Resizable,
+                WindowBorder = WindowBorder.Hidden,
                 StartVisible = false,
                 StartFocused = true,
                 WindowState = WindowState.Normal,
@@ -60,10 +60,11 @@ namespace OpenTK_Learning
         public static bool showOutliner = true;
         public static bool showSettings = false;
         public static bool CloseWindow = false;
+        bool fullScreen = false;
 
         // Camera settings
-        public static float WindowWidth;
-        public static float WindowHeight;
+        public static float WindowWidth = 100;
+        public static float WindowHeight = 100;
         float CameraWidth;
         float CameraHeight;
         float Yaw;
@@ -409,6 +410,8 @@ namespace OpenTK_Learning
             if (IsKeyPressed(Keys.D4)) showOutliner = Math_Functions.ToggleBool(showOutliner);
             if (IsKeyPressed(Keys.D5)) showSettings = Math_Functions.ToggleBool(showSettings);
             */
+
+            if (IsKeyPressed(Keys.F11)) fullScreen = Math_Functions.ToggleBool(fullScreen);
 
             base.OnKeyDown(e);
         }

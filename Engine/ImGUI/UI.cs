@@ -63,8 +63,13 @@ namespace OpenTK_Learning
 
         public static void LoadGameWindow(ref float CameraWidth, ref float CameraHeight)
         {
-            // Game Window
-            ImGui.Begin("Game");
+            /*
+            ImGuiWindowClassPtr window_class;
+            window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags.AutoHideTabBar;
+            ImGui.SetNextWindowClass(window_class);
+            */
+
+            ImGui.Begin("Game", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoDecoration);
 
             CameraWidth = ImGui.GetWindowWidth() - 18;
             CameraHeight = ImGui.GetWindowHeight() - 50;
@@ -680,7 +685,7 @@ namespace OpenTK_Learning
         public static void LoadOutliner(ref int selectedObject, ref int selectedLight, float spacing)
         {
             // Outliner
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(25, 25, 25, 255) / 255);
+            //ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(25, 25, 25, 255) / 255);
 
             ImGui.Begin("Outliner");
 
@@ -845,7 +850,7 @@ namespace OpenTK_Learning
             ImGui.EndTabBar();
             ImGui.End();
 
-            ImGui.PopStyleColor();
+            //ImGui.PopStyleColor();
         }
     }
 }
