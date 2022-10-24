@@ -25,6 +25,7 @@ namespace OpenTK_Learning
         public struct Object
         {
             public string Name;
+            public string ID;
             public Material Material;
             public VertexData[] VertData;
             public int[] Indices;
@@ -42,6 +43,7 @@ namespace OpenTK_Learning
             public float FallOff;
             public int Type;
             public string Name;
+            public string ID;
             public Vector3 LightColor;
             public Shader Shader;
             public VertexData[] VertData;
@@ -56,6 +58,7 @@ namespace OpenTK_Learning
             Object _object = new Object
             {
                 RelTransform = _rel,
+                ID = Math_Functions.RandInt(0, 100000).ToString(),
                 Name = name,
                 Material = material,
                 VertData = vertices,
@@ -78,6 +81,7 @@ namespace OpenTK_Learning
                 FallOff = falloff,
                 Type = type,
                 Name = name,
+                ID = Math_Functions.RandInt(0, 100000).ToString(),
                 LightColor = lightColor,
                 Shader = shader,
                 VertData = vertices,
@@ -331,7 +335,7 @@ namespace OpenTK_Learning
 
             framebufferTexture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 2, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);

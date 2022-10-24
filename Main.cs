@@ -17,7 +17,7 @@ namespace OpenTK_Learning
             {
                 Title = title,
                 Size = new Vector2i(width, height),
-                WindowBorder = WindowBorder.Hidden,
+                WindowBorder = WindowBorder.Resizable,
                 StartVisible = false,
                 StartFocused = true,
                 WindowState = WindowState.Normal,
@@ -45,12 +45,12 @@ namespace OpenTK_Learning
         public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
-        public static float fontSize = 0.8f;
+        public static float fontSize = 0.95f;
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 2f;
         public static int selectedObject = 0;
-        int selectedLight = 0;
+        public static int selectedLight = 0;
 
         // Window bools
         public static bool showDemoWindow = false;
@@ -63,8 +63,8 @@ namespace OpenTK_Learning
         bool fullScreen = false;
 
         // Camera settings
-        public static float WindowWidth = 100;
-        public static float WindowHeight = 100;
+        public static float WindowWidth;
+        public static float WindowHeight;
         float CameraWidth;
         float CameraHeight;
         float Yaw;
@@ -88,12 +88,10 @@ namespace OpenTK_Learning
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
-
-            GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             // Matches window scale to new resize
             WindowWidth = e.Width;
@@ -130,7 +128,7 @@ namespace OpenTK_Learning
             M_Car = new Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 1),
+                diffuse = new Vector4(1, 1, 1, 0),
                 specular = new Vector3(0.5f),
                 shininess = 64.0f
             };
@@ -159,7 +157,7 @@ namespace OpenTK_Learning
 
             // A car
             R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
-            AddObjectToArray(false, R_Loading.importname, M_Car,
+            AddObjectToArray(false, "Car", M_Car,
                 new Vector3(2f),            // Scale
                 new Vector3(0, 4, 0),       // Location
                 new Vector3(180f, 90f, 0f), // Rotation
@@ -171,8 +169,8 @@ namespace OpenTK_Learning
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
 
-            AddLightToArray(0.75f, 5, 1, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(1, -1, -1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f, 1f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(0.75f, 5, 1, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(-1, 1, 1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             ConstructLights();
 
             PhongShader.SetFloat("NoiseAmount", NoiseAmount);
@@ -187,12 +185,11 @@ namespace OpenTK_Learning
             base.OnLoad();
         }
 
+        public static bool isMainHovered;
+
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            // Camera pos and FOV
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
-            Matrix4 view = Matrix4.LookAt(position, position + front, up);
             GL.Enable(EnableCap.DepthTest);
 
             // Bind FBO and clear color and depth buffer
@@ -203,7 +200,15 @@ namespace OpenTK_Learning
             
             // Draw 3D objects
             {
-                GeneralInput(args);
+                // Allow 3D input only when mouse is over viewport
+                if (isMainHovered == true)
+                {
+                    // Editor camera movement
+                    GeneralInput(args);
+                }
+
+                // Editor navigation on right click
+                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
 
                 // Use texture
                 diffuseMap.Use(TextureUnit.Texture1);
@@ -213,18 +218,16 @@ namespace OpenTK_Learning
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
+                // Camera pos and FOV
+                Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
+                Matrix4 view = Matrix4.LookAt(position, position + front, up);
+
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 
                 // Draw all lights
                 DrawLights(projection, view);
-
-                // Editor navigation on right click
-                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
-                {
-                    MouseInput();
-                }
             }
 
             fboShader.Use();

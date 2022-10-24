@@ -56,7 +56,7 @@ namespace OpenTK_Learning
             ImGui.SetCurrentContext(context);
             var io = ImGui.GetIO();
             //io.Fonts.AddFontDefault();
-            io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/Bahnschrift.ttf", 15.0f);
+            io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/LEELAWAD.TTF", 16f);
 
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;

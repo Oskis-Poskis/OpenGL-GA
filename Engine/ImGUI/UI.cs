@@ -11,9 +11,12 @@ namespace OpenTK_Learning
         public static void LoadTheme()
         {
             // Styling
-            ImGui.GetStyle().FrameRounding = 2.5f;
+            ImGui.GetStyle().FrameRounding = 4f;
             ImGui.GetStyle().FrameBorderSize = 1f;
-            ImGui.GetStyle().TabRounding = 0f;
+            ImGui.GetStyle().TabRounding = 2f;
+            ImGui.GetStyle().FramePadding = new System.Numerics.Vector2(4);
+            ImGui.GetStyle().ItemSpacing = new System.Numerics.Vector2(8, 2);
+            ImGui.GetStyle().ItemInnerSpacing = new System.Numerics.Vector2(1, 4);
             ImGui.GetStyle().WindowMenuButtonPosition = ImGuiDir.None;
             ImGui.GetIO().FontGlobalScale = Main.fontSize;
 
@@ -36,9 +39,9 @@ namespace OpenTK_Learning
             ImGui.PushStyleColor(ImGuiCol.TabHovered, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
             
             // Header
-            ImGui.PushStyleColor(ImGuiCol.Header, new System.Numerics.Vector4(51f, 77f, 128f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new System.Numerics.Vector4(51f, 77f, 128f, 180f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.HeaderActive, new System.Numerics.Vector4(100f, 100f, 100f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.Header, new System.Numerics.Vector4(0f, 153f, 76f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.HeaderHovered, new System.Numerics.Vector4(0f, 153f, 76f, 180f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.HeaderActive, new System.Numerics.Vector4(0f, 153f, 76f, 255f) / 255);
 
             // Rezising bar
             ImGui.PushStyleColor(ImGuiCol.Separator, new System.Numerics.Vector4(40f, 40f, 40f, 255) / 255);
@@ -69,10 +72,12 @@ namespace OpenTK_Learning
             ImGui.SetNextWindowClass(window_class);
             */
 
-            ImGui.Begin("Game", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoDecoration);
+            ImGui.Begin("Game");
 
             CameraWidth = ImGui.GetWindowWidth() - 18;
             CameraHeight = ImGui.GetWindowHeight() - 50;
+
+            Main.isMainHovered = ImGui.IsWindowHovered();
 
             ImGui.Image((IntPtr)R_3D.framebufferTexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
@@ -105,7 +110,7 @@ namespace OpenTK_Learning
             {
                 if (ImGui.BeginMenu("Debug"))
                 {
-                    ImGui.Checkbox("Statistics", ref Main.showStatistics); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 1");
+                    ImGui.Checkbox("Statistics", ref Main.showStatistics);
                     ImGui.Separator();
                     ImGui.Checkbox("ImGUI Demo ", ref Main.showDemoWindow);
                     ImGui.EndMenu();
@@ -115,13 +120,13 @@ namespace OpenTK_Learning
 
                 if (ImGui.BeginMenu("Editor"))
                 {
-                    ImGui.Checkbox("Show Object Properties", ref Main.showObjectProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 2");
+                    ImGui.Checkbox("Show Object Properties", ref Main.showObjectProperties);
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Light Properties", ref Main.showLightProperties); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 3");
+                    ImGui.Checkbox("Show Light Properties", ref Main.showLightProperties); 
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Outliner", ref Main.showOutliner); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 4");
+                    ImGui.Checkbox("Show Outliner", ref Main.showOutliner);
                     ImGui.Separator();
-                    ImGui.Checkbox("Show Settings", ref Main.showSettings); ImGui.SameLine(); ImGui.TextDisabled("Shortcut: 5");
+                    ImGui.Checkbox("Show Settings", ref Main.showSettings);
                 }
                 ImGui.EndMenu();
             }
@@ -581,7 +586,7 @@ namespace OpenTK_Learning
                     }
 
                     ImGui.Text("Falloff");
-                    if (ImGui.InputFloat("##Falloff", ref falloff, 0.1f))
+                    if (ImGui.SliderFloat("##Falloff", ref falloff, 1, 10))
                     {
                         R_3D.Lights[selectedLight] = new R_3D.Light
                         {
@@ -702,36 +707,18 @@ namespace OpenTK_Learning
                         ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                         if (ImGui.Button("Plane"))
                         {
-                            string PlaneName = "Plane";
-
-                            for (int i = 0; i < R_3D.Objects.Count; i++)
-                            {
-                                if (R_3D.Objects[i].Name == PlaneName)
-                                {
-                                    PlaneName += i.ToString();
-                                }
-                            }
-
-                            R_3D.AddObjectToArray(false, PlaneName, Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
+                            R_3D.AddObjectToArray(false, "Plane", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
                             R_3D.ConstructObjects();
+                            Main.selectedObject = R_3D.Objects.Count - 1;
                         }
 
                         ImGui.SameLine();
 
                         if (ImGui.Button("Cube"))
                         {
-                            string CubeName = "Cube";
-
-                            for (int i = 0; i < R_3D.Objects.Count; i++)
-                            {
-                                if (R_3D.Objects[i].Name == CubeName)
-                                {
-                                    CubeName += i.ToString();
-                                }
-                            }
-
-                            R_3D.AddObjectToArray(false, CubeName, Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
+                            R_3D.AddObjectToArray(false, "Cube", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
                             R_3D.ConstructObjects();
+                            Main.selectedObject = R_3D.Objects.Count - 1;
                         }
 
                         ImGui.SameLine();
@@ -763,38 +750,20 @@ namespace OpenTK_Learning
                         ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                         if (ImGui.Button("Point Light"))
                         {
-                            string LightName = "PointLight";
-
-                            for (int i = 0; i < R_3D.Lights.Count; i++)
-                            {
-                                if (R_3D.Lights[i].Name == LightName)
-                                {
-                                    LightName += i.ToString();
-                                }
-                            }
-
                             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                            R_3D.AddLightToArray(1, 5, 1, 0, LightName, new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_3D.AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructLights();
+                            Main.selectedLight = R_3D.Lights.Count - 1;
                         }
 
                         ImGui.SameLine();
 
                         if (ImGui.Button("Directional Light"))
                         {
-                            string LightName = "DirectionalLight";
-
-                            for (int i = 0; i < R_3D.Lights.Count; i++)
-                            {
-                                if (R_3D.Lights[i].Name == LightName)
-                                {
-                                    LightName += i.ToString();
-                                }
-                            }
-
                             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                            R_3D.AddLightToArray(0.75f, 5, 1, 1, LightName, new Vector3(1f), Main.LightShader, new Vector3(1, -1, -1), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_3D.AddLightToArray(0.75f, 5, 1, 1, "Directional Light", new Vector3(1f), Main.LightShader, new Vector3(-1, 1, 1), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructLights();
+                            Main.selectedLight = R_3D.Lights.Count - 1;
                         }
                         ImGui.EndTabItem();
                     }
@@ -816,12 +785,12 @@ namespace OpenTK_Learning
             string[] _objects = new string[R_3D.Objects.Count];
             string[] _lights = new string[R_3D.Lights.Count];
 
-            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 100)))
+            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 75)))
             {
                 for (int i = 0; i < R_3D.Lights.Count; i++)
                 {
                     _lights[i] = R_3D.Lights[i].Name;
-                    if (ImGui.Selectable("  " + _lights[i], selectedLight == i))
+                    if (ImGui.Selectable(" " + _lights[i] + "##" + R_3D.Lights[i].ID, selectedLight == i))
                     {
                         selectedLight = i;
                     }
@@ -836,7 +805,7 @@ namespace OpenTK_Learning
                 {
                     _objects[i] = R_3D.Objects[i].Name;
 
-                    if (ImGui.Selectable("  " + _objects[i], selectedObject == i))
+                    if (ImGui.Selectable(" " + _objects[i] + "##" + R_3D.Objects[i].ID, selectedObject == i))
                     {
                         selectedObject = i;
                     }

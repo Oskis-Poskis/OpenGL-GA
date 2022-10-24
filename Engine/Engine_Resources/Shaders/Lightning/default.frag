@@ -58,7 +58,6 @@ vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, ve
     
     float _distance = length(light.lightPos - FragPos);
     //float attenuation = 1.0 / (constant + linear * _distance + quadratic * (_distance * _distance));
-
     float attenuation = pow(smoothstep(light.radius, 0, _distance), light.compression);
 
     ambient *= attenuation;
@@ -73,7 +72,7 @@ vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
   	
-    vec3 lightDir = normalize(-directLight.direction);  
+    vec3 lightDir = normalize(directLight.direction);  
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = directLight.color * diff * color;
 
