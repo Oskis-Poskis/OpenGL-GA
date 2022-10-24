@@ -26,6 +26,9 @@ namespace OpenTK_Learning
             ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new System.Numerics.Vector4(60f, 60f, 60f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
 
+            // Popup BG
+            ImGui.PushStyleColor(ImGuiCol.ModalWindowDimBg, new System.Numerics.Vector4(30f, 30f, 30f, 150f) / 255);
+
             // Titles
             ImGui.PushStyleColor(ImGuiCol.TitleBgActive, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TitleBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
@@ -66,12 +69,6 @@ namespace OpenTK_Learning
 
         public static void LoadGameWindow(ref float CameraWidth, ref float CameraHeight)
         {
-            /*
-            ImGuiWindowClassPtr window_class;
-            window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags.AutoHideTabBar;
-            ImGui.SetNextWindowClass(window_class);
-            */
-
             ImGui.Begin("Game");
 
             CameraWidth = ImGui.GetWindowWidth() - 18;

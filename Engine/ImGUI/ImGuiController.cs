@@ -56,7 +56,9 @@ namespace OpenTK_Learning
             ImGui.SetCurrentContext(context);
             var io = ImGui.GetIO();
             //io.Fonts.AddFontDefault();
-            io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/LEELAWAD.TTF", 16f);
+            //io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/LEELAWUI.TTF", 25f);
+            io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/BRLNSR.TTF", 25f);
+            //io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/FRABK.TTF", 25f);
 
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;

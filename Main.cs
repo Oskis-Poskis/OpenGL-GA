@@ -45,7 +45,7 @@ namespace OpenTK_Learning
         public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
-        public static float fontSize = 0.95f;
+        public static float fontSize = 0.55f;
         public static bool wireframeonoff = false;
         bool vsynconoff = true;
         float spacing = 2f;
@@ -370,7 +370,7 @@ namespace OpenTK_Learning
             {
                 if (selectedObject > 0)
                 {
-                    R_3D.Objects.RemoveAt(selectedObject);
+                    Objects.RemoveAt(selectedObject);
                     selectedObject -= 1;
                 }
             }
@@ -406,13 +406,14 @@ namespace OpenTK_Learning
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            /*
-            if (IsKeyPressed(Keys.D1)) showStatistics = Math_Functions.ToggleBool(showStatistics);
-            if (IsKeyPressed(Keys.D2)) showObjectProperties = Math_Functions.ToggleBool(showObjectProperties);
-            if (IsKeyPressed(Keys.D3)) showLightProperties = Math_Functions.ToggleBool(showLightProperties);
-            if (IsKeyPressed(Keys.D4)) showOutliner = Math_Functions.ToggleBool(showOutliner);
-            if (IsKeyPressed(Keys.D5)) showSettings = Math_Functions.ToggleBool(showSettings);
-            */
+            if (isMainHovered)
+            {
+                if (IsKeyPressed(Keys.D1)) showStatistics = Math_Functions.ToggleBool(showStatistics);
+                if (IsKeyPressed(Keys.D2)) showObjectProperties = Math_Functions.ToggleBool(showObjectProperties);
+                if (IsKeyPressed(Keys.D3)) showLightProperties = Math_Functions.ToggleBool(showLightProperties);
+                if (IsKeyPressed(Keys.D4)) showOutliner = Math_Functions.ToggleBool(showOutliner);
+                if (IsKeyPressed(Keys.D5)) showSettings = Math_Functions.ToggleBool(showSettings);
+            }
 
             if (IsKeyPressed(Keys.F11)) fullScreen = Math_Functions.ToggleBool(fullScreen);
 

@@ -7,7 +7,7 @@ namespace OpenTK_Learning
         [STAThread]
         static void Main()
         {
-            using Main game = new Main(1800, 950, "OpenGL - GA");
+            using Main game = new Main(2200, 1200, "OpenGL - GA");
             game.Run();
         }
     }
