@@ -1,5 +1,5 @@
 # OpenGL-GA
-#Simple OpenTK Game Engine WIP
+# Simple OpenTK Game Engine WIP
 **GUI** using [ImGUI.NET](https://www.nuget.org/packages/ImGui.NET)
 
 **3D Model loading** using [AssimpNet](https://www.nuget.org/packages/AssimpNet)
