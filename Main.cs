@@ -88,9 +88,6 @@ namespace OpenTK_Learning
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferTexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            
             _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
 
             // Matches window scale to new resize
@@ -200,7 +197,7 @@ namespace OpenTK_Learning
             
             // Draw 3D objects
             {
-                // Allow 3D input only when mouse is over viewport
+                // Allow keyboard input only when mouse is over viewport
                 if (isMainHovered == true)
                 {
                     // Editor camera movement
@@ -208,7 +205,13 @@ namespace OpenTK_Learning
                 }
 
                 // Editor navigation on right click
-                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
+                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
+                {
+                    CursorState = CursorState.Grabbed;
+                    MouseInput();
+                }
+
+                if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
 
                 // Use texture
                 diffuseMap.Use(TextureUnit.Texture1);
@@ -242,10 +245,7 @@ namespace OpenTK_Learning
             _controller.Update(this, (float)args.Time);
             ImGui.DockSpaceOverViewport();
 
-            if (showDemoWindow)
-            {
-                ImGui.ShowDemoWindow();
-            }
+            if (showDemoWindow) ImGui.ShowDemoWindow();
 
             UI.LoadMenuBar();
             if (showStatistics) UI.LoadStatistics(CameraWidth, CameraHeight, Yaw, Pitch, position, spacing);
@@ -310,7 +310,7 @@ namespace OpenTK_Learning
                 if (ImGui.TreeNode("Editor"))
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("Font Size", ref fontSize, 0.8f, 2.0f, "%.1f"))
+                    if (ImGui.SliderFloat("Font Size", ref fontSize, 0.1f, 2.0f, "%.1f"))
                     {
                         ImGui.GetIO().FontGlobalScale = fontSize;
 
@@ -331,17 +331,13 @@ namespace OpenTK_Learning
             _controller.Render();
             ImGuiController.CheckGLError("End of frame");
 
-            Context.SwapBuffers();
+            Context.SwapBuffers();            
+
             base.OnRenderFrame(args);
         }
 
         private void MouseInput()
         {
-            if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt))
-            {
-                CursorState = CursorState.Normal;
-            }
-
             Pitch += MouseState.Delta.X * sensitivity;
             Yaw -= MouseState.Delta.Y * sensitivity;
             
@@ -354,11 +350,6 @@ namespace OpenTK_Learning
         // Keyboard input
         private void GeneralInput(FrameEventArgs args)
         {
-            if (IsMouseButtonPressed(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
-            {
-                CursorState = CursorState.Grabbed;
-            }
-
             // Close editor
             if (IsKeyDown(Keys.Escape) | CloseWindow == true)
             {
