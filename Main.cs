@@ -198,7 +198,7 @@ namespace OpenTK_Learning
             // Draw 3D objects
             {
                 // Allow keyboard input only when mouse is over viewport
-                if (isMainHovered == true)
+                if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
                 {
                     // Editor camera movement
                     GeneralInput(args);

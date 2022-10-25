@@ -66,6 +66,7 @@
 	
   <ItemGroup>
     <Folder Include="bin\Debug\netcoreapp3.1\runtimes\" />
+    <Folder Include="Progress\" />
   </ItemGroup>
 	
   <ItemGroup>
