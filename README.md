@@ -7,10 +7,10 @@ Simple OpenTK Game Engine WIP
 
 ## Resources
 LearnOpenTK:
-https://opentk.net/learn/index.html
+>https://opentk.net/learn/index.html
 
 LearnOpenGL:
-https://learnopengl.com/Introduction
+>https://learnopengl.com/Introduction
 
 Two-Bit Coding OpenTK tutorials:
 https://www.youtube.com/watch?v=ZOxgD16C3GM&list=PLSlpr6o9vURyxd-keTeGLXy980pF7boki
