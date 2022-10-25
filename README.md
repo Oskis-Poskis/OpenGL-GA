@@ -32,4 +32,7 @@ ImGUI Controller Class By NogginBops: https://github.com/NogginBops/ImGui.NET_Op
 **Reddit:** [oskis69](https://www.reddit.com/user/oskis69)
 
 ## Features
-![Docking](/Progress/Docking.png)
+This is a list of features to keep track of my progress
+
+
+>![Docking](/Progress/Docking.png)
