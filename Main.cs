@@ -337,6 +337,11 @@ namespace OpenTK_Learning
 
         private void MouseInput()
         {
+            if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt))
+            {
+                CursorState = CursorState.Normal;
+            }
+
             Pitch += MouseState.Delta.X * sensitivity;
             Yaw -= MouseState.Delta.Y * sensitivity;
             
@@ -352,11 +357,6 @@ namespace OpenTK_Learning
             if (IsMouseButtonPressed(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
             {
                 CursorState = CursorState.Grabbed;
-            }
-
-            if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt))
-            {
-                CursorState = CursorState.Normal;
             }
 
             // Close editor
