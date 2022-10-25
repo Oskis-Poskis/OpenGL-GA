@@ -154,11 +154,17 @@ namespace OpenTK_Learning
 
             // A car
             R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
-            AddObjectToArray(false, "Car", M_Car,
-                new Vector3(2f),            // Scale
-                new Vector3(0, 4, 0),       // Location
-                new Vector3(180f, 90f, 0f), // Rotation
-                R_Loading.importedData, R_Loading.importindices);
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    AddObjectToArray(false, "Car", M_Car,
+                        new Vector3(2f),            // Scale
+                        new Vector3(i * 10, j * 4 + 4, 0),       // Location
+                        new Vector3(180f, 90f, 0f), // Rotation
+                        R_Loading.importedData, R_Loading.importindices);
+                }
+            }
             
             // Generate VAO, VBO and EBO
             ConstructObjects();
@@ -178,8 +184,6 @@ namespace OpenTK_Learning
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
-
-            fboShader.SetFloat("zoom", 1);
 
             base.OnLoad();
         }
@@ -357,42 +361,6 @@ namespace OpenTK_Learning
         // Keyboard input
         private void GeneralInput(FrameEventArgs args)
         {
-            if (IsKeyDown(Keys.Right))
-            {
-                xoffset += step;
-                fboShader.SetFloat("Xoffset", xoffset);
-            }
-
-            if (IsKeyDown(Keys.Up))
-            {
-                yoffset += step;
-                fboShader.SetFloat("Yoffset", yoffset);
-            }
-
-            if (IsKeyDown(Keys.Left))
-            {
-                xoffset -= step;
-                fboShader.SetFloat("Xoffset", xoffset);
-            }
-
-            if (IsKeyDown(Keys.Down))
-            {
-                yoffset -= step;
-                fboShader.SetFloat("Yoffset", yoffset);
-            }
-
-            if (IsKeyDown(Keys.M))
-            {
-                zoom -= 0.05f;
-                fboShader.SetFloat("zoom", zoom);
-            }
-
-            if (IsKeyDown(Keys.N))
-            {
-                zoom += 0.05f;
-                fboShader.SetFloat("zoom", zoom);
-            }
-
             // Close editor
             if (IsKeyDown(Keys.Escape) | CloseWindow == true)
             {

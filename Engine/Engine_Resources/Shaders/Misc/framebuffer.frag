@@ -30,6 +30,7 @@ float mandelbrot(vec2 uv)
 
 void main()
 {
+/*
     vec2 uv = (gl_FragCoord.xy - 0.5 * vec2(width, height)) / height;
     uv -= vec2(0.5, 0);
     uv += vec2(Xoffset, Yoffset);
@@ -39,7 +40,8 @@ void main()
     _col += m;
 
     fragColor = vec4(_col, 1);
+    */
 
-    //vec3 result = vec3(texture(screenTexture, texCoord));
-    //fragColor = vec4(result, 1);
+    vec3 result = vec3(texture(screenTexture, texCoord));
+    fragColor = vec4(result, 1);
 }

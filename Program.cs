@@ -7,7 +7,7 @@ namespace OpenTK_Learning
         [STAThread]
         static void Main()
         {
-            using Main game = new Main(1800, 900, "Axyz");
+            using Main game = new Main(2400, 1300, "Axyz");
             game.Run();
         }
     }
