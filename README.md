@@ -47,7 +47,9 @@ This is a list of features to keep track of my progress
 
 ### Settings, Statistics and Outliner
 >![Settings and statistics](/Progress/SettingsAndStats.png) ![Outliner](/Progress/Outliner.png)
->### Specular Lightning
+
+### Specular Lightning
 >![Specular Lightning](/Progress/SpecularLightning.png)
->### Multiple Points Lights
+
+### Multiple Points Lights
 >![Multiple Point Lights](/Progress/MultiplePointLights.png)
