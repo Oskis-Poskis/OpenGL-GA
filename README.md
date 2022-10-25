@@ -33,7 +33,8 @@ ImGUI Controller Class By NogginBops:
 **Reddit:** [oskis69](https://www.reddit.com/user/oskis69)
 
 # Features to add
-List of things I want to implement
+List of things I want to implement/do
+- Comment all code better
 - PBR Lightning model
 - Screen-space Anti Aliasing
 - Screen-space Ambient Occlusion
