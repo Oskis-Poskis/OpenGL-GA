@@ -7,7 +7,9 @@ Model loading using [AssimpNet](https://www.nuget.org/packages/AssimpNet)
 
 ## Resources
 OpenTK: https://opentk.net/learn/index.html
+
 LearnOpenGL: https://learnopengl.com/Introduction
+
 Two-Bit Coding: https://www.youtube.com/watch?v=ZOxgD16C3GM&list=PLSlpr6o9vURyxd-keTeGLXy980pF7boki
 
 ## Links
