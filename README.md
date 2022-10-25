@@ -36,3 +36,6 @@ This is a list of features to keep track of my progress
 
 ### ImGUI Docking
 >![Docking](/Progress/Docking.png)
+
+### Outliner
+>![Outliner](/Progress/Outliner.png) ![Settings and statistics](/Progress/SettingsAndStats.png)
