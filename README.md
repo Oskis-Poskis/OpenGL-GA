@@ -5,7 +5,7 @@ Simple OpenTK Game Engine WIP
 
 **3D Model loading** using [AssimpNet](https://www.nuget.org/packages/AssimpNet)
 
-## Resources
+# Resources
 LearnOpenTK:
 >https://opentk.net/learn/index.html
 
@@ -27,7 +27,7 @@ ImGUI Demo:
 ImGUI Controller Class By NogginBops:
 >https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
 
-## Links
+# Links
 **Youtube:** [Oskar Kassander](https://www.youtube.com/c/OskarKassander/featured)
 
 **Reddit:** [oskis69](https://www.reddit.com/user/oskis69)
