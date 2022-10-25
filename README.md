@@ -15,7 +15,7 @@ https://learnopengl.com/Introduction
 Two-Bit Coding:
 https://www.youtube.com/watch?v=ZOxgD16C3GM&list=PLSlpr6o9vURyxd-keTeGLXy980pF7boki
 
-Vicotr Gordan OpenGL tutorials:
+Victor Gordan OpenGL tutorials:
 https://www.youtube.com/watch?v=XpBGwZNyUh0&list=PLPaoO-vpZnumdcb4tZc4x5Q-v7CkrQ6M-
 
 Assimp Example:
