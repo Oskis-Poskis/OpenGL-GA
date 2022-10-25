@@ -6,13 +6,13 @@ Simple OpenTK Game Engine WIP
 **3D Model loading** using [AssimpNet](https://www.nuget.org/packages/AssimpNet)
 
 ## Resources
-OpenTK:
+LearnOpenTK:
 https://opentk.net/learn/index.html
 
 LearnOpenGL:
 https://learnopengl.com/Introduction
 
-Two-Bit Coding:
+Two-Bit Coding OpenTK tutorials:
 https://www.youtube.com/watch?v=ZOxgD16C3GM&list=PLSlpr6o9vURyxd-keTeGLXy980pF7boki
 
 Victor Gordan OpenGL tutorials:
