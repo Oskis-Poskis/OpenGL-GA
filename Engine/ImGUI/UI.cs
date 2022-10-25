@@ -29,6 +29,8 @@ namespace OpenTK_Learning
             // Popup BG
             ImGui.PushStyleColor(ImGuiCol.ModalWindowDimBg, new System.Numerics.Vector4(30f, 30f, 30f, 150f) / 255);
 
+            ImGui.PushStyleColor(ImGuiCol.TextDisabled, new System.Numerics.Vector4(150f, 150f, 150f, 255f) / 255);
+
             // Titles
             ImGui.PushStyleColor(ImGuiCol.TitleBgActive, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TitleBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
@@ -125,8 +127,18 @@ namespace OpenTK_Learning
                     ImGui.Separator();
                     ImGui.Checkbox("Show Settings", ref Main.showSettings);
                 }
+
                 ImGui.EndMenu();
             }
+
+            ImGui.Dummy(new System.Numerics.Vector2(ImGui.GetWindowWidth() - 500, 0));
+            ImGui.TextDisabled("Objects: " + (R_3D.Objects.Count).ToString());
+            ImGui.TextDisabled(" | ");
+            ImGui.TextDisabled(GL.GetString(StringName.Renderer));
+            ImGui.TextDisabled(" | ");
+            ImGui.TextDisabled("FPS: " + ImGui.GetIO().Framerate.ToString("0"));
+            ImGui.TextDisabled(" | ");
+            ImGui.TextDisabled("MS: " + (1000 / ImGui.GetIO().Framerate).ToString("0.00"));
 
             ImGui.EndMainMenuBar();
         }

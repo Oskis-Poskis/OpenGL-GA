@@ -5,30 +5,37 @@ out vec4 fragColor;
 
 uniform sampler2D screenTexture;
 
-const float offset_x = 1.0f / 800.0f;  
-const float offset_y = 1.0f / 800.0f;  
+const float MAX_ITER = 128;
+const float width = 1278;
+const float height = 828;
 
-vec2 offsets[9] = vec2[]
-(
-    vec2(-offset_x,  offset_y), vec2( 0.0f,    offset_y), vec2( offset_x,  offset_y),
-    vec2(-offset_x,  0.0f),     vec2( 0.0f,    0.0f),     vec2( offset_x,  0.0f),
-    vec2(-offset_x, -offset_y), vec2( 0.0f,   -offset_y), vec2( offset_x, -offset_y) 
-);
 
-float kernel[9] = float[]
-(
-    1,  1, 1,
-    1, -9, 1,
-    1,  1, 1
-);
+float mandelbrot(vec2 uv)
+{
+   vec2 c = 5 * uv - vec2(0.7, 0);
+   vec2 z= vec2(0);
+   float iter = 0;
+   for (float i; i < MAX_ITER; i++)
+   {
+       z = vec2(z.x * z.x - z.y * z.y,
+                2.0 * z.x * z.y) + c;
+       if (dot(z, z) > 4) return iter / MAX_ITER;
+       iter++; 
+   }
+   return 0;
+}
 
 void main()
 {
+    vec2 uv = (gl_FragCoord.xy - 0.5 * vec2(width, height)) / height;
+    uv -= vec2(0.5, 0);
+    uv /= 2;
+    vec3 _col = vec3(0);
+    float m = mandelbrot(uv);
+    _col += m;
+
+    //fragColor = vec4(_col, 1);
+
     vec4 result = texture(screenTexture, texCoord);
-    //result = vec4(pow(result, vec3(2.2)));
-    fragColor = vec4(result);
-    //vec3 color = vec3(0.0f);
-    //for(int i = 0; i < 9; i++)
-    //    color += vec3(texture(screenTexture, texCoord + offsets[i])) * kernel[i];
-    //fragColor = vec4(color, 1.0f);
+    fragColor = vec4(result, 1);
 }

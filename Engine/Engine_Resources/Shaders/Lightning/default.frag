@@ -57,8 +57,8 @@ vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, ve
     vec3 specular = spec * light.lightColor * material.specular;
     
     float _distance = length(light.lightPos - FragPos);
-    //float attenuation = 1.0 / (constant + linear * _distance + quadratic * (_distance * _distance));
-    float attenuation = pow(smoothstep(light.radius, 0, _distance), light.compression);
+    //float attenuation = 1.0 / (constant + linear * _distance + quadratic * (_distance * _distance)); Correct attenuation
+    float attenuation = pow(smoothstep(light.radius, 0, _distance), light.compression); // Attenuation with radius and fallof settings
 
     ambient *= attenuation;
     diffuse *= attenuation;
