@@ -24,7 +24,7 @@ https://github.com/assimp/assimp-net/blob/master/AssimpNet.Sample/SimpleOpenGLSa
 ImGUI Demo:
 https://github.com/ocornut/imgui/blob/master/imgui_demo.cpp
 
-ImGUI Controller Class By [NogginBops](https://github.com/NogginBops): https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
+ImGUI Controller Class By NogginBops: https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
 
 ## Links
 Youtube: [Oskar Kassander](https://www.youtube.com/c/OskarKassander/featured)
