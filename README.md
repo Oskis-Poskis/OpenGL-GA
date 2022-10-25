@@ -38,10 +38,8 @@ This is a list of features to keep track of my progress
 ### ImGUI Docking
 >![Docking](/Progress/Docking.png)
 
-### Settings and Statistics tabs
->![Settings and statistics](/Progress/SettingsAndStats.png)
-### Outliner tab
->![Outliner](/Progress/Outliner.png)
+### Settings, Statistics and Outliner
+>![Settings and statistics](/Progress/SettingsAndStats.png) ![Outliner](/Progress/Outliner.png)
 >### Specular Lightning
 >![Specular Lightning](/Progress/SpecularLightning.png)
 >### Multiple Points Lights
