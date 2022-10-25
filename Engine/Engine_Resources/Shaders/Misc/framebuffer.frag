@@ -9,6 +9,9 @@ const float MAX_ITER = 128;
 const float width = 1278;
 const float height = 828;
 
+uniform float Xoffset;
+uniform float Yoffset;
+uniform float zoom;
 
 float mandelbrot(vec2 uv)
 {
@@ -29,13 +32,14 @@ void main()
 {
     vec2 uv = (gl_FragCoord.xy - 0.5 * vec2(width, height)) / height;
     uv -= vec2(0.5, 0);
-    uv /= 2;
+    uv += vec2(Xoffset, Yoffset);
+    uv *= vec2(zoom);
     vec3 _col = vec3(0);
     float m = mandelbrot(uv);
     _col += m;
 
-    //fragColor = vec4(_col, 1);
+    fragColor = vec4(_col, 1);
 
-    vec4 result = texture(screenTexture, texCoord);
-    fragColor = vec4(result, 1);
+    //vec3 result = vec3(texture(screenTexture, texCoord));
+    //fragColor = vec4(result, 1);
 }

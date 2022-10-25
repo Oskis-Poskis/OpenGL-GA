@@ -179,6 +179,8 @@ namespace OpenTK_Learning
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
 
+            fboShader.SetFloat("zoom", 1);
+
             base.OnLoad();
         }
 
@@ -347,9 +349,50 @@ namespace OpenTK_Learning
             front = Vector3.Normalize(front);
         }
 
+        float xoffset = 0;
+        float yoffset = 0;
+        float zoom = 1;
+        float step = 0.05f;
+
         // Keyboard input
         private void GeneralInput(FrameEventArgs args)
         {
+            if (IsKeyDown(Keys.Right))
+            {
+                xoffset += step;
+                fboShader.SetFloat("Xoffset", xoffset);
+            }
+
+            if (IsKeyDown(Keys.Up))
+            {
+                yoffset += step;
+                fboShader.SetFloat("Yoffset", yoffset);
+            }
+
+            if (IsKeyDown(Keys.Left))
+            {
+                xoffset -= step;
+                fboShader.SetFloat("Xoffset", xoffset);
+            }
+
+            if (IsKeyDown(Keys.Down))
+            {
+                yoffset -= step;
+                fboShader.SetFloat("Yoffset", yoffset);
+            }
+
+            if (IsKeyDown(Keys.M))
+            {
+                zoom -= 0.05f;
+                fboShader.SetFloat("zoom", zoom);
+            }
+
+            if (IsKeyDown(Keys.N))
+            {
+                zoom += 0.05f;
+                fboShader.SetFloat("zoom", zoom);
+            }
+
             // Close editor
             if (IsKeyDown(Keys.Escape) | CloseWindow == true)
             {
