@@ -3,8 +3,21 @@
 in vec2 texCoord;
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
+//uniform sampler2D screenTexture;
+uniform sampler2D depthTexture;
 
+void main()
+{
+    float ndc = texture(depthTexture, texCoord).r * 2 - 1;
+    float near = 0.1;
+    float far = 100;
+
+    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));	
+
+    fragColor = vec4(vec3(linearDepth), 1);
+}
+
+/*
 const float MAX_ITER = 128;
 const float width = 1278;
 const float height = 828;
@@ -28,9 +41,6 @@ float mandelbrot(vec2 uv)
    return 0;
 }
 
-void main()
-{
-/*
     vec2 uv = (gl_FragCoord.xy - 0.5 * vec2(width, height)) / height;
     uv -= vec2(0.5, 0);
     uv += vec2(Xoffset, Yoffset);
@@ -40,8 +50,4 @@ void main()
     _col += m;
 
     fragColor = vec4(_col, 1);
-    */
-
-    vec3 result = vec3(texture(screenTexture, texCoord));
-    fragColor = vec4(result, 1);
-}
+*/

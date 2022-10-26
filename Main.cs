@@ -149,23 +149,13 @@ namespace OpenTK_Learning
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
 
-            // Load model into temporary variables
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
-
-            // A car
             R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
-            for (int i = 0; i < 10; i++)
-            {
-                for (int j = 0; j < 10; j++)
-                {
-                    AddObjectToArray(false, "Car", M_Car,
+            AddObjectToArray(false, "Car", M_Car,
                         new Vector3(2f),            // Scale
-                        new Vector3(i * 10, j * 4 + 4, 0),       // Location
+                        new Vector3(0, 4, 0),       // Location
                         new Vector3(180f, 90f, 0f), // Rotation
                         R_Loading.importedData, R_Loading.importindices);
-                }
-            }
-            
+
             // Generate VAO, VBO and EBO
             ConstructObjects();
 
@@ -173,7 +163,7 @@ namespace OpenTK_Learning
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
 
             AddLightToArray(0.75f, 5, 1, 1, "Directional Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(-1, 1, 1), new Vector3(10f, 8f, 10f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(1, 8, 1, 0, "Point Light", new Vector3(1f, 0f, 0f), LightShader, new Vector3(1f), new Vector3(4f, 8, 0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
             ConstructLights();
 
             PhongShader.SetFloat("NoiseAmount", NoiseAmount);
@@ -193,43 +183,33 @@ namespace OpenTK_Learning
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            GL.Enable(EnableCap.DepthTest);
-
-            // Bind FBO and clear color and depth buffer
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
             GL.Viewport(0, 0, (int)WindowWidth, (int)WindowHeight);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            
+
+            GL.Enable(EnableCap.DepthTest);
+
             // Draw 3D objects
             {
-                // Allow keyboard input only when mouse is over viewport
-                if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
-                {
-                    // Editor camera movement
-                    GeneralInput(args);
-                }
-
-                // Editor navigation on right click
-                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt))
-                {
-                    CursorState = CursorState.Grabbed;
-                    MouseInput();
-                }
-
-                if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
-
-                // Use texture
-                diffuseMap.Use(TextureUnit.Texture1);
-                normalMap.Use(TextureUnit.Texture2);
-
-                // Main function for drawing the array of objects
+                // Wireframe mode toggling
                 if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                // Allow keyboard input only when mouse is over viewport
+                if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) GeneralInput(args);
+
+                // Editor navigation on right click
+                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
+                if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
 
                 // Camera pos and FOV
                 Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
                 Matrix4 view = Matrix4.LookAt(position, position + front, up);
+
+                // Use texture
+                //diffuseMap.Use(TextureUnit.Texture1);
+                //normalMap.Use(TextureUnit.Texture2);
 
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
@@ -237,12 +217,18 @@ namespace OpenTK_Learning
                 
                 // Draw all lights
                 DrawLights(projection, view);
+
             }
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, DepthFBO);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, Dtexture);
 
             fboShader.Use();
             GL.BindVertexArray(rectVAO);
-            GL.Disable(EnableCap.DepthTest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -344,6 +330,8 @@ namespace OpenTK_Learning
 
         private void MouseInput()
         {
+            CursorState = CursorState.Grabbed;
+
             Pitch += MouseState.Delta.X * sensitivity;
             Yaw -= MouseState.Delta.Y * sensitivity;
             
@@ -352,11 +340,6 @@ namespace OpenTK_Learning
             front.Z = (float)Math.Cos(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89))) * (float)Math.Sin(MathHelper.DegreesToRadians(Pitch));
             front = Vector3.Normalize(front);
         }
-
-        float xoffset = 0;
-        float yoffset = 0;
-        float zoom = 1;
-        float step = 0.05f;
 
         // Keyboard input
         private void GeneralInput(FrameEventArgs args)

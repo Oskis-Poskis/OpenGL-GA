@@ -78,7 +78,7 @@ namespace OpenTK_Learning
 
             Main.isMainHovered = ImGui.IsWindowHovered();
 
-            ImGui.Image((IntPtr)R_3D.framebufferTexture,
+            ImGui.Image((IntPtr)R_3D.SRtexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
                 new System.Numerics.Vector2(0.0f, 1.0f),
                 new System.Numerics.Vector2(1.0f, 0.0f),

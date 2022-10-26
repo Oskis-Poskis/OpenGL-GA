@@ -119,6 +119,12 @@ void main()
     // Reduce color banding
     result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
+    float ndc = gl_FragCoord.z * 2 - 1;
+    float near = 0.01;
+    float far = 100;
+
+    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));	
+
     // Final Color
-    fragColor = vec4(result, 1.0);
+    fragColor = vec4(vec3(result), 1.0);
 }
