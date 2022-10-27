@@ -3,6 +3,10 @@ using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 
+using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using StbImageSharp;
+using System.IO;
+
 namespace OpenTK_Learning
 {
     class R_3D
@@ -383,6 +387,85 @@ namespace OpenTK_Learning
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
+        }
+
+        static string[] cubeMapTextureString = new string[6]
+        {
+            "./../../../Engine/Engine_Resources/Images/CubeMap/right.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap/left.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap/top.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap/bottom.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap/front.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap/back.jpg",
+        };
+
+        public static Shader CubeMapShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
+
+        static int CubeMapVAO;
+        static VertexData[] CubeMapData;
+        static int[] CubeMapIndices;
+
+        public static int cubeMapTexture;
+
+        public static void SetUpCubeMap()
+        {
+            cubeMapTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (i == 0) StbImage.stbi_set_flip_vertically_on_load(1);
+                else StbImage.stbi_set_flip_vertically_on_load(0);
+
+                using (Stream stream = File.OpenRead(cubeMapTextureString[i]))
+                {
+                    ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
+                    GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, image.Data);
+                }
+            }
+
+            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/CubeMapMesh.fbx");
+            CubeMapData = R_Loading.importedData;
+            CubeMapIndices = R_Loading.importindices;
+
+            CubeMapShader.Use();
+            CubeMapShader.SetInt("skybox", 0);
+
+            CubeMapVAO = GL.GenVertexArray();
+            GL.BindVertexArray(CubeMapVAO);
+            // Generate and bind Vertex Buffere
+            int VBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, CubeMapData.Length * 8 * sizeof(float), CubeMapData, BufferUsageHint.StaticDraw);
+            // Generate and bind Element Buffer
+            int EBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, CubeMapIndices.Length * sizeof(uint), CubeMapIndices, BufferUsageHint.StaticDraw);
+
+            // Set attributes in shaders - vertex positions, UV's and normals
+            GL.EnableVertexAttribArray(CubeMapShader.GetAttribLocation("aPosition"));
+            GL.VertexAttribPointer(CubeMapShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+        }
+
+        public static void DrawCubeMapCube(Matrix4 projection, Matrix4 view, Vector3 position)
+        {
+            CubeMapShader.Use();
+            GL.BindVertexArray(CubeMapVAO);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
+
+            SetProjView(CubeMapShader, projection, view);
+            Matrix4 CubeMapTransform = Matrix4.CreateScale(50);
+            CubeMapTransform *= Matrix4.CreateTranslation(position);
+
+            GL.UniformMatrix4(CubeMapShader.GetUniformLocation("transform"), true, ref CubeMapTransform);
+            GL.DrawElements(PrimitiveType.Triangles, CubeMapIndices.Length, DrawElementsType.UnsignedInt, 0);
         }
     }
 }

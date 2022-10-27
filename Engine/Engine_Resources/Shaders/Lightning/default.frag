@@ -34,6 +34,8 @@ uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
 uniform Material material;
 
+uniform samplerCube skybox;
+
 uniform vec3 viewPos;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
@@ -98,6 +100,9 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    vec3 I = normalize(FragPos - viewPos);
+    vec3 R = reflect(I, norm);
+
     // If has a diffuse map
     if (material.diffMap == 1)
     {
@@ -118,5 +123,5 @@ void main()
     result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
     // Final Color
-    fragColor = vec4(vec3(result), 1.0);
+    fragColor = vec4(texture(skybox, R).rgb, 1.0);
 }

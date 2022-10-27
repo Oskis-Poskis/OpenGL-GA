@@ -7,10 +7,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using static OpenTK_Learning.R_3D;
 
-using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
-using StbImageSharp;
-using System.IO;
-
 namespace OpenTK_Learning
 {
     class Main : GameWindow
@@ -43,17 +39,13 @@ namespace OpenTK_Learning
         public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/default.frag", true);
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
-        public static Shader CubeMapShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
 
         public static Material M_Default;
         public static Material M_Car;
         public static Material M_Floor;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
-        public static float fontSize = 0.55f;
         public static bool wireframeonoff = false;
-        bool vsynconoff = true;
-        float spacing = 2f;
         public static int selectedObject = 0;
         public static int selectedLight = 0;
 
@@ -66,24 +58,27 @@ namespace OpenTK_Learning
         public static bool showSettings = false;
         public static bool CloseWindow = false;
         bool fullScreen = false;
+        bool vsynconoff = true;
 
         // Camera settings
         public static float WindowWidth;
         public static float WindowHeight;
+        float sensitivity = 0.25f;
         float CameraWidth;
         float CameraHeight;
         float Yaw;
         float Pitch = -90f;
         int FOV = 75;
         int speed = 12;
-        float sensitivity = 0.25f;
 
         // Rendering
         public static float NoiseAmount = 0.5f;
-
         public static float lineWidth = 0.1f;
 
+        // UI
         ImGuiController _controller;
+        public static float fontSize = 0.55f;
+        float spacing = 2f;
 
         // Camera transformations
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
@@ -103,22 +98,6 @@ namespace OpenTK_Learning
             base.OnResize(e);
         }
 
-        static int CubeMapVAO;
-        static VertexData[] CubeMapData;
-        static int[] CubeMapIndices;
-
-        int cubeMapTexture;
-
-        string[] cubeMapTextureString = new string[6]
-        {
-            "./../../../Engine/Engine_Resources/Images/CubeMap/right.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/left.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/top.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/bottom.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/front.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/back.jpg",
-        };
-
         // Runs after Run();
         protected override void OnLoad()
         {
@@ -131,6 +110,7 @@ namespace OpenTK_Learning
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
             GL.LineWidth(1.5f);
+            PhongShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Load textures
             diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
@@ -177,70 +157,26 @@ namespace OpenTK_Learning
                         new Vector3(180f, 90f, 0f), // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
-            // Generate VAO, VBO and EBO
+            // Generate VAO, VBO and EBO for objects
             ConstructObjects();
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddLightToArray(0.75f, 5, 1, 0, "Point Light", new Vector3(1f, 1f, 1f), LightShader, new Vector3(-1, 1, 1), new Vector3(3f, 6f, 2f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-            ConstructLights();
+            AddLightToArray(0.75f, 5, 1, 0,
+                "Point Light", new Vector3(1f, 1f, 1f),
+                LightShader, new Vector3(-1, 1, 1),
+                new Vector3(3f, 6f, 2f), new Vector3(0f),
+                R_Loading.importedData, R_Loading.importindices);
 
-            PhongShader.SetFloat("NoiseAmount", NoiseAmount);
+            // Generate VAO, VBO and EBO for lights
+            ConstructLights();
 
             // Generate two screen triangles
             GenFBO(CameraWidth, CameraHeight);
             GenScreenRect();
 
-
-
-
-            cubeMapTexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-
-            for (int i = 0; i < 6; i++)
-            {
-                if (i == 0) StbImage.stbi_set_flip_vertically_on_load(1);
-                else StbImage.stbi_set_flip_vertically_on_load(0);
-
-                using (Stream stream = File.OpenRead(cubeMapTextureString[i]))
-                {
-                    ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);
-                    GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, image.Data);
-                }
-            }
-
-            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/CubeMapMesh.fbx");
-            CubeMapData = R_Loading.importedData;
-            CubeMapIndices = R_Loading.importindices;
-
-            CubeMapShader.Use();
-            CubeMapShader.SetInt("skybox", 0);
-
-            CubeMapVAO = GL.GenVertexArray();
-            GL.BindVertexArray(CubeMapVAO);
-            // Generate and bind Vertex Buffere
-            int VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, CubeMapData.Length * 8 * sizeof(float), CubeMapData, BufferUsageHint.StaticDraw);
-            // Generate and bind Element Buffer
-            int EBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, CubeMapIndices.Length * sizeof(uint), CubeMapIndices, BufferUsageHint.StaticDraw);
-
-            // Set attributes in shaders - vertex positions, UV's and normals
-            GL.EnableVertexAttribArray(CubeMapShader.GetAttribLocation("aPosition"));
-            GL.VertexAttribPointer(CubeMapShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-
-
-
-
-
-
+            // Generate Cubemap data
+            SetUpCubeMap();
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
@@ -281,28 +217,18 @@ namespace OpenTK_Learning
                 //diffuseMap.Use(TextureUnit.Texture1);
                 //normalMap.Use(TextureUnit.Texture2);
 
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
 
-                // Draw all lights
-                DrawLights(projection, view);
-
                 // Draw cubemap
-                CubeMapShader.Use();
-                GL.BindVertexArray(CubeMapVAO);
-
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
-
-
-                SetProjView(CubeMapShader, projection, view);
-                Matrix4 CubeMapTransform = Matrix4.CreateScale(50);
-                CubeMapTransform *= Matrix4.CreateTranslation(position);
-                
-                GL.UniformMatrix4(CubeMapShader.GetUniformLocation("transform"), true, ref CubeMapTransform);
-                GL.DrawElements(PrimitiveType.Triangles, CubeMapIndices.Length, DrawElementsType.UnsignedInt, 0);
+                DrawCubeMapCube(projection, view, position);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                // Draw all lights
+                DrawLights(projection, view);
             }
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, DepthFBO);
