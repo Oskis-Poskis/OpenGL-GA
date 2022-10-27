@@ -3,7 +3,7 @@
 in vec2 texCoord;
 out vec4 fragColor;
 
-//uniform sampler2D screenTexture;
+uniform sampler2D screenTexture;
 uniform sampler2D depthTexture;
 
 void main()
@@ -14,7 +14,7 @@ void main()
 
     float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));	
 
-    fragColor = vec4(vec3(linearDepth), 1);
+    fragColor = vec4(vec3(texture(screenTexture, texCoord)), 1);
 }
 
 /*

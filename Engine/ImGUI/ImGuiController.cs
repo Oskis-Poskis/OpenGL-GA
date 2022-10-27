@@ -1,4 +1,9 @@
-﻿using ImGuiNET;
+﻿//
+// Taken from https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
+// Slightly changed it
+//
+
+using ImGuiNET;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -9,8 +14,6 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
-
-// Taken from https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
 
 namespace OpenTK_Learning
 {
@@ -60,10 +63,10 @@ namespace OpenTK_Learning
             io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/BRLNSR.TTF", 25f);
             //io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/FRABK.TTF", 25f);
 
+            io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
             io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
-
 
             CreateDeviceResources();
             SetKeyMappings();
@@ -110,27 +113,28 @@ namespace OpenTK_Learning
             RecreateFontDeviceTexture();
 
             string VertexSource = @"#version 330 core
-uniform mat4 projection_matrix;
-layout(location = 0) in vec2 in_position;
-layout(location = 1) in vec2 in_texCoord;
-layout(location = 2) in vec4 in_color;
-out vec4 color;
-out vec2 texCoord;
-void main()
-{
-    gl_Position = projection_matrix * vec4(in_position, 0, 1);
-    color = in_color;
-    texCoord = in_texCoord;
-}";
+            uniform mat4 projection_matrix;
+            layout(location = 0) in vec2 in_position;
+            layout(location = 1) in vec2 in_texCoord;
+            layout(location = 2) in vec4 in_color;
+            out vec4 color;
+            out vec2 texCoord;
+            void main()
+            {
+                gl_Position = projection_matrix * vec4(in_position, 0, 1);
+                color = in_color;
+                texCoord = in_texCoord;
+            }";
+
             string FragmentSource = @"#version 330 core
-uniform sampler2D in_fontTexture;
-in vec4 color;
-in vec2 texCoord;
-out vec4 outputColor;
-void main()
-{
-    outputColor = color * texture(in_fontTexture, texCoord);
-}";
+            uniform sampler2D in_fontTexture;
+            in vec4 color;
+            in vec2 texCoord;
+            out vec4 outputColor;
+            void main()
+            {
+                outputColor = color * texture(in_fontTexture, texCoord);
+            }";
 
             _shader = CreateProgram("ImGui", VertexSource, FragmentSource);
             _shaderProjectionMatrixLocation = GL.GetUniformLocation(_shader, "projection_matrix");

@@ -30,7 +30,6 @@ struct DirectionalLight {
 
 #define MAX_PointsLights 16
 uniform int NR_PointLights;
-uniform int NR_DirLights;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
 uniform Material material;
@@ -90,7 +89,6 @@ highp float random(highp vec2 coords) {
    return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-
 out vec4 fragColor;
 
 void main()
@@ -110,20 +108,14 @@ void main()
     // Else regular color
     else col = vec3(material.diffuse);
 
-    // Directional Lights
-    if (NR_DirLights == 1) result += CalcDirectionalLight(dirLight, col, norm);
+    // Directional Light
+    result += CalcDirectionalLight(dirLight, col, norm);
 
     // Multiple Point Lights
     for (int i = 0; i < NR_PointLights; i++) result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
 
     // Reduce color banding
     result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
-
-    float ndc = gl_FragCoord.z * 2 - 1;
-    float near = 0.01;
-    float far = 100;
-
-    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));	
 
     // Final Color
     fragColor = vec4(vec3(result), 1.0);

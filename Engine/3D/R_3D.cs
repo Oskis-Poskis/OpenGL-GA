@@ -8,9 +8,9 @@ namespace OpenTK_Learning
     class R_3D
     {
         public static List<Object> Objects = new List<Object>();
-        public static int[] VAO = new int[0];
+        public static List<int> VAO = new List<int>();
         public static List<Light> Lights = new List<Light>();
-        public static int[] VAOlights = new int[0];
+        public static List<int> VAOlights = new List<int>();
 
         // Material struct
         public struct Material
@@ -50,9 +50,9 @@ namespace OpenTK_Learning
             public int[] Indices;
             public Vector3 Location;
             public Vector3 Rotation;
-            public Vector3 Direction;
         }
 
+        // Add 3D object to rendering list
         public static void AddObjectToArray(bool _rel, string name, Material material, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Object _object = new Object
@@ -67,11 +67,11 @@ namespace OpenTK_Learning
                 Rotation = rotation,
                 Scale = scale
             };
-            Array.Resize(ref VAO, Objects.Count + 1);
-            Console.WriteLine("Object Array VAO Size: " + VAO.Length);
+            VAO.Add(0);
             Objects.Add(_object);
         }
 
+        // Add light to rendering list
         public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Light _light = new Light
@@ -88,10 +88,8 @@ namespace OpenTK_Learning
                 Indices = indices,
                 Location = location,
                 Rotation = rotation,
-                Direction = direction
             };
-            Array.Resize(ref VAOlights, Lights.Count + 1);
-            Console.WriteLine("Light Array VAO Size: " + VAOlights.Length);
+            VAOlights.Add(0);
             Lights.Insert(0, _light);
         }
 
@@ -100,6 +98,7 @@ namespace OpenTK_Learning
         {
             for (int i = 0; i < Objects.Count; i++)
             {
+                Console.WriteLine(VAO.Count);
                 // Generate and bind Vertex Array
                 VAO[i] = GL.GenVertexArray();
                 GL.BindVertexArray(VAO[i]);
@@ -146,7 +145,6 @@ namespace OpenTK_Learning
         }
 
         public static int numPL;
-        public static int numDL;
 
         // Draw the array of objects
         public static void DrawObjects(Matrix4 projection, Matrix4 view, bool overrideShader)
@@ -171,8 +169,11 @@ namespace OpenTK_Learning
                     Main.PhongShader.SetInt("diffuseMap", 1);
                     Main.PhongShader.SetInt("normalMap", 2);
 
+                    Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
+                    Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
+                    Main.PhongShader.SetFloat("dirLight.strength", 0.75f);
+
                     numPL = 0;
-                    numDL = 0;
 
                     // Lights
                     for (int j = 0; j < Lights.Count; j++)
@@ -189,18 +190,13 @@ namespace OpenTK_Learning
                                 Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
                                 break;
 
-                            // Set each Directional Light in FS
                             case 1:
-                                numDL += 1;
-                                Main.PhongShader.SetVector3("dirLight.direction", Lights[j].Direction);
-                                Main.PhongShader.SetVector3("dirLight.color", Lights[j].LightColor);
-                                Main.PhongShader.SetFloat("dirLight.strength", Lights[j].Strength);
                                 break;
                         }
                     }
 
+
                     // Set the for loop length in FS shader
-                    Main.PhongShader.SetInt("NR_DirLights", numDL);
                     Main.PhongShader.SetInt("NR_PointLights", numPL);
 
                     // Draw objects with indices
@@ -360,6 +356,8 @@ namespace OpenTK_Learning
                 Console.WriteLine("Framebuffer error: " + fboStatus);
             }
 
+            ///////////////////////////////////////////////////////////////
+
             // FBO for capturing 3D scene and display on a quad
             SRFBO = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
@@ -380,6 +378,11 @@ namespace OpenTK_Learning
             {
                 Console.WriteLine("Framebuffer error: " + fboStatus2);
             }
+
+            RBO = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
         }
     }
 }
