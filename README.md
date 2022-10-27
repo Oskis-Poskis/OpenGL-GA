@@ -48,6 +48,9 @@ This is a list of features to keep track of my progress
 ### Settings, Statistics and Outliner
 >![Settings and statistics](/Progress/SettingsAndStats.png) ![Outliner](/Progress/Outliner.png)
 
+### Cube Map Reflections
+>![Cube Map Reflections](/Progress/CubeMapAndReflections.png)
+
 ### Specular Lightning
 >![Specular Lightning](/Progress/SpecularLightning.png)
 
