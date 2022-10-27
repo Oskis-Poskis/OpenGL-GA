@@ -389,14 +389,14 @@ namespace OpenTK_Learning
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
         }
 
-        static string[] cubeMapTextureString = new string[6]
+        static readonly string[] cubeMapTextureString = new string[6]
         {
-            "./../../../Engine/Engine_Resources/Images/CubeMap/right.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/left.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/top.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/bottom.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/front.jpg",
-            "./../../../Engine/Engine_Resources/Images/CubeMap/back.jpg",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/px.png",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/nx.png",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/py.png",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/ny.png",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/pz.png",
+            "./../../../Engine/Engine_Resources/Images/CubeMap2/nz.png",
         };
 
         public static Shader CubeMapShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
@@ -419,9 +419,7 @@ namespace OpenTK_Learning
 
             for (int i = 0; i < 6; i++)
             {
-                if (i == 0) StbImage.stbi_set_flip_vertically_on_load(1);
-                else StbImage.stbi_set_flip_vertically_on_load(0);
-
+                StbImage.stbi_set_flip_vertically_on_load(0);
                 using (Stream stream = File.OpenRead(cubeMapTextureString[i]))
                 {
                     ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlue);

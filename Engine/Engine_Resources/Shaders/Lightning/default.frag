@@ -44,8 +44,8 @@ const float constant = 1;
 const float linear = 0.09;
 const float quadratic = 0.032;
 
-// Calculate a directional light with color
-vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, vec3 norm)
+// Calculate a point light with color
+vec3 CalcPointLight(PointLight light, vec3 viewDir, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
 
@@ -68,7 +68,7 @@ vec3 CalcPointLight(PointLight light, vec3 fragPos, vec3 viewDir, vec3 color, ve
     return (ambient + diffuse + specular) * light.strength;
 }
 
-// Calculate a point light with color
+// Calculate a directional light with color
 vec3 CalcDirectionalLight(DirectionalLight directLight, vec3 color, vec3 norm)
 {
     vec3 ambient = material.ambient;
@@ -102,13 +102,15 @@ void main()
 
     vec3 I = normalize(FragPos - viewPos);
     vec3 R = reflect(I, norm);
+    //vec3 R = refract(I, norm, 1/1.52);
 
     // If has a diffuse map
     if (material.diffMap == 1)
     {
-        col = vec3(texture(diffuseMap, texCoord));
-        norm = norm;
-        vec3 empty = vec3(texture(normalMap, texCoord)); // Placeholder for using normal texture
+        vec3 empty = vec3(texture(diffuseMap, texCoord));
+        vec3 empty2 = vec3(texture(normalMap, texCoord)); // Placeholder for using normal texture
+
+        result = texture(skybox, R).rgb;
     }
     // Else regular color
     else col = vec3(material.diffuse);
@@ -116,12 +118,12 @@ void main()
     // Directional Light
     result += CalcDirectionalLight(dirLight, col, norm);
 
-    // Multiple Point Lights
-    for (int i = 0; i < NR_PointLights; i++) result += CalcPointLight(pointLights[i], FragPos, viewDir, col, norm);
+    // Calculate all Point Lights
+    for (int i = 0; i < NR_PointLights; i++) result += CalcPointLight(pointLights[i], viewDir, col, norm);
 
     // Reduce color banding
     result += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
     // Final Color
-    fragColor = vec4(texture(skybox, R).rgb, 1.0);
+    fragColor = vec4(result, 1.0);
 }

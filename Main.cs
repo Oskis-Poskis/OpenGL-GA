@@ -55,7 +55,7 @@ namespace OpenTK_Learning
         public static bool showObjectProperties = true;
         public static bool showLightProperties = true;
         public static bool showOutliner = true;
-        public static bool showSettings = false;
+        public static bool showSettings = true;
         public static bool CloseWindow = false;
         bool fullScreen = false;
         bool vsynconoff = true;
@@ -126,7 +126,7 @@ namespace OpenTK_Learning
             M_Car = new Material
             {
                 ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 0),
+                diffuse = new Vector4(1, 1, 1, 1),
                 specular = new Vector3(0.5f),
                 shininess = 128.0f
             };
@@ -222,10 +222,10 @@ namespace OpenTK_Learning
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
 
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
                 // Draw cubemap
                 DrawCubeMapCube(projection, view, position);
-
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
                 // Draw all lights
                 DrawLights(projection, view);

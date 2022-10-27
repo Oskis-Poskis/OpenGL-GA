@@ -712,9 +712,11 @@ namespace OpenTK_Learning
 
                         if (ImGui.Button("Import Mesh"))
                         {
-                            OpenFileDialog selectFile = new OpenFileDialog();
-                            selectFile.Title = "Select File";
-                            selectFile.Filter = "FBX Files (*.fbx)|*.fbx";
+                            OpenFileDialog selectFile = new OpenFileDialog
+                            {
+                                Title = "Select File",
+                                Filter = "FBX Files (*.fbx)|*.fbx"
+                            };
                             selectFile.ShowDialog();
 
                             string path = selectFile.FileName;
