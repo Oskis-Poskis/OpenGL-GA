@@ -35,6 +35,7 @@ ImGUI Controller Class By NogginBops:
 List of things I want to implement/do
 - Comment all code better
 - PBR Lightning model
+- ~~Cube Map Reflections~~
 - Screen-space Anti Aliasing
 - Screen-space Ambient Occlusion
 - Directional Light shadow mapping using depth buffer renderer from sun position
