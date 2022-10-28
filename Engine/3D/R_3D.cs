@@ -19,10 +19,9 @@ namespace OpenTK_Learning
         // Material struct
         public struct Material
         {
-            public Vector3 ambient;
-            public Vector4 diffuse;
-            public Vector3 specular;
-            public float shininess;
+            public Vector3 albedo;
+            public float roughness;
+            public float metallic;
         }
 
         // Struct with object data
@@ -164,18 +163,17 @@ namespace OpenTK_Learning
 
                     Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
                     Main.PhongShader.SetVector3("material.ambient", ambient);
-                    Main.PhongShader.SetVector3("material.diffuse", Objects[i].Material.diffuse.Xyz);
-                    Main.PhongShader.SetInt("material.diffMap", (int)Objects[i].Material.diffuse.W);
-                    Main.PhongShader.SetVector3("material.specular", Objects[i].Material.specular);
-                    Main.PhongShader.SetFloat("material.shininess", Objects[i].Material.shininess);
+                    Main.PhongShader.SetVector3("material.albedo", Objects[i].Material.albedo);
+                    Main.PhongShader.SetFloat("material.roughness", Objects[i].Material.roughness);
+                    Main.PhongShader.SetFloat("material.metallic", Objects[i].Material.metallic);
                     Main.PhongShader.SetVector3("viewPos", Main.position);
 
-                    Main.PhongShader.SetInt("diffuseMap", 1);
-                    Main.PhongShader.SetInt("normalMap", 2);
+                    //Main.PhongShader.SetInt("diffuseMap", 1);
+                    //Main.PhongShader.SetInt("normalMap", 2);
 
-                    Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
-                    Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
-                    Main.PhongShader.SetFloat("dirLight.strength", 0.75f);
+                    //Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
+                    //Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
+                    //Main.PhongShader.SetFloat("dirLight.strength", 0.75f);
 
                     numPL = 0;
 
@@ -189,9 +187,9 @@ namespace OpenTK_Learning
                                 numPL += 1;
                                 Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
                                 Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-                                Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                                Main.PhongShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
-                                Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
+                                //Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                                //Main.PhongShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                //Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
                                 break;
 
                             case 1:
@@ -311,6 +309,8 @@ namespace OpenTK_Learning
 
         public static void GenScreenRect()
         {
+            fboShader.Use();
+
             rectVAO = GL.GenVertexArray();
             GL.BindVertexArray(rectVAO);
             rectVBO = GL.GenBuffer();
@@ -321,38 +321,36 @@ namespace OpenTK_Learning
             GL.VertexAttribPointer(fboShader.GetAttribLocation("aPos"), 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
             GL.EnableVertexAttribArray(fboShader.GetAttribLocation("aTexCoord"));
             GL.VertexAttribPointer(fboShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-            GL.Uniform1(fboShader.GetUniformLocation("depthTexture"), 0);
+            GL.Uniform1(fboShader.GetUniformLocation("framebufferTexture"), 0);
+
+            // PP
+            fboShader.SetBool("ChromaticAbberationOnOff", Main.ChromaticAbberationOnOff);
+            fboShader.SetFloat("ChromaticAbberationOffset", Main.ChromaticAbberationOffset);
         }
 
-        public static int SRFBO, DepthFBO, RBO;
-        public static int SRtexture, Dcolortexture, Dtexture;
+        public static int SRFBO, FBO, RBO;
+        public static int SRtexture, framebufferTexture;
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
         {
-            DepthFBO = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, Dtexture);
+            FBO = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
 
             // Color texture
-            Dcolortexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, Dcolortexture);
+            framebufferTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
             // Attach color to FBO
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, Dcolortexture, 0);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, framebufferTexture, 0);
 
-            // Depth texture
-            Dtexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, Dtexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.DepthComponent, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            // Attach color to FBO
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, Dtexture, 0);
+            RBO = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
 
             var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (fboStatus != FramebufferErrorCode.FramebufferComplete)
@@ -360,9 +358,6 @@ namespace OpenTK_Learning
                 Console.WriteLine("Framebuffer error: " + fboStatus);
             }
 
-            ///////////////////////////////////////////////////////////////
-
-            // FBO for capturing 3D scene and display on a quad
             SRFBO = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
 
@@ -382,11 +377,6 @@ namespace OpenTK_Learning
             {
                 Console.WriteLine("Framebuffer error: " + fboStatus2);
             }
-
-            RBO = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
         }
 
         static readonly string[] cubeMapTextureString = new string[6]

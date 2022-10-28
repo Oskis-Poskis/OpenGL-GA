@@ -36,7 +36,7 @@ namespace OpenTK_Learning
 
         private Texture diffuseMap;
         private Texture normalMap;
-        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/default.frag", true);
+        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
@@ -44,7 +44,7 @@ namespace OpenTK_Learning
         public static Material M_Car;
         public static Material M_Floor;
 
-        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.12f);
+        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.02f);
         public static bool wireframeonoff = false;
         public static int selectedObject = 0;
         public static int selectedLight = 0;
@@ -71,6 +71,11 @@ namespace OpenTK_Learning
         int FOV = 75;
         int speed = 12;
 
+        // Post processing
+        public static bool ChromaticAbberationOnOff = false;
+        public static float ChromaticAbberationOffset = 0.005f;
+        public static bool showCubeMap = true;
+
         // Rendering
         public static float NoiseAmount = 0.5f;
         public static float lineWidth = 0.1f;
@@ -83,7 +88,7 @@ namespace OpenTK_Learning
         // Camera transformations
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
-        public static Vector3 position = new Vector3(0.0f, 3.0f, 3.0f);
+        public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
 
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
@@ -118,24 +123,21 @@ namespace OpenTK_Learning
 
             M_Default = new Material
             {
-                ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 0),
-                specular = new Vector3(0.5f),
-                shininess = 96.0f
+                albedo = new Vector3(1),
+                roughness = 0.5f,
+                metallic = 1,
             };
             M_Car = new Material
             {
-                ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 1),
-                specular = new Vector3(0.5f),
-                shininess = 128.0f
+                albedo = new Vector3(1),
+                roughness = 0.5f,
+                metallic = 0,
             };
             M_Floor = new Material
             {
-                ambient = new Vector3(0.1f),
-                diffuse = new Vector4(1, 1, 1, 0),
-                specular = new Vector3(0.5f),
-                shininess = 32.0f
+                albedo = new Vector3(1),
+                roughness = 0.5f,
+                metallic = 0,
             };
 
             // Add default objects
@@ -189,7 +191,7 @@ namespace OpenTK_Learning
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.Viewport(0, 0, (int)WindowWidth, (int)WindowHeight);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -225,24 +227,21 @@ namespace OpenTK_Learning
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
                 // Draw cubemap
-                DrawCubeMapCube(projection, view, position);
+                if (showCubeMap == true) DrawCubeMapCube(projection, view, position);
 
                 // Draw all lights
                 DrawLights(projection, view);
             }
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, DepthFBO);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            // Add second framebuffer for fixing glitches
+            fboShader.Use();
             GL.Disable(EnableCap.DepthTest);
 
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, Dcolortexture);
+            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
 
-            fboShader.Use();
             GL.BindVertexArray(rectVAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             // UI
             _controller.Update(this, (float)args.Time);
@@ -292,6 +291,28 @@ namespace OpenTK_Learning
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
+                if (ImGui.TreeNode("Post Processing"))
+                {
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.Checkbox("Chromatic Abberation", ref ChromaticAbberationOnOff))
+                    {
+                        fboShader.SetBool("ChromaticAbberationOnOff", ChromaticAbberationOnOff);
+                    }
+
+                    if (ChromaticAbberationOnOff == true)
+                    {
+                        if (ImGui.SliderFloat("Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
+                        {
+                            fboShader.SetFloat("ChromaticAbberationOffset", Main.ChromaticAbberationOffset);
+                        }
+                    }
+                    ImGui.TreePop();
+                }
+
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                ImGui.Separator();
+                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
                 if (ImGui.TreeNode("Lightning"))
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -303,6 +324,9 @@ namespace OpenTK_Learning
                     ImGui.Text("Noise Amount"); ImGui.SameLine(); UI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PhongShader.SetFloat("NoiseAmount", NoiseAmount);
+                    ImGui.Text("Show Cubemap");
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Checkbox("##Show Cubemap", ref showCubeMap);
                     ImGui.TreePop();
                 }
 

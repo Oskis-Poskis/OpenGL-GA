@@ -123,6 +123,12 @@ namespace OpenTK_Learning
             GL.Uniform1(_uniformLocations[name], data);
         }
 
+        public void SetBool(string name, bool data)
+        {
+            GL.UseProgram(Handle);
+            GL.Uniform1(_uniformLocations[name], Convert.ToInt32(data));
+        }
+
         public void SetVector3(string name, Vector3 data)
         {
             GL.UseProgram(Handle);

@@ -3,18 +3,25 @@
 in vec2 texCoord;
 out vec4 fragColor;
 
-uniform sampler2D screenTexture;
-uniform sampler2D depthTexture;
+uniform bool ChromaticAbberationOnOff;
+uniform float ChromaticAbberationOffset;
+uniform sampler2D framebufferTexture;
 
 void main()
 {
-    float ndc = texture(depthTexture, texCoord).r * 2 - 1;
-    float near = 0.1;
-    float far = 100;
+    vec3 result = texture(framebufferTexture, texCoord).rgb;
 
-    float linearDepth = (2.0 * near * far) / (far + near - ndc * (far - near));	
+    if (ChromaticAbberationOnOff == true)
+    {
+        float rValue = texture(framebufferTexture, texCoord + vec2(ChromaticAbberationOffset, 0)).r;
+        float gValue = texture(framebufferTexture, texCoord).g;
+        float bValue = texture(framebufferTexture, texCoord - vec2(ChromaticAbberationOffset, 0)).b;
 
-    fragColor = vec4(vec3(texture(screenTexture, texCoord)), 1);
+        result = vec3(rValue, gValue, bValue);
+    }
+
+
+    fragColor = vec4(result, 1);
 }
 
 /*

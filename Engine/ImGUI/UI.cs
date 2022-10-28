@@ -78,13 +78,15 @@ namespace OpenTK_Learning
 
             Main.isMainHovered = ImGui.IsWindowHovered();
 
-            ImGui.Image((IntPtr)R_3D.SRtexture,
+            ImGui.Image((IntPtr)R_3D.framebufferTexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
                 new System.Numerics.Vector2(0.0f, 1.0f),
                 new System.Numerics.Vector2(1.0f, 0.0f),
                 new System.Numerics.Vector4(1.0f),
                 new System.Numerics.Vector4(1, 1, 1, 0.2f));
             ImGui.End();
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public static void LoadMenuBar()
