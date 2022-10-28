@@ -52,10 +52,12 @@ namespace OpenTK_Learning
         // Window bools
         public static bool showDemoWindow = false;
         public static bool showStatistics = false;
+        public static bool showMaterialEditor = false;
         public static bool showObjectProperties = true;
         public static bool showLightProperties = true;
         public static bool showOutliner = true;
         public static bool showSettings = true;
+        public static bool isMainHovered;
         public static bool CloseWindow = false;
         bool fullScreen = false;
         bool vsynconoff = true;
@@ -169,6 +171,11 @@ namespace OpenTK_Learning
                 LightShader, new Vector3(-1, 1, 1),
                 new Vector3(3f, 6f, 2f), new Vector3(0f),
                 R_Loading.importedData, R_Loading.importindices);
+            AddLightToArray(0.75f, 5, 1, 0,
+                "Point Light", new Vector3(1f, 1f, 1f),
+                LightShader, new Vector3(-1, 1, 1),
+                new Vector3(-1f, 6f, 2f), new Vector3(0f),
+                R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO for lights
             ConstructLights();
@@ -183,10 +190,15 @@ namespace OpenTK_Learning
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
 
+            for (int i = 0; i < Objects.Count; i++)
+            {
+                PhongShader.SetVector3("material.albedo", Objects[i].Material.albedo);
+                PhongShader.SetFloat("material.roughness", Objects[i].Material.roughness);
+                PhongShader.SetFloat("material.metallic", Objects[i].Material.metallic);
+            }
+
             base.OnLoad();
         }
-
-        public static bool isMainHovered;
 
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -254,6 +266,7 @@ namespace OpenTK_Learning
             if (showObjectProperties) UI.LoadObjectProperties(ref selectedObject, spacing);
             if (showLightProperties) UI.LoadLightProperties(ref selectedLight, spacing);
             if (showOutliner) UI.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
+            if (showMaterialEditor) UI.LoadMaterialEditor(spacing);
 
             if (showSettings)
             {
@@ -303,7 +316,7 @@ namespace OpenTK_Learning
                     {
                         if (ImGui.SliderFloat("Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
                         {
-                            fboShader.SetFloat("ChromaticAbberationOffset", Main.ChromaticAbberationOffset);
+                            fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
                         }
                     }
                     ImGui.TreePop();

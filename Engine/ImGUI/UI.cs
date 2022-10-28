@@ -128,6 +128,8 @@ namespace OpenTK_Learning
                     ImGui.Checkbox("Show Outliner", ref Main.showOutliner);
                     ImGui.Separator();
                     ImGui.Checkbox("Show Settings", ref Main.showSettings);
+                    ImGui.Separator();
+                    ImGui.Checkbox("Show Material Editor", ref Main.showMaterialEditor);
                     ImGui.EndMenu();
                 }
 
@@ -194,6 +196,49 @@ namespace OpenTK_Learning
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
             ImGui.Separator();
+            ImGui.End();
+        }
+
+        public static void LoadMaterialEditor(float spacing)
+        {
+            System.Numerics.Vector3 _albedo = new System.Numerics.Vector3(Main.M_Default.albedo.X, Main.M_Default.albedo.Y, Main.M_Default.albedo.Z);
+            float _roughness = Main.M_Default.roughness;
+            float _metallic = Main.M_Default.metallic;
+
+            ImGui.Begin("Material Editor");
+            if (ImGui.ColorEdit3("Albedo", ref _albedo))
+            {
+                Main.M_Default = new R_3D.Material
+                {
+                    albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
+                    roughness = Main.M_Default.roughness,
+                    metallic = Main.M_Default.metallic,
+                };
+            }
+            if (ImGui.SliderFloat("Roughness", ref _roughness, 0, 1))
+            {
+                Main.M_Default = new R_3D.Material
+                {
+                    albedo = Main.M_Default.albedo,
+                    roughness = _roughness,
+                    metallic = Main.M_Default.metallic,
+                };
+            }
+
+            if (ImGui.SliderFloat("Metallic", ref _metallic, 0, 1))
+            {
+                Main.M_Default = new R_3D.Material
+                {
+                    albedo = Main.M_Default.albedo,
+                    roughness = Main.M_Default.roughness,
+                    metallic = _metallic,
+                };
+            }
+
+            Main.PhongShader.SetVector3("material.albedo", Main.M_Default.albedo);
+            Main.PhongShader.SetFloat("material.roughness", Main.M_Default.roughness);
+            Main.PhongShader.SetFloat("material.metallic", Main.M_Default.metallic);
+
             ImGui.End();
         }
 

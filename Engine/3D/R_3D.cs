@@ -163,9 +163,6 @@ namespace OpenTK_Learning
 
                     Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
                     Main.PhongShader.SetVector3("material.ambient", ambient);
-                    Main.PhongShader.SetVector3("material.albedo", Objects[i].Material.albedo);
-                    Main.PhongShader.SetFloat("material.roughness", Objects[i].Material.roughness);
-                    Main.PhongShader.SetFloat("material.metallic", Objects[i].Material.metallic);
                     Main.PhongShader.SetVector3("viewPos", Main.position);
 
                     //Main.PhongShader.SetInt("diffuseMap", 1);
