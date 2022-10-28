@@ -266,7 +266,7 @@ namespace OpenTK_Learning
             if (showObjectProperties) UI.LoadObjectProperties(ref selectedObject, spacing);
             if (showLightProperties) UI.LoadLightProperties(ref selectedLight, spacing);
             if (showOutliner) UI.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
-            if (showMaterialEditor) UI.LoadMaterialEditor(spacing);
+            if (showMaterialEditor) UI.LoadMaterialEditor(selectedObject, spacing);
 
             if (showSettings)
             {

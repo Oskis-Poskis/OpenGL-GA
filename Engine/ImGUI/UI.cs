@@ -199,45 +199,37 @@ namespace OpenTK_Learning
             ImGui.End();
         }
 
-        public static void LoadMaterialEditor(float spacing)
+        public static void LoadMaterialEditor(int selectedObject, float spacing)
         {
-            System.Numerics.Vector3 _albedo = new System.Numerics.Vector3(Main.M_Default.albedo.X, Main.M_Default.albedo.Y, Main.M_Default.albedo.Z);
-            float _roughness = Main.M_Default.roughness;
-            float _metallic = Main.M_Default.metallic;
+            System.Numerics.Vector3 _albedo = new System.Numerics.Vector3(
+                R_3D.Objects[selectedObject].Material.albedo.X,
+                R_3D.Objects[selectedObject].Material.albedo.Y,
+                R_3D.Objects[selectedObject].Material.albedo.Z);
+            float _roughness = R_3D.Objects[selectedObject].Material.roughness;
+            float _metallic = R_3D.Objects[selectedObject].Material.metallic;
 
             ImGui.Begin("Material Editor");
-            if (ImGui.ColorEdit3("Albedo", ref _albedo))
+            ImGui.ColorEdit3("Albedo", ref _albedo);
+            ImGui.SliderFloat("Roughness", ref _roughness, 0, 1);
+            ImGui.SliderFloat("Metallic", ref _metallic, 0, 1);
+
+            R_3D.Objects[Main.selectedObject] = new R_3D.Object
             {
-                Main.M_Default = new R_3D.Material
+                RelTransform = R_3D.Objects[selectedObject].RelTransform,
+                Name = R_3D.Objects[selectedObject].Name,
+                ID = R_3D.Objects[selectedObject].ID,
+                Material = new R_3D.Material
                 {
                     albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
-                    roughness = Main.M_Default.roughness,
-                    metallic = Main.M_Default.metallic,
-                };
-            }
-            if (ImGui.SliderFloat("Roughness", ref _roughness, 0, 1))
-            {
-                Main.M_Default = new R_3D.Material
-                {
-                    albedo = Main.M_Default.albedo,
                     roughness = _roughness,
-                    metallic = Main.M_Default.metallic,
-                };
-            }
-
-            if (ImGui.SliderFloat("Metallic", ref _metallic, 0, 1))
-            {
-                Main.M_Default = new R_3D.Material
-                {
-                    albedo = Main.M_Default.albedo,
-                    roughness = Main.M_Default.roughness,
                     metallic = _metallic,
-                };
-            }
-
-            Main.PhongShader.SetVector3("material.albedo", Main.M_Default.albedo);
-            Main.PhongShader.SetFloat("material.roughness", Main.M_Default.roughness);
-            Main.PhongShader.SetFloat("material.metallic", Main.M_Default.metallic);
+                },
+                VertData = R_3D.Objects[selectedObject].VertData,
+                Indices = R_3D.Objects[selectedObject].Indices,
+                Location = R_3D.Objects[selectedObject].Location,
+                Rotation = R_3D.Objects[selectedObject].Rotation,
+                Scale = R_3D.Objects[selectedObject].Scale
+            };
 
             ImGui.End();
         }
