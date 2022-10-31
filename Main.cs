@@ -34,17 +34,19 @@ namespace OpenTK_Learning
             CameraWidth = Size.X;
         }
 
-        private Texture diffuseMap;
+        private Texture albedoMap;
+        private Texture roughnessMap;
+        private Texture metallicMap;
         private Texture normalMap;
-        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
+        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
+        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/default.frag", true);
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static Material M_Default;
-        public static Material M_Car;
         public static Material M_Floor;
 
-        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0.02f);
+        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
         public static bool wireframeonoff = false;
         public static int selectedObject = 0;
         public static int selectedLight = 0;
@@ -76,7 +78,7 @@ namespace OpenTK_Learning
         // Post processing
         public static bool ChromaticAbberationOnOff = false;
         public static float ChromaticAbberationOffset = 0.005f;
-        public static bool showCubeMap = true;
+        public static bool showCubeMap = false;
 
         // Rendering
         public static float NoiseAmount = 0.5f;
@@ -117,29 +119,24 @@ namespace OpenTK_Learning
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
             GL.LineWidth(1.5f);
-            PhongShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Load textures
-            diffuseMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Car_diffuse.jpg", TextureUnit.Texture0);
-            normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/NormTest/Car_normal.png", TextureUnit.Texture0);
+            albedoMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
+            roughnessMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_roughness.png", TextureUnit.Texture0);
+            metallicMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_metallic.png", TextureUnit.Texture0);
+            normalMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_normal-ogl.png", TextureUnit.Texture0);
 
             M_Default = new Material
             {
                 albedo = new Vector3(1),
-                roughness = 0.5f,
+                roughness = 1,
                 metallic = 1,
-            };
-            M_Car = new Material
-            {
-                albedo = new Vector3(1),
-                roughness = 0.5f,
-                metallic = 0,
             };
             M_Floor = new Material
             {
                 albedo = new Vector3(1),
-                roughness = 0.5f,
-                metallic = 0,
+                roughness = 1,
+                metallic = 1,
             };
 
             // Add default objects
@@ -154,11 +151,11 @@ namespace OpenTK_Learning
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
 
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Car.fbx");
-            AddObjectToArray(false, "Car", M_Car,
-                        new Vector3(2f),            // Scale
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
+            AddObjectToArray(false, R_Loading.importname, M_Default,
+                        new Vector3(1f),            // Scale
                         new Vector3(0, 4, 0),       // Location
-                        new Vector3(180f, 90f, 0f), // Rotation
+                        new Vector3(-90f, 0, 0f), // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO for objects
@@ -166,16 +163,31 @@ namespace OpenTK_Learning
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddLightToArray(0.75f, 5, 1, 0,
-                "Point Light", new Vector3(1f, 1f, 1f),
-                LightShader, new Vector3(-1, 1, 1),
-                new Vector3(3f, 6f, 2f), new Vector3(0f),
-                R_Loading.importedData, R_Loading.importindices);
-            AddLightToArray(0.75f, 5, 1, 0,
-                "Point Light", new Vector3(1f, 1f, 1f),
-                LightShader, new Vector3(-1, 1, 1),
-                new Vector3(-1f, 6f, 2f), new Vector3(0f),
-                R_Loading.importedData, R_Loading.importindices);
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    AddLightToArray(0.75f, 5, 1, 0,
+                        "Point Light", new Vector3(1),
+                        LightShader,
+                        new Vector3(i * 2 - 2, j * 2 + 3, 5),
+                        new Vector3(0f),
+                        R_Loading.importedData, R_Loading.importindices);
+                }
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    AddLightToArray(0.75f, 5, 1, 0,
+                        "Point Light", new Vector3(1),
+                        LightShader,
+                        new Vector3(i * 2 - 2, j * 2 + 3, -5),
+                        new Vector3(0f),
+                        R_Loading.importedData, R_Loading.importindices);
+                }
+            }
 
             // Generate VAO, VBO and EBO for lights
             ConstructLights();
@@ -190,12 +202,7 @@ namespace OpenTK_Learning
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
 
-            for (int i = 0; i < Objects.Count; i++)
-            {
-                PhongShader.SetVector3("material.albedo", Objects[i].Material.albedo);
-                PhongShader.SetFloat("material.roughness", Objects[i].Material.roughness);
-                PhongShader.SetFloat("material.metallic", Objects[i].Material.metallic);
-            }
+            PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
             base.OnLoad();
         }
@@ -228,17 +235,18 @@ namespace OpenTK_Learning
                 Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
                 // Use texture
-                //diffuseMap.Use(TextureUnit.Texture1);
-                //normalMap.Use(TextureUnit.Texture2);
-
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
+                albedoMap.Use(TextureUnit.Texture0);
+                roughnessMap.Use(TextureUnit.Texture1);
+                metallicMap.Use(TextureUnit.Texture2);
+                normalMap.Use(TextureUnit.Texture3);
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
                 // Draw cubemap
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
                 if (showCubeMap == true) DrawCubeMapCube(projection, view, position);
 
                 // Draw all lights
@@ -314,11 +322,19 @@ namespace OpenTK_Learning
 
                     if (ChromaticAbberationOnOff == true)
                     {
-                        if (ImGui.SliderFloat("Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
+                        if (ImGui.SliderFloat("##Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
                         {
                             fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
                         }
                     }
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PBRShader.SetFloat("NoiseAmount", NoiseAmount);
                     ImGui.TreePop();
                 }
 
@@ -334,9 +350,6 @@ namespace OpenTK_Learning
                     {
                         GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
                     }
-                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PhongShader.SetFloat("NoiseAmount", NoiseAmount);
                     ImGui.Text("Show Cubemap");
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     ImGui.Checkbox("##Show Cubemap", ref showCubeMap);

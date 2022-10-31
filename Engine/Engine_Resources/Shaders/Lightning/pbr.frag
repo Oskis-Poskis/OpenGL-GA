@@ -7,8 +7,12 @@ struct Material
 {
     vec3 ambient;
     vec3 albedo;
+    sampler2D albedoTex;
     float metallic;
+    sampler2D metallicTex;
     float roughness;
+    sampler2D roughnessTex;
+    sampler2D normalTex;
 };
 
 struct PointLight {
@@ -26,7 +30,7 @@ struct DirectionalLight {
     float strength;
 };
 
-#define MAX_PointsLights 16
+#define MAX_PointsLights 32
 uniform int NR_PointLights;
 uniform PointLight pointLights[MAX_PointsLights];
 uniform DirectionalLight dirLight;
@@ -48,8 +52,29 @@ highp float random(highp vec2 coords) {
    return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-const float ao = 1;
 
+
+
+vec3 getNormalFromMap()
+{
+    vec3 tangentNormal = normalize(vec3(0.5, 0.5, 1) * 2.0 - 1.0);
+
+    vec3 Q1  = dFdx(FragPos);
+    vec3 Q2  = dFdy(FragPos);
+    vec2 st1 = dFdx(texCoord);
+    vec2 st2 = dFdy(texCoord);
+
+    vec3 N   = normalize(Normal);
+    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B  = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
+
+
+
+const float ao = 1;
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -99,12 +124,16 @@ out vec4 fragColor;
 
 void main()
 {
-    vec3 N = normalize(Normal);
+    vec3 albedo = material.albedo * texture(material.albedoTex,texCoord).rgb;
+    float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
+    float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
+
+    vec3 N = getNormalFromMap();
     vec3 V = normalize(viewPos - FragPos);
     vec3 R = reflect(-V, N);
 
     vec3 F0 = vec3(0.04);
-    F0 = mix(F0, material.albedo, material.metallic);
+    F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < NR_PointLights; i++)
@@ -117,8 +146,8 @@ void main()
         vec3 radiance = pointLights[i].lightColor * attenuation;
 
         // Cook-Torrance BRDF
-        float NDF = DistributionGGX(N, H, material.roughness);   
-        float G   = GeometrySmith(N, V, L, material.roughness);      
+        float NDF = DistributionGGX(N, H, roughness);   
+        float G   = GeometrySmith(N, V, L, roughness);
         vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
         vec3 numerator    = NDF * G * F; 
@@ -127,14 +156,14 @@ void main()
 
         vec3 kS = F;
         vec3 kD = vec3(1) - kS;
-        kD *= 1 - material.metallic;
+        kD *= 1 - metallic;
 
         float NDotL = max(dot(N, L), 0.0);
 
-        Lo += (kD * material.albedo / PI + specular) * radiance * NDotL;
+        Lo += (kD * albedo / PI + specular) * radiance * NDotL;
     } 
 
-    vec3 ambient = material.ambient * material.albedo * ao;
+    vec3 ambient = (material.ambient * albedo) * ao;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1));

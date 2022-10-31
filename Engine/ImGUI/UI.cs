@@ -779,7 +779,7 @@ namespace OpenTK_Learning
                         if (ImGui.Button("Point Light"))
                         {
                             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                            R_3D.AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                            R_3D.AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
                             R_3D.ConstructLights();
                             Main.selectedLight = 0;
                         }

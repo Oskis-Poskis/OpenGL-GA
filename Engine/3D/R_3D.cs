@@ -75,7 +75,7 @@ namespace OpenTK_Learning
         }
 
         // Add light to rendering list
-        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 direction, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
@@ -115,12 +115,12 @@ namespace OpenTK_Learning
                 GL.BufferData(BufferTarget.ElementArrayBuffer, Objects[i].Indices.Length * sizeof(uint), Objects[i].Indices, BufferUsageHint.StaticDraw);
 
                 // Set attributes in shaders - vertex positions, UV's and normals
-                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-                GL.EnableVertexAttribArray(Main.PhongShader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(Main.PhongShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aPosition"));
+                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aTexCoord"));
+                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aNormal"));
+                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
             }
         }
 
@@ -156,24 +156,26 @@ namespace OpenTK_Learning
             {
                 for (int i = 0; i < Objects.Count; i++)
                 {
-                    Main.PhongShader.Use();
+                    Main.PBRShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    SetTransform(Main.PhongShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                    SetProjView(Main.PhongShader, projection, view);
+                    SetTransform(Main.PBRShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetProjView(Main.PBRShader, projection, view);
 
                     Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
-                    Main.PhongShader.SetVector3("material.ambient", ambient);
-                    Main.PhongShader.SetVector3("viewPos", Main.position);
+                    Main.PBRShader.SetVector3("material.ambient", ambient);
+                    Main.PBRShader.SetVector3("viewPos", Main.position);
 
-                    Main.PhongShader.SetVector3("material.albedo", Objects[i].Material.albedo);
-                    Main.PhongShader.SetFloat("material.roughness", Objects[i].Material.roughness);
-                    Main.PhongShader.SetFloat("material.metallic", Objects[i].Material.metallic);
+                    Main.PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
+                    Main.PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
+                    Main.PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
 
-                    //Main.PhongShader.SetInt("diffuseMap", 1);
-                    //Main.PhongShader.SetInt("normalMap", 2);
+                    Main.PBRShader.SetInt("material.albedoTex", 0);
+                    Main.PBRShader.SetInt("material.roughnessTex", 1);
+                    Main.PBRShader.SetInt("material.metallicTex", 2);
+                    //Main.PBRShader.SetInt("material.normalTex", 3);
 
-                    //Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
-                    //Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
+                    Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
+                    Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
                     //Main.PhongShader.SetFloat("dirLight.strength", 0.75f);
 
                     numPL = 0;
@@ -186,8 +188,8 @@ namespace OpenTK_Learning
                             // Set each Point Light in FS
                             case 0:
                                 numPL += 1;
-                                Main.PhongShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                                Main.PhongShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                                Main.PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                                Main.PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
                                 //Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
                                 //Main.PhongShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
                                 //Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
@@ -200,7 +202,7 @@ namespace OpenTK_Learning
 
 
                     // Set the for loop length in FS shader
-                    Main.PhongShader.SetInt("NR_PointLights", numPL);
+                    Main.PBRShader.SetInt("NR_PointLights", numPL);
 
                     // Draw objects with indices
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);

@@ -36,10 +36,14 @@
   <ItemGroup>
     <Content Include="Resources\3D_Models\Car_diffuse.jpg" />
     <Content Include="Resources\3D_Models\Car_normal.png" />
-    <Content Include="Resources\Images\Checker.png" />
     <Content Include="Engine\Engine_Resources\Images\failedtoload.png" />
+    <Content Include="Resources\Images\Checker.png" />
     <Content Include="Resources\Images\grid.png" />
     <Content Include="Resources\Images\hex.png" />
+    <Content Include="Resources\Images\rusted-steel_albedo.png" />
+    <Content Include="Resources\Images\rusted-steel_metallic.png" />
+    <Content Include="Resources\Images\rusted-steel_normal-ogl.png" />
+    <Content Include="Resources\Images\rusted-steel_roughness.png" />
   </ItemGroup>
 	
   <ItemGroup>
