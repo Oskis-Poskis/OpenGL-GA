@@ -288,10 +288,11 @@ namespace OpenTK_Learning
         {
             var transform = Matrix4.Identity;
             transform *= Matrix4.CreateScale(scale);
-            transform *=
+            /*transform *=
                 Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotation.X)) *
                 Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
+                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));*/
+            transform *= Matrix4.Invert(Matrix4.LookAt(location, Main.position, Vector3.UnitY));
             transform *= Matrix4.CreateTranslation(location);
 
             return transform;

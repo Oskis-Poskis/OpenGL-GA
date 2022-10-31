@@ -91,7 +91,7 @@ namespace OpenTK_Learning
 
         // Camera transformations
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
-        Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        public static Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
 
         // Runs when the window is resizeds
@@ -140,11 +140,6 @@ namespace OpenTK_Learning
             };
 
             // Add default objects
-            AddObjectToArray(false, "Cube", M_Default,
-                new Vector3(2f),          // Scale
-                new Vector3(0f, 1f, 0f),  // Location
-                new Vector3(0f),          // Rotation
-                Cube.vertices, Cube.indices);
             AddObjectToArray(false, "Plane", M_Floor,
                 new Vector3(15f), // Scale
                 new Vector3(0f),  // Location
@@ -155,14 +150,14 @@ namespace OpenTK_Learning
             AddObjectToArray(false, R_Loading.importname, M_Default,
                         new Vector3(1f),            // Scale
                         new Vector3(0, 4, 0),       // Location
-                        new Vector3(-90f, 0, 0f), // Rotation
+                        new Vector3(-90f, 0, 0f),   // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO for objects
             ConstructObjects();
 
             // Add lights
-            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
             for (int i = 0; i < 3; i++)
             {
                 for (int j = 0; j < 3; j++)
@@ -181,7 +176,7 @@ namespace OpenTK_Learning
                 for (int j = 0; j < 3; j++)
                 {
                     AddLightToArray(0.75f, 5, 1, 0,
-                        "Point Light", new Vector3(1),
+                        "Point Light", new Vector3(1, 0, 0),
                         LightShader,
                         new Vector3(i * 2 - 2, j * 2 + 3, -5),
                         new Vector3(0f),
