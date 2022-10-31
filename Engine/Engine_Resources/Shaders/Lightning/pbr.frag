@@ -52,9 +52,6 @@ highp float random(highp vec2 coords) {
    return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-
-
-
 vec3 getNormalFromMap()
 {
     vec3 tangentNormal = normalize(vec3(0.5, 0.5, 1) * 2.0 - 1.0);
@@ -71,8 +68,6 @@ vec3 getNormalFromMap()
 
     return normalize(TBN * tangentNormal);
 }
-
-
 
 const float ao = 1;
 const float PI = 3.14159265359;
@@ -117,8 +112,32 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
+vec3 calcPointLight(PointLight pl, vec3 V, vec3 N, vec3 F0, vec3 alb, float rough, float metal)
+{
+    // Calc per light radiance
+    vec3 L = normalize(pl.lightPos - FragPos);
+    vec3 H = normalize(V + L);
+    float distance = length(pl.lightPos - FragPos);
+    float attenuation = 1.0 / (distance * distance);
+    vec3 radiance = pl.lightColor * attenuation;
 
+    // Cook-Torrance BRDF
+    float NDF = DistributionGGX(N, H, rough);   
+    float G   = GeometrySmith(N, V, L, rough);
+    vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
 
+    vec3 numerator    = NDF * G * F; 
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+    vec3 specular = numerator / denominator;
+
+    vec3 kS = F;
+    vec3 kD = vec3(1) - kS;
+    kD *= 1 - metal;
+
+    float NDotL = max(dot(N, L), 0.0);
+
+    return (kD * alb / PI + specular) * radiance * NDotL;
+}
 
 out vec4 fragColor;
 
@@ -138,29 +157,7 @@ void main()
     vec3 Lo = vec3(0.0);
     for (int i = 0; i < NR_PointLights; i++)
     {
-        // Calc per light radiance
-        vec3 L = normalize(pointLights[i].lightPos - FragPos);
-        vec3 H = normalize(V + L);
-        float distance = length(pointLights[i].lightPos - FragPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = pointLights[i].lightColor * attenuation;
-
-        // Cook-Torrance BRDF
-        float NDF = DistributionGGX(N, H, roughness);   
-        float G   = GeometrySmith(N, V, L, roughness);
-        vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
-
-        vec3 numerator    = NDF * G * F; 
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
-        vec3 specular = numerator / denominator;
-
-        vec3 kS = F;
-        vec3 kD = vec3(1) - kS;
-        kD *= 1 - metallic;
-
-        float NDotL = max(dot(N, L), 0.0);
-
-        Lo += (kD * albedo / PI + specular) * radiance * NDotL;
+        Lo += calcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
     } 
 
     vec3 ambient = (material.ambient * albedo) * ao;
