@@ -230,7 +230,12 @@ namespace OpenTK_Learning
                     SetTransform(Main.WireframeShader, MakeTransform(i, Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
                     SetProjView(Main.WireframeShader, projection, view);
 
-                    // Draw objects with indices
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    Main.WireframeShader.SetVector3("col", new Vector3(1, 0, 0));
+                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    Main.WireframeShader.SetVector3("col", new Vector3(1));
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
             }

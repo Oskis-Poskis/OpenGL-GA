@@ -36,8 +36,8 @@ namespace OpenTK_Learning
 
         public static Texture[] PBRmaps = new Texture[4];
         public static Texture[] DefaultMaps = new Texture[4];
-        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/pbr.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
-        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
+        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/pbr.vert", "./../../../Engine/Engine_Resources/shaders/PBR/pbr.frag");
+        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/light.vert", "./../../../Engine/Engine_Resources/shaders/PBR/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static Material M_Default;
@@ -65,8 +65,8 @@ namespace OpenTK_Learning
         public static float WindowWidth;
         public static float WindowHeight;
         float sensitivity = 0.25f;
-        float CameraWidth;
-        float CameraHeight;
+        float CameraWidth = 1920;
+        float CameraHeight = 1080;
         float Yaw;
         float Pitch = -90f;
         int FOV = 75;
@@ -202,10 +202,6 @@ namespace OpenTK_Learning
 
             // Draw 3D objects
             {
-                // Wireframe mode toggling
-                if (wireframeonoff == true) GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                else GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
                 // Allow keyboard input only when mouse is over viewport
                 if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) GeneralInput(args);
 
@@ -231,11 +227,11 @@ namespace OpenTK_Learning
                 DrawLights(projection, view);
             }
 
-            // Add second framebuffer for fixing glitches
-            fboShader.Use();
             GL.Disable(EnableCap.DepthTest);
+            fboShader.Use();
 
             GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
 
             GL.BindVertexArray(rectVAO);

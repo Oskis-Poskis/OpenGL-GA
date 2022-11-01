@@ -12,10 +12,8 @@ namespace OpenTK_Learning
         public readonly int Handle;
         private readonly Dictionary<string, int> _uniformLocations;
 
-        public Shader(string vertPath, string fragPath, bool useGeomShader = false, string geomPath = "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.geom")
+        public Shader(string vertPath, string fragPath)
         {
-            int geometryShader = 0;
-
             var shaderSource = File.ReadAllText(vertPath);
             var vertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShader, shaderSource);
@@ -26,36 +24,16 @@ namespace OpenTK_Learning
             GL.ShaderSource(fragmentShader, shaderSource);
             CompileShader(fragmentShader);
 
-            if (useGeomShader == true)
-            {
-                shaderSource = File.ReadAllText(geomPath);
-                geometryShader = GL.CreateShader(ShaderType.GeometryShader);
-                GL.ShaderSource(geometryShader, shaderSource);
-                CompileShader(geometryShader);
-            }
-
             Handle = GL.CreateProgram();
             GL.AttachShader(Handle, vertexShader);
             GL.AttachShader(Handle, fragmentShader);
-            if (useGeomShader == true)
-            {
-                GL.AttachShader(Handle, geometryShader);
-            }
 
             LinkProgram(Handle);
 
             GL.DetachShader(Handle, vertexShader);
             GL.DetachShader(Handle, fragmentShader);
-            if (useGeomShader == true)
-            {
-                GL.DetachShader(Handle, geometryShader);
-            }
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
-            if (useGeomShader == true)
-            {
-                GL.DeleteShader(geometryShader);
-            }
 
             GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out var numberOfUniforms);
 

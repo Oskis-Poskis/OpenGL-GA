@@ -73,8 +73,18 @@ namespace OpenTK_Learning
         {
             ImGui.Begin("Game");
 
-            CameraWidth = ImGui.GetWindowWidth();
-            CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
+            if (ImGui.GetWindowWidth() > 0 && ImGui.GetWindowHeight() > 0)
+            {
+                CameraWidth = ImGui.GetWindowWidth();
+                CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
+            }
+
+            else
+            {
+                CameraWidth = 1920;
+                CameraHeight = 1080;
+            }
+            
 
             Main.isMainHovered = ImGui.IsWindowHovered();
 
