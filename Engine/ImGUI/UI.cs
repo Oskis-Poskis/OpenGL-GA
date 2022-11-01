@@ -73,20 +73,18 @@ namespace OpenTK_Learning
         {
             ImGui.Begin("Game");
 
-            CameraWidth = ImGui.GetWindowWidth() - 18;
-            CameraHeight = ImGui.GetWindowHeight() - 50;
+            CameraWidth = ImGui.GetWindowWidth();
+            CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
 
             Main.isMainHovered = ImGui.IsWindowHovered();
 
             ImGui.Image((IntPtr)R_3D.framebufferTexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
-                new System.Numerics.Vector2(0.0f, 1.0f),
+                new System.Numerics.Vector2(0.0f, 0.9f),
                 new System.Numerics.Vector2(1.0f, 0.0f),
                 new System.Numerics.Vector4(1.0f),
                 new System.Numerics.Vector4(1, 1, 1, 0.2f));
             ImGui.End();
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
         public static void LoadMenuBar()
@@ -722,79 +720,73 @@ namespace OpenTK_Learning
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-            if (ImGui.TreeNode("Spawn"))
+            if (ImGui.BeginTabBar("##SpawnMenu"))
             {
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                if (ImGui.BeginTabBar("##SpawnMenu"))
+                if (ImGui.BeginTabItem("Primitives"))
                 {
-                    if (ImGui.BeginTabItem("Primitives"))
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.Button("Plane"))
                     {
-                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                        if (ImGui.Button("Plane"))
-                        {
-                            R_3D.AddObjectToArray(false, "Plane", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
-                            R_3D.ConstructObjects();
-                            Main.selectedObject = R_3D.Objects.Count - 1;
-                        }
-
-                        ImGui.SameLine();
-
-                        if (ImGui.Button("Cube"))
-                        {
-                            R_3D.AddObjectToArray(false, "Cube", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
-                            R_3D.ConstructObjects();
-                            Main.selectedObject = R_3D.Objects.Count - 1;
-                        }
-
-                        ImGui.SameLine();
-
-                        if (ImGui.Button("Import Mesh"))
-                        {
-                            OpenFileDialog selectFile = new OpenFileDialog
-                            {
-                                Title = "Select File",
-                                Filter = "FBX Files (*.fbx)|*.fbx"
-                            };
-                            selectFile.ShowDialog();
-
-                            string path = selectFile.FileName;
-
-                            R_Loading.LoadModel(path);
-                            R_3D.AddObjectToArray(false, R_Loading.importname, Main.M_Default,
-                                new Vector3(2f),            // Scale
-                                new Vector3(0, 4, 0),       // Location
-                                new Vector3(180f, 90f, 0f), // Rotation
-                                R_Loading.importedData, R_Loading.importindices);
-                            R_3D.ConstructObjects();
-                            Main.selectedObject = R_3D.Objects.Count - 1;
-                        }
-
-                        ImGui.EndTabItem();
+                        R_3D.AddObjectToArray(false, "Plane", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
+                        R_3D.ConstructObjects();
+                        Main.selectedObject = R_3D.Objects.Count - 1;
                     }
 
-                    if (ImGui.BeginTabItem("Lights"))
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Cube"))
                     {
-                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                        if (ImGui.Button("Point Light"))
+                        R_3D.AddObjectToArray(false, "Cube", Main.M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
+                        R_3D.ConstructObjects();
+                        Main.selectedObject = R_3D.Objects.Count - 1;
+                    }
+
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Import Mesh"))
+                    {
+                        OpenFileDialog selectFile = new OpenFileDialog
                         {
-                            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                            R_3D.AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
-                            R_3D.ConstructLights();
-                            Main.selectedLight = 0;
-                        }
+                            Title = "Select File",
+                            Filter = "FBX Files (*.fbx)|*.fbx"
+                        };
+                        selectFile.ShowDialog();
 
-                        ImGui.EndTabItem();
+                        string path = selectFile.FileName;
+
+                        R_Loading.LoadModel(path);
+                        R_3D.AddObjectToArray(false, R_Loading.importname, Main.M_Default,
+                            new Vector3(2f),            // Scale
+                            new Vector3(0, 4, 0),       // Location
+                            new Vector3(180f, 90f, 0f), // Rotation
+                            R_Loading.importedData, R_Loading.importindices);
+                        R_3D.ConstructObjects();
+                        Main.selectedObject = R_3D.Objects.Count - 1;
                     }
 
-                    if (ImGui.BeginTabItem("Miscellaneous"))
-                    {
-                        ImGui.Text("Some cool stuff here");
-                        ImGui.EndTabItem();
-                    }
-                    ImGui.EndTabBar();
+                    ImGui.EndTabItem();
                 }
-                ImGui.TreePop();
+
+                if (ImGui.BeginTabItem("Lights"))
+                {
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    if (ImGui.Button("Point Light"))
+                    {
+                        R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+                        R_3D.AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), R_Loading.importedData, R_Loading.importindices);
+                        R_3D.ConstructLights();
+                        Main.selectedLight = 0;
+                    }
+
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Miscellaneous"))
+                {
+                    ImGui.Text("Some cool stuff here");
+                    ImGui.EndTabItem();
+                }
+                ImGui.EndTabBar();
             }
 
             ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -804,7 +796,7 @@ namespace OpenTK_Learning
             string[] _objects = new string[R_3D.Objects.Count];
             string[] _lights = new string[R_3D.Lights.Count];
 
-            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 75)))
+            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 125)))
             {
                 for (int i = 0; i < R_3D.Lights.Count; i++)
                 {

@@ -108,7 +108,7 @@ namespace OpenTK_Learning
         }
 
         // Runs after Run();
-        protected override void OnLoad()
+        unsafe protected override void OnLoad()
         {
             IsVisible = true;
             VSync = VSyncMode.On;
@@ -121,10 +121,10 @@ namespace OpenTK_Learning
             GL.LineWidth(1.5f);
 
             // Load textures
-            albedoMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
-            roughnessMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_roughness.png", TextureUnit.Texture0);
-            metallicMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_metallic.png", TextureUnit.Texture0);
-            normalMap = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_normal-ogl.png", TextureUnit.Texture0);
+            albedoMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
+            roughnessMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
+            metallicMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
+            normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
 
             M_Default = new Material
             {
@@ -139,22 +139,25 @@ namespace OpenTK_Learning
                 metallic = 1,
             };
 
+            /*
             // Add default objects
             AddObjectToArray(false, "Plane", M_Floor,
                 new Vector3(15f), // Scale
                 new Vector3(0f),  // Location
                 new Vector3(0f),  // Rotation
                 Plane.vertices, Plane.indices);
+            */
 
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
             AddObjectToArray(false, R_Loading.importname, M_Default,
                         new Vector3(1f),            // Scale
                         new Vector3(0, 4, 0),       // Location
-                        new Vector3(-90f, 0, 0f),   // Rotation
+                        new Vector3(0f, -90, 0f),   // Rotation
                         R_Loading.importedData, R_Loading.importindices);
 
             // Generate VAO, VBO and EBO for objects
             ConstructObjects();
+            PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Add lights
             R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
@@ -165,7 +168,7 @@ namespace OpenTK_Learning
                     AddLightToArray(0.75f, 5, 1, 0,
                         "Point Light", new Vector3(1),
                         LightShader,
-                        new Vector3(i * 2 - 2, j * 2 + 3, 5),
+                        new Vector3(i * 2 - 2, j * 2 + 3, 3),
                         new Vector3(0f),
                         R_Loading.importedData, R_Loading.importindices);
                 }
@@ -178,7 +181,7 @@ namespace OpenTK_Learning
                     AddLightToArray(0.75f, 5, 1, 0,
                         "Point Light", new Vector3(1, 0, 0),
                         LightShader,
-                        new Vector3(i * 2 - 2, j * 2 + 3, -5),
+                        new Vector3(i * 2 - 2, j * 2 + 3, -3),
                         new Vector3(0f),
                         R_Loading.importedData, R_Loading.importindices);
                 }
@@ -196,17 +199,18 @@ namespace OpenTK_Learning
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             UI.LoadTheme();
-
-            PBRShader.SetFloat("NoiseAmount", NoiseAmount);
+            GLFW.MaximizeWindow(WindowPtr);
 
             base.OnLoad();
         }
+
+        public static float offx = 0;
+        public static float offy = 0;
 
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
-            GL.Viewport(0, 0, (int)WindowWidth, (int)WindowHeight);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -258,6 +262,8 @@ namespace OpenTK_Learning
             GL.BindVertexArray(rectVAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
             // UI
             _controller.Update(this, (float)args.Time);
             ImGui.DockSpaceOverViewport();
@@ -275,6 +281,7 @@ namespace OpenTK_Learning
             {
                 // Settings
                 ImGui.Begin("Settings");
+
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                 if (ImGui.TreeNode("Rendering"))

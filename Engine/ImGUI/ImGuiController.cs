@@ -63,7 +63,7 @@ namespace OpenTK_Learning
             io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/BRLNSR.TTF", 25f);
             //io.Fonts.AddFontFromFileTTF("C:/Windows/Fonts/FRABK.TTF", 25f);
 
-            io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+            //io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
             io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
             io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;

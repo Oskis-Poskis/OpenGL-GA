@@ -362,6 +362,7 @@ namespace OpenTK_Learning
                 Console.WriteLine("Framebuffer error: " + fboStatus);
             }
 
+            /*
             SRFBO = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
 
@@ -381,6 +382,7 @@ namespace OpenTK_Learning
             {
                 Console.WriteLine("Framebuffer error: " + fboStatus2);
             }
+            */
         }
 
         static readonly string[] cubeMapTextureString = new string[6]

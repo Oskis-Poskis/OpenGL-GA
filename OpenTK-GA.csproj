@@ -37,6 +37,11 @@
     <Content Include="Resources\3D_Models\Car_diffuse.jpg" />
     <Content Include="Resources\3D_Models\Car_normal.png" />
     <Content Include="Engine\Engine_Resources\Images\failedtoload.png" />
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_AO.jpg" />
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_BaseColor.jpg" />
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Metallic.jpg" />
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Normal.jpg" />
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Roughness.jpg" />
     <Content Include="Resources\Images\Checker.png" />
     <Content Include="Resources\Images\grid.png" />
     <Content Include="Resources\Images\hex.png" />
@@ -78,6 +83,7 @@
     <None Include="Resources\3D_Models\Car.fbx" />
     <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />
+    <None Include="Resources\3D_Models\Gun\gun.fbx" />
     <None Include="Resources\3D_Models\MiniSMG.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Smg-12.fbx" />

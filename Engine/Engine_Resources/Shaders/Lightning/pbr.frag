@@ -141,7 +141,7 @@ out vec4 fragColor;
 
 void main()
 {
-    vec3 albedo = material.albedo; // * texture(material.albedoTex,texCoord).rgb;
+    vec3 albedo = material.albedo * texture(material.albedoTex,texCoord).rgb;
     float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
     float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
 
