@@ -2,6 +2,7 @@
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
 using StbImageSharp;
 using System.IO;
+using System;
 
 namespace OpenTK_Learning
 {
@@ -14,6 +15,7 @@ namespace OpenTK_Learning
             // Replace path if it's invalid or unsupported file format
             if (!File.Exists(path))
             {
+                Console.WriteLine("Path doesn't exist: " + path);
                 path = "./../../../Engine/Engine_Resources/Images/failedtoload.png";
             }
 

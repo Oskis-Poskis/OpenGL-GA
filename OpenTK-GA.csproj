@@ -34,8 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\3D_Models\Car_diffuse.jpg" />
-    <Content Include="Resources\3D_Models\Car_normal.png" />
     <Content Include="Engine\Engine_Resources\Images\failedtoload.png" />
     <Content Include="Resources\3D_Models\Gun\PPSh_main_AO.jpg" />
     <Content Include="Resources\3D_Models\Gun\PPSh_main_BaseColor.jpg" />
@@ -80,7 +78,6 @@
 	
   <ItemGroup>
     <None Include="OpenTK-GA.sln" />
-    <None Include="Resources\3D_Models\Car.fbx" />
     <None Include="Resources\3D_Models\Crate.fbx" />
     <None Include="Resources\3D_Models\Cube.fbx" />
     <None Include="Resources\3D_Models\Gun\gun.fbx" />

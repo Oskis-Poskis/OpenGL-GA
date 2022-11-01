@@ -34,17 +34,14 @@ namespace OpenTK_Learning
             CameraWidth = Size.X;
         }
 
-        private Texture albedoMap;
-        private Texture roughnessMap;
-        private Texture metallicMap;
-        private Texture normalMap;
-        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
-        public static Shader PhongShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/default.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/default.frag", true);
+        public static Texture[] PBRmaps = new Texture[4];
+        public static Texture[] DefaultMaps = new Texture[4];
+        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/pbr.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.frag", true);
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/Lightning/light.vert", "./../../../Engine/Engine_Resources/shaders/Lightning/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static Material M_Default;
-        public static Material M_Floor;
+        public static Material M_Gun;
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
         public static bool wireframeonoff = false;
@@ -83,6 +80,8 @@ namespace OpenTK_Learning
         // Rendering
         public static float NoiseAmount = 0.5f;
         public static float lineWidth = 0.1f;
+        public static System.Numerics.Vector3 LightDirection = new System.Numerics.Vector3(-1, 1, 1);
+        public static System.Numerics.Vector3 LightColor = new System.Numerics.Vector3(1);
 
         // UI
         ImGuiController _controller;
@@ -121,71 +120,56 @@ namespace OpenTK_Learning
             GL.LineWidth(1.5f);
 
             // Load textures
-            albedoMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
-            roughnessMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
-            metallicMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
-            normalMap = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
+            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
+            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
+            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
+            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
+
+            DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
 
             M_Default = new Material
             {
                 albedo = new Vector3(1),
-                roughness = 1,
-                metallic = 1,
+                roughness = 0.25f,
+                metallic = 0,
+                Maps = new int[] { 0, 0, 0, 0 }
             };
-            M_Floor = new Material
+            M_Gun = new Material
             {
                 albedo = new Vector3(1),
                 roughness = 1,
                 metallic = 1,
+                Maps = new int[] { 1, 1, 1, 0 }
             };
 
-            /*
-            // Add default objects
-            AddObjectToArray(false, "Plane", M_Floor,
-                new Vector3(15f), // Scale
-                new Vector3(0f),  // Location
-                new Vector3(0f),  // Rotation
-                Plane.vertices, Plane.indices);
-            */
-
             R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
-            AddObjectToArray(false, R_Loading.importname, M_Default,
-                        new Vector3(1f),            // Scale
+            AddObjectToArray(false, R_Loading.importname, M_Gun,
+                        new Vector3(0.5f),          // Scale
                         new Vector3(0, 4, 0),       // Location
                         new Vector3(0f, -90, 0f),   // Rotation
                         R_Loading.importedData, R_Loading.importindices);
+
+            AddObjectToArray(false, "Plane", M_Default,
+                        new Vector3(15f),   // Scale
+                        new Vector3(0f),    // Location
+                        new Vector3(0f),    // Rotation
+                        Plane.vertices, Plane.indices);
 
             // Generate VAO, VBO and EBO for objects
             ConstructObjects();
             PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Add lights
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Monkey.fbx");
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    AddLightToArray(0.75f, 5, 1, 0,
+            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            AddLightToArray(0.75f, 5, 1, 0,
                         "Point Light", new Vector3(1),
                         LightShader,
-                        new Vector3(i * 2 - 2, j * 2 + 3, 3),
+                        new Vector3(4, 5, 3),
                         new Vector3(0f),
                         R_Loading.importedData, R_Loading.importindices);
-                }
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    AddLightToArray(0.75f, 5, 1, 0,
-                        "Point Light", new Vector3(1, 0, 0),
-                        LightShader,
-                        new Vector3(i * 2 - 2, j * 2 + 3, -3),
-                        new Vector3(0f),
-                        R_Loading.importedData, R_Loading.importindices);
-                }
-            }
 
             // Generate VAO, VBO and EBO for lights
             ConstructLights();
@@ -233,11 +217,6 @@ namespace OpenTK_Learning
                 Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
                 Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
-                // Use texture
-                albedoMap.Use(TextureUnit.Texture0);
-                roughnessMap.Use(TextureUnit.Texture1);
-                metallicMap.Use(TextureUnit.Texture2);
-                normalMap.Use(TextureUnit.Texture3);
                 // Draw all objects
                 DrawObjects(projection, view, wireframeonoff);
 
@@ -347,6 +326,16 @@ namespace OpenTK_Learning
                 if (ImGui.TreeNode("Lightning"))
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Text("Sun Direction");
+                    ImGui.SliderFloat3("##SunDirection", ref LightDirection, -1, 1);
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Text("Sun Color");
+                    ImGui.ColorEdit3("##SunColor", ref LightColor);
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
                     ImGui.Text("Background Color");
                     if (ImGui.ColorEdit3("Background Color", ref BG_Color, ImGuiColorEditFlags.NoLabel))
                     {

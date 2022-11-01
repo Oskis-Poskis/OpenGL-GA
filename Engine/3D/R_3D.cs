@@ -22,6 +22,7 @@ namespace OpenTK_Learning
             public Vector3 albedo;
             public float roughness;
             public float metallic;
+            public int[] Maps;
         }
 
         // Struct with object data
@@ -170,13 +171,24 @@ namespace OpenTK_Learning
                     Main.PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
 
                     Main.PBRShader.SetInt("material.albedoTex", 0);
-                    Main.PBRShader.SetInt("material.roughnessTex", 1);
                     Main.PBRShader.SetInt("material.metallicTex", 2);
+                    Main.PBRShader.SetInt("material.roughnessTex", 1);
                     //Main.PBRShader.SetInt("material.normalTex", 3);
 
-                    Main.PhongShader.SetVector3("dirLight.direction", new Vector3(-1, 1, 1));
-                    Main.PhongShader.SetVector3("dirLight.color", new Vector3(1));
-                    //Main.PhongShader.SetFloat("dirLight.strength", 0.75f);
+                    if (Objects[i].Material.Maps[0] != 0) Main.PBRmaps[0].Use(TextureUnit.Texture0);
+                    else Main.DefaultMaps[0].Use(TextureUnit.Texture0);
+
+                    if (Objects[i].Material.Maps[1] != 0) Main.PBRmaps[1].Use(TextureUnit.Texture1);
+                    else Main.DefaultMaps[1].Use(TextureUnit.Texture1);
+
+                    if (Objects[i].Material.Maps[2] != 0) Main.PBRmaps[2].Use(TextureUnit.Texture2);
+                    else Main.DefaultMaps[2].Use(TextureUnit.Texture2);
+
+                    //if (Objects[i].Material.Maps[3] != 0) Main.PBRmaps[3].Use(TextureUnit.Texture3);
+                    //else Main.DefaultMaps[3].Use(TextureUnit.Texture3);
+
+                    Main.PBRShader.SetVector3("dirLight.direction", new Vector3(Main.LightDirection.X, Main.LightDirection.Y, Main.LightDirection.Z));
+                    Main.PBRShader.SetVector3("dirLight.color", new Vector3(Main.LightColor.X, Main.LightColor.Y, Main.LightColor.Z));
 
                     numPL = 0;
 
@@ -288,11 +300,11 @@ namespace OpenTK_Learning
         {
             var transform = Matrix4.Identity;
             transform *= Matrix4.CreateScale(scale);
-            /*transform *=
+            transform *=
                 Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotation.X)) *
                 Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));*/
-            transform *= Matrix4.Invert(Matrix4.LookAt(location, Main.position, Vector3.UnitY));
+                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
+            //transform *= Matrix4.Invert(Matrix4.LookAt(location, Main.position, Vector3.UnitY));
             transform *= Matrix4.CreateTranslation(location);
 
             return transform;

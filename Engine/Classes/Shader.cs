@@ -12,7 +12,7 @@ namespace OpenTK_Learning
         public readonly int Handle;
         private readonly Dictionary<string, int> _uniformLocations;
 
-        public Shader(string vertPath, string fragPath, bool useGeomShader = false, string geomPath = "./../../../Engine/Engine_Resources/shaders/Lightning/default.geom")
+        public Shader(string vertPath, string fragPath, bool useGeomShader = false, string geomPath = "./../../../Engine/Engine_Resources/shaders/Lightning/pbr.geom")
         {
             int geometryShader = 0;
 

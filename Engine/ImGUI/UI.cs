@@ -221,6 +221,7 @@ namespace OpenTK_Learning
                     albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
                     roughness = _roughness,
                     metallic = _metallic,
+                    Maps = R_3D.Objects[selectedObject].Material.Maps
                 },
                 VertData = R_3D.Objects[selectedObject].VertData,
                 Indices = R_3D.Objects[selectedObject].Indices,

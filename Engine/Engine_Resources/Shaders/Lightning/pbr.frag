@@ -137,6 +137,31 @@ vec3 calcPointLight(PointLight pl, vec3 V, vec3 N, vec3 F0, vec3 alb, float roug
     return (kD * alb / PI + specular) * radiance * NDotL;
 }
 
+vec3 CalcDirectionalLight(DirectionalLight dl, vec3 V, vec3 N, vec3 F0, vec3 alb, float rough, float metal)
+{
+    // Calc per light radiance
+    vec3 L = normalize(dl.direction);
+    vec3 H = normalize(V + L);
+    vec3 radiance = dl.color;
+
+    // Cook-Torrance BRDF
+    float NDF = DistributionGGX(N, H, rough);   
+    float G   = GeometrySmith(N, V, L, rough);
+    vec3 F    = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+
+    vec3 numerator    = NDF * G * F; 
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001; // + 0.0001 to prevent divide by zero
+    vec3 specular = numerator / denominator;
+
+    vec3 kS = F;
+    vec3 kD = vec3(1) - kS;
+    kD *= 1 - metal;
+
+    float NDotL = max(dot(N, L), 0.0);
+
+    return (kD * alb / PI + specular) * radiance * NDotL;
+}
+
 out vec4 fragColor;
 
 void main()
@@ -153,6 +178,8 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     vec3 Lo = vec3(0.0);
+
+    Lo += CalcDirectionalLight(dirLight, V, N, F0, albedo, roughness, metallic);
     for (int i = 0; i < NR_PointLights; i++)
     {
         Lo += calcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
