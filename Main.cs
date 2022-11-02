@@ -6,6 +6,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using static OpenTK_Learning.R_3D;
+using StbImageSharp;
 
 namespace OpenTK_Learning
 {
@@ -34,8 +35,8 @@ namespace OpenTK_Learning
             CameraWidth = Size.X;
         }
 
-        public static Texture[] PBRmaps = new Texture[4];
-        public static Texture[] DefaultMaps = new Texture[4];
+        public static Texture[] PBRmaps = new Texture[5];
+        public static Texture[] DefaultMaps = new Texture[5];
         public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/pbr.vert", "./../../../Engine/Engine_Resources/shaders/PBR/pbr.frag");
         public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/light.vert", "./../../../Engine/Engine_Resources/shaders/PBR/light.frag");
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
@@ -85,7 +86,7 @@ namespace OpenTK_Learning
 
         // UI
         ImGuiController _controller;
-        public static float fontSize = 0.55f;
+        public static float fontSize = 0.6f;
         float spacing = 2f;
 
         // Camera transformations
@@ -117,32 +118,36 @@ namespace OpenTK_Learning
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
 
-            GL.LineWidth(1.5f);
+            GL.LineWidth(2f);
 
             // Load textures
             PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
             PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
             PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
             PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
+            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_AO.jpg", TextureUnit.Texture0);
 
             DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
             DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
             DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
             DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[4] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
 
             M_Default = new Material
             {
                 albedo = new Vector3(1),
                 roughness = 0.25f,
                 metallic = 0,
-                Maps = new int[] { 0, 0, 0, 0 }
+                ao = 1,
+                Maps = new int[] { 0, 0, 0, 0, 0 }
             };
             M_Gun = new Material
             {
                 albedo = new Vector3(1),
                 roughness = 1,
                 metallic = 1,
-                Maps = new int[] { 1, 1, 1, 0 }
+                ao = 1,
+                Maps = new int[] { 1, 1, 1, 0, 1 }
             };
 
             R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
@@ -164,7 +169,7 @@ namespace OpenTK_Learning
 
             // Add lights
             R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddLightToArray(0.75f, 5, 1, 0,
+            AddLightToArray(1, 10, 2, 0,
                         "Point Light", new Vector3(1),
                         LightShader,
                         new Vector3(4, 5, 3),
@@ -227,15 +232,14 @@ namespace OpenTK_Learning
                 DrawLights(projection, view);
             }
 
+            /*
             GL.Disable(EnableCap.DepthTest);
             fboShader.Use();
-
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-
             GL.BindVertexArray(rectVAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+            */
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
@@ -408,33 +412,17 @@ namespace OpenTK_Learning
                 }
             }
 
+            if (IsKeyDown(Keys.F)) position = Objects[selectedObject].Location * 1.2f;
+
             // X and Z movement
-            if (IsKeyDown(Keys.W))
-            {
-                position += front * speed * (float)args.Time;
-            }
-            if (IsKeyDown(Keys.S))
-            {
-                position -= front * speed * (float)args.Time;
-            }
-            if (IsKeyDown(Keys.A))
-            {
-                position -= Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)args.Time;
-            }
-            if (IsKeyDown(Keys.D))
-            {
-                position += Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)args.Time;
-            }
+            if (IsKeyDown(Keys.W)) position += front * speed * (float)args.Time;
+            if (IsKeyDown(Keys.S)) position -= front * speed * (float)args.Time;
+            if (IsKeyDown(Keys.A)) position -= Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)args.Time;
+            if (IsKeyDown(Keys.D)) position += Vector3.Normalize(Vector3.Cross(front, up)) * speed * (float)args.Time;
 
             // Y movement
-            if (IsKeyDown(Keys.Q))
-            {
-                position -= up * speed * (float)args.Time;
-            }
-            if (IsKeyDown(Keys.E))
-            {
-                position += up * speed * (float)args.Time;
-            }
+            if (IsKeyDown(Keys.Q)) position -= up * speed * (float)args.Time;
+            if (IsKeyDown(Keys.E)) position += up * speed * (float)args.Time;
         }
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)

@@ -13,6 +13,8 @@ struct Material
     float roughness;
     sampler2D roughnessTex;
     sampler2D normalTex;
+    float ao;
+    sampler2D aoTex;
 };
 
 struct PointLight {
@@ -20,7 +22,7 @@ struct PointLight {
     vec3 lightColor;
 
     float radius;
-    float compression;
+    float falloff;
     float strength;
 }; 
 
@@ -67,7 +69,6 @@ vec3 getNormalFromMap()
     return normalize(TBN * tangentNormal);
 }
 
-const float ao = 1;
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -110,14 +111,15 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
-vec3 calcPointLight(PointLight pl, vec3 V, vec3 N, vec3 F0, vec3 alb, float rough, float metal)
+vec3 CalcPointLight(PointLight pl, vec3 V, vec3 N, vec3 F0, vec3 alb, float rough, float metal)
 {
     // Calc per light radiance
     vec3 L = normalize(pl.lightPos - FragPos);
     vec3 H = normalize(V + L);
     float distance = length(pl.lightPos - FragPos);
-    float attenuation = 1.0 / (distance * distance);
-    vec3 radiance = pl.lightColor * attenuation;
+    //float attenuation = 1.0 / (distance * distance);
+    float attenuation = pow(smoothstep(pl.radius, 0, distance), pl.falloff); // Non-PBR attenuation
+    vec3 radiance = pl.lightColor * attenuation * pl.strength;
 
     // Cook-Torrance BRDF
     float NDF = DistributionGGX(N, H, rough);   
@@ -169,6 +171,7 @@ void main()
     vec3 albedo = material.albedo * texture(material.albedoTex,texCoord).rgb;
     float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
     float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
+    float ao = material.ao * texture(material.aoTex, texCoord).r;
 
     vec3 N = getNormalFromMap();
     vec3 V = normalize(viewPos - FragPos);
@@ -182,10 +185,10 @@ void main()
     Lo += CalcDirectionalLight(dirLight, V, N, F0, albedo, roughness, metallic);
     for (int i = 0; i < NR_PointLights; i++)
     {
-        Lo += calcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
+        Lo += CalcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
     } 
 
-    vec3 ambient = (material.ambient * albedo) * ao;
+    vec3 ambient = material.ambient * albedo * ao;
     vec3 color = ambient + Lo;
 
     color = color / (color + vec3(1));

@@ -215,11 +215,13 @@ namespace OpenTK_Learning
                 R_3D.Objects[selectedObject].Material.albedo.Z);
             float _roughness = R_3D.Objects[selectedObject].Material.roughness;
             float _metallic = R_3D.Objects[selectedObject].Material.metallic;
+            float _ao = R_3D.Objects[selectedObject].Material.ao;
 
             ImGui.Begin("Material Editor");
             ImGui.ColorEdit3("Albedo", ref _albedo);
             ImGui.SliderFloat("Roughness", ref _roughness, 0, 1);
             ImGui.SliderFloat("Metallic", ref _metallic, 0, 1);
+            ImGui.SliderFloat("AO", ref _ao, 0, 1);
 
             R_3D.Objects[Main.selectedObject] = new R_3D.Object
             {
@@ -231,6 +233,7 @@ namespace OpenTK_Learning
                     albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
                     roughness = _roughness,
                     metallic = _metallic,
+                    ao = _ao,
                     Maps = R_3D.Objects[selectedObject].Material.Maps
                 },
                 VertData = R_3D.Objects[selectedObject].VertData,

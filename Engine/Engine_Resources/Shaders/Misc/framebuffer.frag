@@ -20,7 +20,7 @@ void main()
         result = vec3(rValue, gValue, bValue);
     }
 
-    fragColor = vec4(result, 1);
+    fragColor = vec4(1 - result, 1);
 }
 
 /*

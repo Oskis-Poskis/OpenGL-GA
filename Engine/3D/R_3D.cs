@@ -22,6 +22,7 @@ namespace OpenTK_Learning
             public Vector3 albedo;
             public float roughness;
             public float metallic;
+            public float ao;
             public int[] Maps;
         }
 
@@ -169,11 +170,13 @@ namespace OpenTK_Learning
                     Main.PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
                     Main.PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
                     Main.PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
+                    Main.PBRShader.SetFloat("material.ao", Objects[i].Material.ao);
 
                     Main.PBRShader.SetInt("material.albedoTex", 0);
-                    Main.PBRShader.SetInt("material.metallicTex", 2);
                     Main.PBRShader.SetInt("material.roughnessTex", 1);
+                    Main.PBRShader.SetInt("material.metallicTex", 2);
                     //Main.PBRShader.SetInt("material.normalTex", 3);
+                    Main.PBRShader.SetInt("material.ao", 4);
 
                     if (Objects[i].Material.Maps[0] != 0) Main.PBRmaps[0].Use(TextureUnit.Texture0);
                     else Main.DefaultMaps[0].Use(TextureUnit.Texture0);
@@ -186,6 +189,9 @@ namespace OpenTK_Learning
 
                     //if (Objects[i].Material.Maps[3] != 0) Main.PBRmaps[3].Use(TextureUnit.Texture3);
                     //else Main.DefaultMaps[3].Use(TextureUnit.Texture3);
+
+                    if (Objects[i].Material.Maps[4] != 0) Main.PBRmaps[4].Use(TextureUnit.Texture4);
+                    else Main.DefaultMaps[4].Use(TextureUnit.Texture4);
 
                     Main.PBRShader.SetVector3("dirLight.direction", new Vector3(Main.LightDirection.X, Main.LightDirection.Y, Main.LightDirection.Z));
                     Main.PBRShader.SetVector3("dirLight.color", new Vector3(Main.LightColor.X, Main.LightColor.Y, Main.LightColor.Z));
@@ -202,9 +208,9 @@ namespace OpenTK_Learning
                                 numPL += 1;
                                 Main.PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
                                 Main.PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-                                //Main.PhongShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                                //Main.PhongShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
-                                //Main.PhongShader.SetFloat("pointLights[" + j + "].compression", Lights[j].FallOff);
+                                Main.PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                                Main.PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                Main.PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
                                 break;
 
                             case 1:
@@ -231,11 +237,11 @@ namespace OpenTK_Learning
                     SetProjView(Main.WireframeShader, projection, view);
 
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    Main.WireframeShader.SetVector3("col", new Vector3(1, 0, 0));
+                    Main.WireframeShader.SetVector3("col", new Vector3(1));
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
 
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    Main.WireframeShader.SetVector3("col", new Vector3(1));
+                    Main.WireframeShader.SetVector3("col", new Vector3(0.3f));
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
             }
@@ -349,15 +355,15 @@ namespace OpenTK_Learning
             fboShader.SetFloat("ChromaticAbberationOffset", Main.ChromaticAbberationOffset);
         }
 
-        public static int SRFBO, FBO, RBO;
-        public static int SRtexture, framebufferTexture;
+        public static int FBO, RBO;
+        public static int framebufferTexture, depthTexture;
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
         {
             FBO = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
 
-            // Color texture
+            // Color Texture
             framebufferTexture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
@@ -368,38 +374,29 @@ namespace OpenTK_Learning
             // Attach color to FBO
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, framebufferTexture, 0);
 
+            // Depth Texture
+            depthTexture = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, depthTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.DepthComponent, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            // Attach Depth to FBO
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, TextureTarget.Texture2D, depthTexture, 0);
+
+            /*
             RBO = GL.GenRenderbuffer();
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, RBO);
             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, (int)CameraWidth, (int)CameraHeight);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, RBO);
+            */
 
             var fboStatus = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (fboStatus != FramebufferErrorCode.FramebufferComplete)
             {
                 Console.WriteLine("Framebuffer error: " + fboStatus);
             }
-
-            /*
-            SRFBO = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, SRFBO);
-
-            // Color texture
-            SRtexture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, SRtexture);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, (int)CameraWidth, (int)CameraHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            // Attach color to FBO
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, SRtexture, 0);
-
-            var fboStatus2 = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (fboStatus2 != FramebufferErrorCode.FramebufferComplete)
-            {
-                Console.WriteLine("Framebuffer error: " + fboStatus2);
-            }
-            */
         }
 
         static readonly string[] cubeMapTextureString = new string[6]
