@@ -7,6 +7,8 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using static OpenTK_Learning.R_3D;
 using StbImageSharp;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace OpenTK_Learning
 {
@@ -94,6 +96,8 @@ namespace OpenTK_Learning
         public static Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
 
+        
+
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
@@ -110,6 +114,12 @@ namespace OpenTK_Learning
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
+            // Load and use icon for window
+            ImageResult _image;
+            using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            OpenTK.Windowing.Common.Input.Image test = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
+            Icon = new OpenTK.Windowing.Common.Input.WindowIcon(test);
+
             IsVisible = true;
             VSync = VSyncMode.On;
 
