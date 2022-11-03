@@ -73,16 +73,16 @@ namespace OpenTK_Learning
         {
             ImGui.Begin("Game");
 
-            if (ImGui.GetWindowWidth() > 0 && ImGui.GetWindowHeight() > 0)
+            if (ImGui.GetWindowWidth() < 10 | ImGui.GetWindowHeight() < 10)
             {
-                CameraWidth = ImGui.GetWindowWidth();
-                CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
+                CameraWidth = 1920;
+                CameraHeight = 1080;
             }
 
             else
             {
-                CameraWidth = 1920;
-                CameraHeight = 1080;
+                CameraWidth = ImGui.GetWindowWidth();
+                CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
             }
             
 
@@ -144,7 +144,7 @@ namespace OpenTK_Learning
                 ImGui.EndMenu();
             }
 
-            ImGui.Dummy(new System.Numerics.Vector2(ImGui.GetWindowWidth() - 500, 0));
+            ImGui.Dummy(new System.Numerics.Vector2(ImGui.GetWindowWidth() - 550, 0));
             ImGui.TextDisabled("Objects: " + (R_3D.Objects.Count).ToString());
             ImGui.TextDisabled(" | ");
             ImGui.TextDisabled(GL.GetString(StringName.Renderer));
