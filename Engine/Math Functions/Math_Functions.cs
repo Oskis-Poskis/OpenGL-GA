@@ -14,7 +14,7 @@ namespace OpenTK_Learning
         public static int RandInt(int min, int max)
         {
             Random rnd = new Random();
-            int value = rnd.Next(min, max);
+            int value = rnd.Next(min, max + 1);
 
             return value;
         }

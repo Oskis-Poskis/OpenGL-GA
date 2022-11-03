@@ -88,7 +88,7 @@ namespace OpenTK_Learning
 
         // UI
         ImGuiController _controller;
-        public static float fontSize = 0.6f;
+        public static float fontSize = 0.55f;
         float spacing = 2f;
 
         // Camera transformations
@@ -172,6 +172,22 @@ namespace OpenTK_Learning
                         new Vector3(0f),    // Location
                         new Vector3(0f),    // Rotation
                         Plane.vertices, Plane.indices);
+
+
+            int num = 5;
+            R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
+            for (int i = 0; i < num; i++)
+            {
+                for (int j = 0; j < num; j++)
+                {
+                    AddObjectToArray(false, R_Loading.importname,
+                        M_Gun,
+                        new Vector3(0.5f),          // Scale
+                        new Vector3(i * 3, j * 3 + 3, 0),       // Location
+                        new Vector3(Math_Functions.RandFloat(-180, 180), Math_Functions.RandFloat(-180, 180), Math_Functions.RandFloat(-180, 180)),   // Rotation
+                        R_Loading.importedData, R_Loading.importindices); ;
+                }
+            }
 
             // Generate VAO, VBO and EBO for objects
             ConstructObjects();
@@ -364,7 +380,7 @@ namespace OpenTK_Learning
                 if (ImGui.TreeNode("Editor"))
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("Font Size", ref fontSize, 0.1f, 2.0f, "%.1f"))
+                    if (ImGui.SliderFloat("Font Size", ref fontSize, 0.1f, 2.0f, "%.2f"))
                     {
                         ImGui.GetIO().FontGlobalScale = fontSize;
 

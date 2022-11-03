@@ -810,35 +810,30 @@ namespace OpenTK_Learning
             string[] _objects = new string[R_3D.Objects.Count];
             string[] _lights = new string[R_3D.Lights.Count];
 
-            if (ImGui.BeginListBox("##ObjectsList", new System.Numerics.Vector2(ImGui.GetWindowWidth() - 20, ImGui.GetWindowHeight() - 125)))
+            for (int i = 0; i < R_3D.Lights.Count; i++)
             {
-                for (int i = 0; i < R_3D.Lights.Count; i++)
+                _lights[i] = R_3D.Lights[i].Name;
+                if (ImGui.Selectable(" " + _lights[i] + "##" + R_3D.Lights[i].ID, selectedLight == i))
                 {
-                    _lights[i] = R_3D.Lights[i].Name;
-                    if (ImGui.Selectable(" " + _lights[i] + "##" + R_3D.Lights[i].ID, selectedLight == i))
-                    {
-                        selectedLight = i;
-                    }
-
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+                    selectedLight = i;
                 }
 
-                ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+            }
 
-                for (int i = 0; i < R_3D.Objects.Count; i++)
+            ImGui.Separator();
+            ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+
+            for (int i = 0; i < R_3D.Objects.Count; i++)
+            {
+                _objects[i] = R_3D.Objects[i].Name;
+
+                if (ImGui.Selectable(" " + _objects[i] + "##" + R_3D.Objects[i].ID, selectedObject == i))
                 {
-                    _objects[i] = R_3D.Objects[i].Name;
-
-                    if (ImGui.Selectable(" " + _objects[i] + "##" + R_3D.Objects[i].ID, selectedObject == i))
-                    {
-                        selectedObject = i;
-                    }
-
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
+                    selectedObject = i;
                 }
 
-                ImGui.EndListBox();
+                ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
             }
 
             ImGui.EndTabBar();
