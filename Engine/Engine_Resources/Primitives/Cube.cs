@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
+using static Bernard.Setup;
 
-namespace OpenTK_Learning
+namespace Axyz
 {
     class Cube
     {

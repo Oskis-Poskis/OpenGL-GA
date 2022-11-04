@@ -2,7 +2,7 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 
-namespace OpenTK_Learning
+namespace Axyz
 {
     class Math_Functions
     {

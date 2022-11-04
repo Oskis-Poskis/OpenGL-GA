@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace OpenTK_GA.Properties {
+namespace Axyz.Properties {
     using System;
     
     

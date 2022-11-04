@@ -2,10 +2,12 @@
 using Assimp;
 using Assimp.Configs;
 using OpenTK.Mathematics;
+using static Bernard.Setup;
+using Axyz;
 
-namespace OpenTK_Learning
+namespace Importer
 {
-    class R_Loading
+    class Import
     {
         static Scene m_model;
         public static VertexData[] importedData;

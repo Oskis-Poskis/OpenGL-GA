@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.IO;
+using static Bernard.Setup;
 using OpenTK.Mathematics;
-namespace OpenTK_Learning
+
+namespace Axyz
 {
     class Circle
     {

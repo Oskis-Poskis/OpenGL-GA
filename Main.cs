@@ -1,16 +1,21 @@
-﻿using System;
-using ImGuiNET;
+﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using static OpenTK_Learning.R_3D;
+using static Importer.Import;
+using static Maeve.Rendering;
+using static Bernard.Setup;
 using StbImageSharp;
 using System.IO;
-using System.Runtime.InteropServices;
+using System;
+using ImGuiNET;
+using AllImGUI;
 
-namespace OpenTK_Learning
+using BulletSharp;
+using BSMath = BulletSharp.Math;
+
+namespace Axyz
 {
     class Main : GameWindow
     {
@@ -90,13 +95,13 @@ namespace OpenTK_Learning
         ImGuiController _controller;
         public static float fontSize = 0.55f;
         float spacing = 2f;
+        public static int resetButton;
 
         // Camera transformations
         Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
         public static Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
 
-        
 
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
@@ -114,11 +119,13 @@ namespace OpenTK_Learning
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
+            UserInterface.LoadIcons();
+
             // Load and use icon for window
             ImageResult _image;
             using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            OpenTK.Windowing.Common.Input.Image test = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
-            Icon = new OpenTK.Windowing.Common.Input.WindowIcon(test);
+            OpenTK.Windowing.Common.Input.Image _icon = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
+            Icon = new OpenTK.Windowing.Common.Input.WindowIcon(_icon);
 
             IsVisible = true;
             VSync = VSyncMode.On;
@@ -160,47 +167,31 @@ namespace OpenTK_Learning
                 Maps = new int[] { 1, 1, 1, 0, 1 }
             };
 
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
-            AddObjectToArray(false, R_Loading.importname, M_Gun,
+            LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
+            AddObjectToArray(importname, M_Gun,
                         new Vector3(0.5f),          // Scale
                         new Vector3(0, 4, 0),       // Location
                         new Vector3(0f, -90, 0f),   // Rotation
-                        R_Loading.importedData, R_Loading.importindices);
+                        importedData, importindices);
 
-            AddObjectToArray(false, "Plane", M_Default,
+            AddObjectToArray("Plane", M_Default,
                         new Vector3(15f),   // Scale
                         new Vector3(0f),    // Location
                         new Vector3(0f),    // Rotation
                         Plane.vertices, Plane.indices);
-
-
-            int num = 5;
-            R_Loading.LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
-            for (int i = 0; i < num; i++)
-            {
-                for (int j = 0; j < num; j++)
-                {
-                    AddObjectToArray(false, R_Loading.importname,
-                        M_Gun,
-                        new Vector3(0.5f),          // Scale
-                        new Vector3(i * 3, j * 3 + 3, 0),       // Location
-                        new Vector3(Math_Functions.RandFloat(-180, 180), Math_Functions.RandFloat(-180, 180), Math_Functions.RandFloat(-180, 180)),   // Rotation
-                        R_Loading.importedData, R_Loading.importindices); ;
-                }
-            }
 
             // Generate VAO, VBO and EBO for objects
             ConstructObjects();
             PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
             // Add lights
-            R_Loading.LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
             AddLightToArray(1, 10, 2, 0,
                         "Point Light", new Vector3(1),
                         LightShader,
                         new Vector3(4, 5, 3),
                         new Vector3(0f),
-                        R_Loading.importedData, R_Loading.importindices);
+                        importedData, importindices);
 
             // Generate VAO, VBO and EBO for lights
             ConstructLights();
@@ -213,14 +204,11 @@ namespace OpenTK_Learning
             SetUpCubeMap();
 
             _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
-            UI.LoadTheme();
+            UserInterface.LoadTheme();
             GLFW.MaximizeWindow(WindowPtr);
 
             base.OnLoad();
         }
-
-        public static float offx = 0;
-        public static float offy = 0;
 
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -275,12 +263,12 @@ namespace OpenTK_Learning
 
             if (showDemoWindow) ImGui.ShowDemoWindow();
 
-            UI.LoadMenuBar();
-            if (showStatistics) UI.LoadStatistics(CameraWidth, CameraHeight, Yaw, Pitch, position, spacing);
-            if (showObjectProperties) UI.LoadObjectProperties(ref selectedObject, spacing);
-            if (showLightProperties) UI.LoadLightProperties(ref selectedLight, spacing);
-            if (showOutliner) UI.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
-            if (showMaterialEditor) UI.LoadMaterialEditor(selectedObject, spacing);
+            UserInterface.LoadMenuBar();
+            if (showStatistics) UserInterface.LoadStatistics(CameraWidth, CameraHeight, Yaw, Pitch, position, spacing);
+            if (showObjectProperties) UserInterface.LoadObjectProperties(ref selectedObject, spacing);
+            if (showLightProperties) UserInterface.LoadLightProperties(ref selectedLight, spacing);
+            if (showOutliner) UserInterface.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
+            if (showMaterialEditor) UserInterface.LoadMaterialEditor(selectedObject, spacing);
 
             if (showSettings)
             {
@@ -339,7 +327,7 @@ namespace OpenTK_Learning
                     ImGui.Separator();
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
+                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UserInterface.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PBRShader.SetFloat("NoiseAmount", NoiseAmount);
                     ImGui.TreePop();
@@ -396,7 +384,7 @@ namespace OpenTK_Learning
                 ImGui.End();
             }
 
-            UI.LoadGameWindow(ref CameraWidth, ref CameraHeight);
+            UserInterface.LoadGameWindow(ref CameraWidth, ref CameraHeight);
 
             _controller.Render();
             ImGuiController.CheckGLError("End of frame");

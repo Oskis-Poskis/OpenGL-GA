@@ -4,7 +4,7 @@ using StbImageSharp;
 using System.IO;
 using System;
 
-namespace OpenTK_Learning
+namespace Axyz
 {
     class Texture
     {

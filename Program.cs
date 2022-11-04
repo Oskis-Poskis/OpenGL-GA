@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OpenTK_Learning
+namespace Axyz
 {
     class Program
     {
