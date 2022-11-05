@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
-using static Bernard.Setup;
+using static Engine.SettingUP.Setup;
 
-namespace Axyz
+namespace Engine
 {
     class Cube
     {

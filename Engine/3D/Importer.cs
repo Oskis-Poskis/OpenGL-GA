@@ -2,10 +2,10 @@
 using Assimp;
 using Assimp.Configs;
 using OpenTK.Mathematics;
-using static Bernard.Setup;
-using Axyz;
+using static Engine.SettingUP.Setup;
+using static Engine.MathLib.Functions;
 
-namespace Importer
+namespace Engine.Importer
 {
     class Import
     {
@@ -31,17 +31,17 @@ namespace Importer
                 if (m_model.Meshes[0].HasTextureCoords(0) == true)
                 {
                     importedData[i] = new VertexData(
-                    Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
-                    Math_Functions.FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
-                    Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
+                    FromVector(m_model.Meshes[0].Vertices[i]),
+                    FromVector(m_model.Meshes[0].TextureCoordinateChannels[0][i]).Xy,
+                    FromVector(m_model.Meshes[0].Normals[i]));
                 }
 
                 else
                 {
                     importedData[i] = new VertexData(
-                    Math_Functions.FromVector(m_model.Meshes[0].Vertices[i]),
-                    new Vector2(0),
-                    Math_Functions.FromVector(m_model.Meshes[0].Normals[i]));
+                    FromVector(m_model.Meshes[0].Vertices[i]),
+                    Vector2.Zero,
+                    FromVector(m_model.Meshes[0].Normals[i]));
                 }
             }
 

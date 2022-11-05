@@ -4,7 +4,7 @@ using StbImageSharp;
 using System.IO;
 using System;
 
-namespace Axyz
+namespace Engine
 {
     class Texture
     {

@@ -1,18 +1,32 @@
-﻿using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System;
-using Axyz;
 
-using static Bernard.Setup;
+using static Engine.SettingUP.Setup;
+using static Engine.Main;
 
-// The Maeve namespace contains the drawing of entities, such as objects and lights
 // Mostly used in OnRenderFrame();
-namespace Maeve
+namespace Engine.RenderEngine
 {
     class Rendering
     {
         public static int numPL;
+
+        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/pbr.vert", "./../../../Engine/Engine_Resources/shaders/PBR/pbr.frag");
+        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/light.vert", "./../../../Engine/Engine_Resources/shaders/PBR/light.frag");
+        public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
+
+        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
+        public static int selectedObject = 0;
+        public static int selectedLight = 0;
+
+        public static float NoiseAmount = 0.5f;
+        public static System.Numerics.Vector3 LightDirection = new System.Numerics.Vector3(-1, 1, 1);
+        public static System.Numerics.Vector3 LightColor = new System.Numerics.Vector3(1);
+
+        // Post processing
+        public static bool ChromaticAbberationOnOff = false;
+        public static float ChromaticAbberationOffset = 0.005f;
+        public static bool showCubeMap = false;
 
         // Draw the array of objects
         public static void DrawObjects(Matrix4 projection, Matrix4 view, bool overrideShader)
@@ -21,43 +35,43 @@ namespace Maeve
             {
                 for (int i = 0; i < Objects.Count; i++)
                 {
-                    Main.PBRShader.Use();
+                    PBRShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    SetTransform(Main.PBRShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                    SetProjView(Main.PBRShader, projection, view);
+                    SetTransform(PBRShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetProjView(PBRShader, projection, view);
 
-                    Vector3 ambient = new Vector3(Main.BG_Color.X, Main.BG_Color.Y, Main.BG_Color.Z);
-                    Main.PBRShader.SetVector3("material.ambient", ambient);
-                    Main.PBRShader.SetVector3("viewPos", Main.position);
+                    Vector3 ambient = new Vector3(BG_Color.X, BG_Color.Y, BG_Color.Z);
+                    PBRShader.SetVector3("material.ambient", ambient);
+                    PBRShader.SetVector3("viewPos", position);
 
-                    Main.PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
-                    Main.PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
-                    Main.PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
-                    Main.PBRShader.SetFloat("material.ao", Objects[i].Material.ao);
+                    PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
+                    PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
+                    PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
+                    PBRShader.SetFloat("material.ao", Objects[i].Material.ao);
 
-                    Main.PBRShader.SetInt("material.albedoTex", 0);
-                    Main.PBRShader.SetInt("material.roughnessTex", 1);
-                    Main.PBRShader.SetInt("material.metallicTex", 2);
-                    //Main.PBRShader.SetInt("material.normalTex", 3);
-                    Main.PBRShader.SetInt("material.ao", 4);
+                    PBRShader.SetInt("material.albedoTex", 0);
+                    PBRShader.SetInt("material.roughnessTex", 1);
+                    PBRShader.SetInt("material.metallicTex", 2);
+                    //PBRShader.SetInt("material.normalTex", 3);
+                    PBRShader.SetInt("material.ao", 4);
 
-                    if (Objects[i].Material.Maps[0] != 0) Main.PBRmaps[0].Use(TextureUnit.Texture0);
-                    else Main.DefaultMaps[0].Use(TextureUnit.Texture0);
+                    if (Objects[i].Material.Maps[0] != 0) PBRmaps[0].Use(TextureUnit.Texture0);
+                    else DefaultMaps[0].Use(TextureUnit.Texture0);
 
-                    if (Objects[i].Material.Maps[1] != 0) Main.PBRmaps[1].Use(TextureUnit.Texture1);
-                    else Main.DefaultMaps[1].Use(TextureUnit.Texture1);
+                    if (Objects[i].Material.Maps[1] != 0) PBRmaps[1].Use(TextureUnit.Texture1);
+                    else DefaultMaps[1].Use(TextureUnit.Texture1);
 
-                    if (Objects[i].Material.Maps[2] != 0) Main.PBRmaps[2].Use(TextureUnit.Texture2);
-                    else Main.DefaultMaps[2].Use(TextureUnit.Texture2);
+                    if (Objects[i].Material.Maps[2] != 0) PBRmaps[2].Use(TextureUnit.Texture2);
+                    else DefaultMaps[2].Use(TextureUnit.Texture2);
 
-                    //if (Objects[i].Material.Maps[3] != 0) Main.PBRmaps[3].Use(TextureUnit.Texture3);
-                    //else Main.DefaultMaps[3].Use(TextureUnit.Texture3);
+                    //if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
+                    //else DefaultMaps[3].Use(TextureUnit.Texture3);
 
-                    if (Objects[i].Material.Maps[4] != 0) Main.PBRmaps[4].Use(TextureUnit.Texture4);
-                    else Main.DefaultMaps[4].Use(TextureUnit.Texture4);
+                    if (Objects[i].Material.Maps[4] != 0) PBRmaps[4].Use(TextureUnit.Texture4);
+                    else DefaultMaps[4].Use(TextureUnit.Texture4);
 
-                    Main.PBRShader.SetVector3("dirLight.direction", new Vector3(Main.LightDirection.X, Main.LightDirection.Y, Main.LightDirection.Z));
-                    Main.PBRShader.SetVector3("dirLight.color", new Vector3(Main.LightColor.X, Main.LightColor.Y, Main.LightColor.Z));
+                    PBRShader.SetVector3("dirLight.direction", new Vector3(LightDirection.X, LightDirection.Y, LightDirection.Z));
+                    PBRShader.SetVector3("dirLight.color", new Vector3(LightColor.X, LightColor.Y, LightColor.Z));
 
                     numPL = 0;
 
@@ -69,11 +83,11 @@ namespace Maeve
                             // Set each Point Light in FS
                             case 0:
                                 numPL += 1;
-                                Main.PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                                Main.PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-                                Main.PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                                Main.PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
-                                Main.PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
+                                PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                                PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                                PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                                PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
                                 break;
 
                             case 1:
@@ -83,7 +97,7 @@ namespace Maeve
 
 
                     // Set the for loop length in FS shader
-                    Main.PBRShader.SetInt("NR_PointLights", numPL);
+                    PBRShader.SetInt("NR_PointLights", numPL);
 
                     // Draw objects with indices
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
@@ -94,17 +108,17 @@ namespace Maeve
             {
                 for (int i = 0; i < Objects.Count; i++)
                 {
-                    Main.WireframeShader.Use();
+                    WireframeShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    SetTransform(Main.WireframeShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
-                    SetProjView(Main.WireframeShader, projection, view);
+                    SetTransform(WireframeShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetProjView(WireframeShader, projection, view);
 
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    Main.WireframeShader.SetVector3("col", new Vector3(1));
+                    WireframeShader.SetVector3("col", new Vector3(1));
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
 
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    Main.WireframeShader.SetVector3("col", new Vector3(0.3f));
+                    WireframeShader.SetVector3("col", new Vector3(0.3f));
                     GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
             }
@@ -125,21 +139,18 @@ namespace Maeve
             }
         }
 
-        // Set uniforms in shader
         public static void SetProjView(Shader shader, Matrix4 projection, Matrix4 view)
         {
             GL.UniformMatrix4(shader.GetUniformLocation("projection"), true, ref projection);
             GL.UniformMatrix4(shader.GetUniformLocation("view"), true, ref view);
         }
 
-        // Set transform in shader
         public static void SetTransform(Shader shader, Matrix4 transform)
         {
             GL.UniformMatrix4(shader.GetUniformLocation("transform"), true, ref transform);
         }
 
-        // Create a transform with scale, location and rotation
-        public static Matrix4 MakeTransform(Vector3 scale, Vector3 location, Vector3 rotation)
+        static Matrix4 MakeTransform(Vector3 scale, Vector3 location, Vector3 rotation)
         {
             var transform = Matrix4.Identity;
             transform *= Matrix4.CreateScale(scale);
@@ -152,7 +163,7 @@ namespace Maeve
             return transform;
         }
 
-        public static Matrix4 MakeLightTransform(Vector3 scale, Vector3 location, Vector3 rotation)
+        static Matrix4 MakeLightTransform(Vector3 scale, Vector3 location, Vector3 rotation)
         {
             var transform = Matrix4.Identity;
             transform *= Matrix4.CreateScale(scale);
@@ -160,7 +171,6 @@ namespace Maeve
                 Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotation.X)) *
                 Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
                 Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
-            //transform *= Matrix4.Invert(Matrix4.LookAt(location, Main.position, Vector3.UnitY));
             transform *= Matrix4.CreateTranslation(location);
 
             return transform;
@@ -196,8 +206,8 @@ namespace Maeve
             GL.Uniform1(fboShader.GetUniformLocation("framebufferTexture"), 0);
 
             // PP
-            fboShader.SetBool("ChromaticAbberationOnOff", Main.ChromaticAbberationOnOff);
-            fboShader.SetFloat("ChromaticAbberationOffset", Main.ChromaticAbberationOffset);
+            fboShader.SetBool("ChromaticAbberationOnOff", ChromaticAbberationOnOff);
+            fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
         }
     }
 }

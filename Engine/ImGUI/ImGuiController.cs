@@ -15,7 +15,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 
-namespace Axyz
+namespace Engine
 {
     public class ImGuiController : IDisposable
     {

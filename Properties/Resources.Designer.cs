@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Axyz.Properties {
+namespace Engine.Properties {
     using System;
     
     

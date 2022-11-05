@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using static Importer.Import;
 using StbImageSharp;
 using System.IO;
 using System;
-using Axyz;
 
-// The Bernard namespace contains setup functions and entity classes/structs, such as Material, Object and Light
+using static Engine.Importer.Import;
+using static Engine.RenderEngine.Rendering;
+
 // Mostly used in OnLoad();
-namespace Bernard
+namespace Engine.SettingUP
 {
     class Setup
     {
@@ -77,7 +77,7 @@ namespace Bernard
         {
             Object _object = new Object
             {
-                ID = Math_Functions.RandInt(0, 100000).ToString(),
+                ID = MathLib.Functions.RandInt(0, 100000).ToString(),
                 Name = name,
                 Material = material,
                 VertData = vertices,
@@ -100,7 +100,7 @@ namespace Bernard
                 FallOff = falloff,
                 Type = type,
                 Name = name,
-                ID = Math_Functions.RandInt(0, 100000).ToString(),
+                ID = MathLib.Functions.RandInt(0, 100000).ToString(),
                 LightColor = lightColor,
                 Shader = shader,
                 VertData = vertices,
@@ -131,12 +131,12 @@ namespace Bernard
                 GL.BufferData(BufferTarget.ElementArrayBuffer, Objects[i].Indices.Length * sizeof(uint), Objects[i].Indices, BufferUsageHint.StaticDraw);
 
                 // Set attributes in shaders - vertex positions, UV's and normals
-                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
-                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
-                GL.EnableVertexAttribArray(Main.PBRShader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(Main.PBRShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+                GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aPosition"));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aTexCoord"));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+                GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aNormal"));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
             }
         }
 
@@ -161,6 +161,17 @@ namespace Bernard
                 GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aPosition"));
                 GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
             }
+        }
+
+        public static Texture[] DefaultMaps = new Texture[5];
+
+        public static void LoadDefaultMaps()
+        {
+            DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[4] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
         }
 
         static readonly string[] cubeMapTextureString = new string[6]
@@ -229,7 +240,7 @@ namespace Bernard
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
 
-            Maeve.Rendering.SetProjView(CubeMapShader, projection, view);
+            RenderEngine.Rendering.SetProjView(CubeMapShader, projection, view);
             Matrix4 CubeMapTransform = Matrix4.CreateScale(50);
             CubeMapTransform *= Matrix4.CreateTranslation(position);
 

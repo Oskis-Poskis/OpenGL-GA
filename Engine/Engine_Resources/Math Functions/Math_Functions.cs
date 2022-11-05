@@ -2,9 +2,9 @@
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 
-namespace Axyz
+namespace Engine.MathLib
 {
-    class Math_Functions
+    class Functions
     {
         public static float Map(float value, float from1, float to1, float from2, float to2)
         {

@@ -1,20 +1,33 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using static Maeve.Rendering;
-using static Importer.Import;
-using static Bernard.Setup;
-using static Axyz.Main;
 using StbImageSharp;
-using ImGuiNET;
 using System.Windows.Forms;
 using System.IO;
 using System;
-using Axyz;
+using ImGuiNET;
 
-namespace AllImGUI
+using static Engine.RenderEngine.Rendering;
+using static Engine.Importer.Import;
+using static Engine.SettingUP.Setup;
+using static Engine.Main;
+
+namespace Engine.UserInterface
 {
-    class UserInterface
+    class GUI
     {
+        public static float fontSize = 0.55f;
+        public static int resetButton;
+
+        public static bool showDemoWindow = false;
+        public static bool showStatistics = false;
+        public static bool showMaterialEditor = false;
+        public static bool showObjectProperties = true;
+        public static bool showLightProperties = true;
+        public static bool showOutliner = true;
+
+        public static float spacing = 2f;
+        public static OpenTK.Windowing.Common.Input.WindowIcon LoadedIcon;
+
         public static void LoadIcons()
         {
             resetButton = GL.GenTexture();
@@ -30,6 +43,11 @@ namespace AllImGUI
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+            ImageResult _image;
+            using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            OpenTK.Windowing.Common.Input.Image _icon = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
+            LoadedIcon = new OpenTK.Windowing.Common.Input.WindowIcon(_icon);
         }
         public static void LoadTheme()
         {
@@ -92,6 +110,16 @@ namespace AllImGUI
             ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, new System.Numerics.Vector4(180f, 180f, 180f, 255f) / 255);
         }
 
+        public static void WindowOnOffs()
+        {
+            LoadMenuBar();
+            if (showDemoWindow) ImGui.ShowDemoWindow();
+            if (showStatistics) LoadStatistics(CameraWidth, CameraHeight, Yaw, Pitch, position, spacing);
+            if (showObjectProperties) LoadObjectProperties(ref selectedObject, spacing);
+            if (showLightProperties) LoadLightProperties(ref selectedLight, spacing);
+            if (showOutliner) LoadOutliner(ref selectedObject, ref selectedLight, spacing);
+            if (showMaterialEditor) LoadMaterialEditor(selectedObject, spacing);
+        }
         public static void LoadGameWindow(ref float CameraWidth, ref float CameraHeight)
         {
             ImGui.Begin("Game");
@@ -246,7 +274,7 @@ namespace AllImGUI
             ImGui.SliderFloat("Metallic", ref _metallic, 0, 1);
             ImGui.SliderFloat("AO", ref _ao, 0, 1);
 
-            Objects[Main.selectedObject].Material = new Material
+            Objects[selectedObject].Material = new Material
             {
                 albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
                 roughness = _roughness,
@@ -539,7 +567,7 @@ namespace AllImGUI
                     {
                         AddObjectToArray("Plane", M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
                         ConstructObjects();
-                        Main.selectedObject = Objects.Count - 1;
+                        selectedObject = Objects.Count - 1;
                     }
 
                     ImGui.SameLine();
@@ -583,9 +611,9 @@ namespace AllImGUI
                     if (ImGui.Button("Point Light"))
                     {
                         LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                        AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), Main.LightShader, new Vector3(1f), new Vector3(0f), importedData, importindices);
+                        AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), LightShader, new Vector3(1f), new Vector3(0f), importedData, importindices);
                         ConstructLights();
-                        Main.selectedLight = 0;
+                        selectedLight = 0;
                     }
 
                     ImGui.EndTabItem();

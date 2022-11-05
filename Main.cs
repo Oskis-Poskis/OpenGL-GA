@@ -3,19 +3,16 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using static Importer.Import;
-using static Maeve.Rendering;
-using static Bernard.Setup;
-using StbImageSharp;
-using System.IO;
-using System;
 using ImGuiNET;
-using AllImGUI;
+using System;
 
-using BulletSharp;
-using BSMath = BulletSharp.Math;
+using static Engine.UserInterface.GUI;
+using static Engine.Importer.Import;
+using static Engine.RenderEngine.Rendering;
+using static Engine.SettingUP.Setup;
+using Engine.MathLib;
 
-namespace Axyz
+namespace Engine
 {
     class Main : GameWindow
     {
@@ -43,72 +40,54 @@ namespace Axyz
         }
 
         public static Texture[] PBRmaps = new Texture[5];
-        public static Texture[] DefaultMaps = new Texture[5];
-        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/pbr.vert", "./../../../Engine/Engine_Resources/shaders/PBR/pbr.frag");
-        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/light.vert", "./../../../Engine/Engine_Resources/shaders/PBR/light.frag");
-        public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
+        public static Material M_Default = new Material
+        {
+            albedo = new Vector3(1),
+            roughness = 0.25f,
+            metallic = 0,
+            ao = 1,
+            Maps = new int[] { 0, 0, 0, 0, 0 }
+        };
+        public static Material M_Gun = new Material
+        {
+            albedo = new Vector3(1),
+            roughness = 1,
+            metallic = 1,
+            ao = 1,
+            Maps = new int[] { 1, 1, 1, 0, 1 }
+        };
 
-        public static Material M_Default;
-        public static Material M_Gun;
-
-        public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
         public static bool wireframeonoff = false;
-        public static int selectedObject = 0;
-        public static int selectedLight = 0;
 
         // Window bools
-        public static bool showDemoWindow = false;
-        public static bool showStatistics = false;
-        public static bool showMaterialEditor = false;
-        public static bool showObjectProperties = true;
-        public static bool showLightProperties = true;
-        public static bool showOutliner = true;
         public static bool showSettings = true;
-        public static bool isMainHovered;
         public static bool CloseWindow = false;
+        public static bool isMainHovered;
         bool fullScreen = false;
         bool vsynconoff = true;
 
         // Camera settings
         public static float WindowWidth;
         public static float WindowHeight;
+        public static float CameraWidth;
+        public static float CameraHeight;
+
+        Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
+        public static Vector3 up = Vector3.UnitY;
+        public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
+
         float sensitivity = 0.25f;
-        float CameraWidth = 1920;
-        float CameraHeight = 1080;
-        float Yaw;
-        float Pitch = -90f;
+        public static float Pitch = -90f;
+        public static float Yaw;
         int FOV = 75;
         int speed = 12;
 
-        // Post processing
-        public static bool ChromaticAbberationOnOff = false;
-        public static float ChromaticAbberationOffset = 0.005f;
-        public static bool showCubeMap = false;
-
-        // Rendering
-        public static float NoiseAmount = 0.5f;
-        public static float lineWidth = 0.1f;
-        public static System.Numerics.Vector3 LightDirection = new System.Numerics.Vector3(-1, 1, 1);
-        public static System.Numerics.Vector3 LightColor = new System.Numerics.Vector3(1);
-
-        // UI
-        ImGuiController _controller;
-        public static float fontSize = 0.55f;
-        float spacing = 2f;
-        public static int resetButton;
-
-        // Camera transformations
-        Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
-        public static Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
-        public static Vector3 position = new Vector3(0.0f, 4.0f, 4.0f);
-
+        ImGuiController UIController;
 
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
-            _controller.WindowResized((int)WindowWidth, (int)WindowHeight);
-
-            // Matches window scale to new resize
+            UIController.WindowResized((int)WindowWidth, (int)WindowHeight);
             WindowWidth = e.Width;
             WindowHeight = e.Height;
 
@@ -119,92 +98,56 @@ namespace Axyz
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
-            UserInterface.LoadIcons();
-
-            // Load and use icon for window
-            ImageResult _image;
-            using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            OpenTK.Windowing.Common.Input.Image _icon = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
-            Icon = new OpenTK.Windowing.Common.Input.WindowIcon(_icon);
-
-            IsVisible = true;
-            VSync = VSyncMode.On;
-
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
-
             GL.LineWidth(2f);
+            GL.PointSize(5f);
 
-            // Load textures
+            LoadIcons();
+            Icon = LoadedIcon;
+            LoadDefaultMaps();
+            UIController = new ImGuiController((int)WindowWidth, (int)WindowHeight);
+            LoadTheme();
+
+            VSync = VSyncMode.On;
+            IsVisible = true;
+
             PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
             PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
             PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
             PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
             PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_AO.jpg", TextureUnit.Texture0);
 
-            DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[4] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-
-            M_Default = new Material
-            {
-                albedo = new Vector3(1),
-                roughness = 0.25f,
-                metallic = 0,
-                ao = 1,
-                Maps = new int[] { 0, 0, 0, 0, 0 }
-            };
-            M_Gun = new Material
-            {
-                albedo = new Vector3(1),
-                roughness = 1,
-                metallic = 1,
-                ao = 1,
-                Maps = new int[] { 1, 1, 1, 0, 1 }
-            };
-
             LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
             AddObjectToArray(importname, M_Gun,
-                        new Vector3(0.5f),          // Scale
-                        new Vector3(0, 4, 0),       // Location
-                        new Vector3(0f, -90, 0f),   // Rotation
-                        importedData, importindices);
+                new Vector3(0.5f),          // Scale
+                new Vector3(0, 4, 0),       // Location
+                new Vector3(0f, -90, 0f),   // Rotation
+                importedData, importindices);
 
             AddObjectToArray("Plane", M_Default,
-                        new Vector3(15f),   // Scale
-                        new Vector3(0f),    // Location
-                        new Vector3(0f),    // Rotation
-                        Plane.vertices, Plane.indices);
+                new Vector3(15f),   // Scale
+                new Vector3(0f),    // Location
+                new Vector3(0f),    // Rotation
+                Plane.vertices, Plane.indices);
 
-            // Generate VAO, VBO and EBO for objects
-            ConstructObjects();
-            PBRShader.SetFloat("NoiseAmount", NoiseAmount);
-
-            // Add lights
             LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
             AddLightToArray(1, 10, 2, 0,
-                        "Point Light", new Vector3(1),
-                        LightShader,
-                        new Vector3(4, 5, 3),
-                        new Vector3(0f),
-                        importedData, importindices);
+                "Point Light", new Vector3(1),
+                LightShader,
+                new Vector3(4, 5, 3),
+                new Vector3(0f),
+                importedData, importindices);
 
-            // Generate VAO, VBO and EBO for lights
+            ConstructObjects();
             ConstructLights();
+            PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
-            // Generate two screen triangles
             GenFBO(CameraWidth, CameraHeight);
             GenScreenRect();
-
-            // Generate Cubemap data
             SetUpCubeMap();
-
-            _controller = new ImGuiController((int)WindowWidth, (int)WindowHeight);
-            UserInterface.LoadTheme();
             GLFW.MaximizeWindow(WindowPtr);
 
             base.OnLoad();
@@ -216,35 +159,24 @@ namespace Axyz
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
             GL.Enable(EnableCap.DepthTest);
 
-            // Draw 3D objects
-            {
-                // Allow keyboard input only when mouse is over viewport
-                if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) GeneralInput(args);
+            if (isMainHovered == true | IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) GeneralInput(args);
+            if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
+            if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
 
-                // Editor navigation on right click
-                if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
-                if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
+            Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
-                // Camera pos and FOV
-                Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
-                Matrix4 view = Matrix4.LookAt(position, position + front, up);
+            DrawObjects(projection, view, wireframeonoff);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                // Draw all objects
-                DrawObjects(projection, view, wireframeonoff);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
+            if (showCubeMap == true) DrawCubeMapCube(projection, view, position);
 
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                // Draw cubemap
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
-                if (showCubeMap == true) DrawCubeMapCube(projection, view, position);
-
-                // Draw all lights
-                DrawLights(projection, view);
-            }
+            // Draw all lights
+            DrawLights(projection, view);
 
             /*
             GL.Disable(EnableCap.DepthTest);
@@ -258,17 +190,9 @@ namespace Axyz
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             // UI
-            _controller.Update(this, (float)args.Time);
+            UIController.Update(this, (float)args.Time);
             ImGui.DockSpaceOverViewport();
-
-            if (showDemoWindow) ImGui.ShowDemoWindow();
-
-            UserInterface.LoadMenuBar();
-            if (showStatistics) UserInterface.LoadStatistics(CameraWidth, CameraHeight, Yaw, Pitch, position, spacing);
-            if (showObjectProperties) UserInterface.LoadObjectProperties(ref selectedObject, spacing);
-            if (showLightProperties) UserInterface.LoadLightProperties(ref selectedLight, spacing);
-            if (showOutliner) UserInterface.LoadOutliner(ref selectedObject, ref selectedLight, spacing);
-            if (showMaterialEditor) UserInterface.LoadMaterialEditor(selectedObject, spacing);
+            WindowOnOffs();
 
             if (showSettings)
             {
@@ -327,7 +251,7 @@ namespace Axyz
                     ImGui.Separator();
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UserInterface.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
+                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UserInterface.GUI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PBRShader.SetFloat("NoiseAmount", NoiseAmount);
                     ImGui.TreePop();
@@ -384,9 +308,8 @@ namespace Axyz
                 ImGui.End();
             }
 
-            UserInterface.LoadGameWindow(ref CameraWidth, ref CameraHeight);
-
-            _controller.Render();
+            LoadGameWindow(ref CameraWidth, ref CameraHeight);
+            UIController.Render();
             ImGuiController.CheckGLError("End of frame");
 
             Context.SwapBuffers();            
@@ -443,14 +366,14 @@ namespace Axyz
         {
             if (isMainHovered)
             {
-                if (IsKeyPressed(Keys.D1)) showStatistics = Math_Functions.ToggleBool(showStatistics);
-                if (IsKeyPressed(Keys.D2)) showObjectProperties = Math_Functions.ToggleBool(showObjectProperties);
-                if (IsKeyPressed(Keys.D3)) showLightProperties = Math_Functions.ToggleBool(showLightProperties);
-                if (IsKeyPressed(Keys.D4)) showOutliner = Math_Functions.ToggleBool(showOutliner);
-                if (IsKeyPressed(Keys.D5)) showSettings = Math_Functions.ToggleBool(showSettings);
+                if (IsKeyPressed(Keys.D1)) showStatistics = Functions.ToggleBool(showStatistics);
+                if (IsKeyPressed(Keys.D2)) showObjectProperties = Functions.ToggleBool(showObjectProperties);
+                if (IsKeyPressed(Keys.D3)) showLightProperties = Functions.ToggleBool(showLightProperties);
+                if (IsKeyPressed(Keys.D4)) showOutliner = Functions.ToggleBool(showOutliner);
+                if (IsKeyPressed(Keys.D5)) showSettings = Functions.ToggleBool(showSettings);
             }
 
-            if (IsKeyPressed(Keys.F11)) fullScreen = Math_Functions.ToggleBool(fullScreen);
+            if (IsKeyPressed(Keys.F11)) fullScreen = Functions.ToggleBool(fullScreen);
 
             base.OnKeyDown(e);
         }
@@ -459,14 +382,14 @@ namespace Axyz
         {
             base.OnMouseWheel(e);
 
-            _controller.MouseScroll(e.Offset);
+            UIController.MouseScroll(e.Offset);
         }
 
         protected override void OnTextInput(TextInputEventArgs e)
         {
             base.OnTextInput(e);
 
-            _controller.PressChar((char)e.Unicode);
+            UIController.PressChar((char)e.Unicode);
         }
     }
 }
