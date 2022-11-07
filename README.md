@@ -34,7 +34,7 @@ ImGUI Controller Class By NogginBops:
 # Features to add
 List of things I want to implement/do
 - Comment all code better
-- PBR Lightning model
+- ~~PBR Lightning model~~ WIP
 - ~~Cube Map Reflections~~
 - Screen-space Anti Aliasing
 - Screen-space Ambient Occlusion
@@ -52,8 +52,8 @@ This is a list of features to keep track of my progress
 ### Cube Map Reflections
 >![Cube Map Reflections](/Progress/CubeMapAndReflections.png)
 
-### Specular Lightning
->![Specular Lightning](/Progress/SpecularLightning.png)
+### PBR
+>![PBR Lightning](/Progress/PBR.png) ![PBR Lightning 2](/Progress/PBR_Wip.png)
 
 ### Multiple Points Lights
 >![Multiple Point Lights](/Progress/MultiplePointLights.png)
