@@ -43,6 +43,9 @@ List of things I want to implement/do
 # Features
 This is a list of features to keep track of my progress
 
+### PBR
+>![PBR Lightning](/Progress/PBR.png) ![PBR Lightning 2](/Progress/PBR_Wip.png)
+
 ### ImGUI Docking
 >![Docking](/Progress/Docking.png)
 
@@ -51,9 +54,3 @@ This is a list of features to keep track of my progress
 
 ### Cube Map Reflections
 >![Cube Map Reflections](/Progress/CubeMapAndReflections.png)
-
-### PBR
->![PBR Lightning](/Progress/PBR.png) ![PBR Lightning 2](/Progress/PBR_Wip.png)
-
-### Multiple Points Lights
->![Multiple Point Lights](/Progress/MultiplePointLights.png)
