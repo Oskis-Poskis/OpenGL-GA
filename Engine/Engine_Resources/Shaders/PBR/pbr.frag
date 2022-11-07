@@ -117,8 +117,8 @@ vec3 CalcPointLight(PointLight pl, vec3 V, vec3 N, vec3 F0, vec3 alb, float roug
     vec3 L = normalize(pl.lightPos - FragPos);
     vec3 H = normalize(V + L);
     float distance = length(pl.lightPos - FragPos);
-    //float attenuation = 1.0 / (distance * distance);
-    float attenuation = pow(smoothstep(pl.radius, 0, distance), pl.falloff); // Non-PBR attenuation
+    float attenuation = 1.0 / (distance * distance);
+    float _attenuation = pow(smoothstep(pl.radius, 0, distance), pl.falloff); // Non-PBR attenuation
     vec3 radiance = pl.lightColor * attenuation * pl.strength;
 
     // Cook-Torrance BRDF
@@ -176,6 +176,8 @@ void main()
     vec3 N = getNormalFromMap();
     vec3 V = normalize(viewPos - FragPos);
     vec3 R = reflect(-V, N);
+    //vec3 R = reflect(-V, N);
+    //vec3 R = refract(-V, N, 1/1.52);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);

@@ -240,7 +240,7 @@ namespace Engine.SettingUP
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.TextureCubeMap, cubeMapTexture);
 
-            RenderEngine.Rendering.SetProjView(CubeMapShader, projection, view);
+            SetProjView(CubeMapShader, projection, view);
             Matrix4 CubeMapTransform = Matrix4.CreateScale(50);
             CubeMapTransform *= Matrix4.CreateTranslation(position);
 

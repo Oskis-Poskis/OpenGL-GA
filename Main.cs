@@ -3,8 +3,9 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using ImGuiNET;
 using System;
+
+using ImGuiNET;
 
 using static Engine.UserInterface.GUI;
 using static Engine.Importer.Import;
@@ -87,9 +88,13 @@ namespace Engine
         // Runs when the window is resizeds
         protected override void OnResize(ResizeEventArgs e)
         {
-            UIController.WindowResized((int)WindowWidth, (int)WindowHeight);
             WindowWidth = e.Width;
             WindowHeight = e.Height;
+
+            GL.DeleteFramebuffer(FBO);
+            GenFBO(CameraWidth, WindowHeight);
+
+            UIController.WindowResized((int)WindowWidth, (int)WindowHeight);
 
             GL.Viewport(0, 0, e.Width, e.Height);
             base.OnResize(e);
@@ -98,8 +103,8 @@ namespace Engine
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest | EnableCap.CullFace);
+            //GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
             GL.LineWidth(2f);
@@ -308,6 +313,9 @@ namespace Engine
                 ImGui.End();
             }
 
+            // Close editor
+            if (IsKeyDown(Keys.Escape) | CloseWindow == true) Close();
+
             LoadGameWindow(ref CameraWidth, ref CameraHeight);
             UIController.Render();
             ImGuiController.CheckGLError("End of frame");
@@ -333,12 +341,6 @@ namespace Engine
         // Keyboard input
         private void GeneralInput(FrameEventArgs args)
         {
-            // Close editor
-            if (IsKeyDown(Keys.Escape) | CloseWindow == true)
-            {
-                Close();
-            }
-
             // Delete
             if (IsKeyPressed(Keys.Delete))
             {

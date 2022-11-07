@@ -15,7 +15,7 @@ namespace Engine.UserInterface
 {
     class GUI
     {
-        public static float fontSize = 0.55f;
+        public static float fontSize = 0.6f;
         public static int resetButton;
 
         public static bool showDemoWindow = false;
@@ -61,27 +61,28 @@ namespace Engine.UserInterface
             ImGui.GetStyle().WindowMenuButtonPosition = ImGuiDir.None;
             ImGui.GetIO().FontGlobalScale = fontSize;
 
-            // Something
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(25f, 25f, 25f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(new System.Numerics.Vector3(0.9f), 1));
+
+            // Background color
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(22f, 22f, 22f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(20f, 20f, 20f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new System.Numerics.Vector4(60f, 60f, 60f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
 
             // Popup BG
             ImGui.PushStyleColor(ImGuiCol.ModalWindowDimBg, new System.Numerics.Vector4(30f, 30f, 30f, 150f) / 255);
-
             ImGui.PushStyleColor(ImGuiCol.TextDisabled, new System.Numerics.Vector4(150f, 150f, 150f, 255f) / 255);
 
             // Titles
-            ImGui.PushStyleColor(ImGuiCol.TitleBgActive, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.TitleBg, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.TitleBgActive, new System.Numerics.Vector4(20f, 20f, 20f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.TitleBg, new System.Numerics.Vector4(20f, 20f, 20f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TitleBgCollapsed, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
 
             // Tabs
-            ImGui.PushStyleColor(ImGuiCol.Tab, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.TabActive, new System.Numerics.Vector4(40f, 40f, 40f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.TabUnfocused, new System.Numerics.Vector4(15f, 15f, 15f, 255f) / 255);
-            ImGui.PushStyleColor(ImGuiCol.TabUnfocusedActive, new System.Numerics.Vector4(40f, 40f, 40f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.Tab, new System.Numerics.Vector4(20f, 20f, 20f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.TabActive, new System.Numerics.Vector4(35f, 35f, 35f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.TabUnfocused, new System.Numerics.Vector4(16f, 16f, 16f, 255f) / 255);
+            ImGui.PushStyleColor(ImGuiCol.TabUnfocusedActive, new System.Numerics.Vector4(35f, 35f, 35f, 255f) / 255);
             ImGui.PushStyleColor(ImGuiCol.TabHovered, new System.Numerics.Vector4(80f, 80f, 80f, 255f) / 255);
             
             // Header
@@ -141,8 +142,8 @@ namespace Engine.UserInterface
 
             ImGui.Image((IntPtr)framebufferTexture,
                 new System.Numerics.Vector2(CameraWidth, CameraHeight),
-                new System.Numerics.Vector2(0.0f, 0.9f),
-                new System.Numerics.Vector2(1.0f, 0.0f),
+                new System.Numerics.Vector2(0, 0.95f),
+                new System.Numerics.Vector2(1, 0),
                 new System.Numerics.Vector4(1.0f),
                 new System.Numerics.Vector4(1, 1, 1, 0.2f));
             ImGui.End();
