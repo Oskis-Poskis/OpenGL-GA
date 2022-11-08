@@ -36,6 +36,7 @@ List of things I want to implement/do
 - Comment all code better
 - ~~PBR Lightning model~~ WIP
 - ~~Cube Map Reflections~~ WIP
+- ~~Add normal mapping~~ Done
 - Screen-space Anti Aliasing
 - Screen-space Ambient Occlusion
 - Directional Light shadow mapping
@@ -43,8 +44,8 @@ List of things I want to implement/do
 # Features
 This is a list of features to keep track of my progress
 
-### PBR
->![PBR Lightning](/Progress/PBR.png) ![PBR Lightning 2](/Progress/PBR_Wip.png)
+### PBR and normal mapping
+>![PBR Normal](/Progress/NormalColored.png) ![PBR Normal 2](/Progress/NormalWire.png)
 
 ### ImGUI Docking
 >![Docking](/Progress/Docking.png)
