@@ -101,7 +101,7 @@ namespace Engine.UserInterface
             ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(255, 41, 55, 100) / 255);
 
             // Docking and rezise
-            ImGui.PushStyleColor(ImGuiCol.DockingPreview, new System.Numerics.Vector4(255, 41, 55, 200) / 255);
+            ImGui.PushStyleColor(ImGuiCol.DockingPreview, new System.Numerics.Vector4(0f, 153f, 76f, 220) / 255);
             ImGui.PushStyleColor(ImGuiCol.ResizeGrip, new System.Numerics.Vector4(217, 35, 35, 255) / 255);
             ImGui.PushStyleColor(ImGuiCol.ResizeGripHovered, new System.Numerics.Vector4(217, 35, 35, 200) / 255);
             ImGui.PushStyleColor(ImGuiCol.ResizeGripActive, new System.Numerics.Vector4(217, 35, 35, 150) / 255);
@@ -563,10 +563,11 @@ namespace Engine.UserInterface
             {
                 if (ImGui.BeginTabItem("Primitives"))
                 {
+                    /*
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.Button("Plane"))
                     {
-                        AddObjectToArray("Plane", M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Plane.vertices, Plane.indices);
+                        AddObjectToArray("Plane", M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), 0, 0);
                         ConstructObjects();
                         selectedObject = Objects.Count - 1;
                     }
@@ -575,12 +576,13 @@ namespace Engine.UserInterface
 
                     if (ImGui.Button("Cube"))
                     {
-                        AddObjectToArray("Cube", M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), Cube.vertices, Cube.indices);
+                        AddObjectToArray("Cube", M_Default, new Vector3(1f), new Vector3(0), new Vector3(0f), , 0);
                         ConstructObjects();
                         selectedObject = Objects.Count - 1;
                     }
-
+                    
                     ImGui.SameLine();
+                    */
 
                     if (ImGui.Button("Import Mesh"))
                     {
@@ -611,8 +613,8 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.Button("Point Light"))
                     {
-                        LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-                        AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), LightShader, new Vector3(1f), new Vector3(0f), importedData, importindices);
+                        LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx", true);
+                        AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), LightShader, new Vector3(1f), new Vector3(0f), importedLightData, importindices);
                         ConstructLights();
                         selectedLight = 0;
                     }

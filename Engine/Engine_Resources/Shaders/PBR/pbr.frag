@@ -2,6 +2,7 @@
 in vec2 texCoord;
 in vec3 FragPos;
 in vec3 Normal;
+in mat3 TBN;
 
 struct Material
 {
@@ -50,23 +51,6 @@ uniform highp float NoiseAmount;
 highp float NoiseCalc = NoiseAmount / 255;
 highp float random(highp vec2 coords) {
    return fract(sin(dot(coords.xy, vec2(12.9898,78.233))) * 43758.5453);
-}
-
-vec3 getNormalFromMap()
-{
-    vec3 tangentNormal = normalize(vec3(0.5, 0.5, 1) * 2.0 - 1.0);
-
-    vec3 Q1  = dFdx(FragPos);
-    vec3 Q2  = dFdy(FragPos);
-    vec2 st1 = dFdx(texCoord);
-    vec2 st2 = dFdy(texCoord);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal);
 }
 
 const float PI = 3.14159265359;
@@ -168,12 +152,16 @@ out vec4 fragColor;
 
 void main()
 {
-    vec3 albedo = material.albedo * texture(material.albedoTex,texCoord).rgb;
+    vec3 albedo = material.albedo * texture(material.albedoTex, texCoord).rgb;
+
+    vec3 normal = texture(material.normalTex, texCoord).rgb * 2 - 1;
+    normal = normalize(TBN * normal);
+
     float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
     float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
     float ao = material.ao * texture(material.aoTex, texCoord).r;
 
-    vec3 N = getNormalFromMap();
+    vec3 N = normal;
     vec3 V = normalize(viewPos - FragPos);
     vec3 R = reflect(-V, N);
     //vec3 R = reflect(-V, N);
@@ -185,10 +173,7 @@ void main()
     vec3 Lo = vec3(0.0);
 
     Lo += CalcDirectionalLight(dirLight, V, N, F0, albedo, roughness, metallic);
-    for (int i = 0; i < NR_PointLights; i++)
-    {
-        Lo += CalcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
-    } 
+    for (int i = 0; i < NR_PointLights; i++) Lo += CalcPointLight(pointLights[i], V, N, F0, albedo, roughness, metallic);
 
     vec3 ambient = material.ambient * albedo * ao;
     vec3 color = ambient + Lo;

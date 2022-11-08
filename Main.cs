@@ -49,13 +49,13 @@ namespace Engine
             ao = 1,
             Maps = new int[] { 0, 0, 0, 0, 0 }
         };
-        public static Material M_Gun = new Material
+        public static Material M_Misc = new Material
         {
             albedo = new Vector3(1),
             roughness = 1,
             metallic = 1,
             ao = 1,
-            Maps = new int[] { 1, 1, 1, 0, 1 }
+            Maps = new int[] { 1, 1, 0, 1, 1 }
         };
 
         public static bool wireframeonoff = false;
@@ -103,7 +103,8 @@ namespace Engine
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
-            GL.Enable(EnableCap.DepthTest | EnableCap.CullFace);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
             //GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
@@ -112,43 +113,55 @@ namespace Engine
 
             LoadIcons();
             Icon = LoadedIcon;
-            LoadDefaultMaps();
             UIController = new ImGuiController((int)WindowWidth, (int)WindowHeight);
             LoadTheme();
 
             VSync = VSyncMode.On;
             IsVisible = true;
 
-            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_BaseColor.jpg", TextureUnit.Texture0);
-            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Roughness.jpg", TextureUnit.Texture0);
-            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Metallic.jpg", TextureUnit.Texture0);
-            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_Normal.jpg", TextureUnit.Texture0);
-            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/Gun/PPSh_main_AO.jpg", TextureUnit.Texture0);
+            LoadDefaultMaps();
+            /*
+            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
+            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_roughness.png", TextureUnit.Texture0);
+            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_metallic.png", TextureUnit.Texture0);
+            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_normal-ogl.png", TextureUnit.Texture0);
+            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
+            */
+            
+            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_albedo.jpg", TextureUnit.Texture0);
+            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
+            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
+            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
+            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
+            
 
-            LoadModel("./../../../Resources/3D_Models/Gun/gun.fbx");
-            AddObjectToArray(importname, M_Gun,
-                new Vector3(0.5f),          // Scale
-                new Vector3(0, 4, 0),       // Location
-                new Vector3(0f, -90, 0f),   // Rotation
+            LoadModel("./../../../Resources/3D_Models/statue/model.dae");
+            AddObjectToArray(importname, M_Misc,
+                new Vector3(3),          // Scale
+                new Vector3(0, 4, 0),    // Location
+                new Vector3(0),          // Rotation
                 importedData, importindices);
 
-            AddObjectToArray("Plane", M_Default,
-                new Vector3(15f),   // Scale
-                new Vector3(0f),    // Location
-                new Vector3(0f),    // Rotation
-                Plane.vertices, Plane.indices);
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/CurveWall.fbx");
+            AddObjectToArray("Curve", M_Default,
+                new Vector3(1),     // Scale
+                new Vector3(0),    // Location
+                new Vector3(-90, 0, 0),    // Rotation
+                importedData, importindices);
 
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddLightToArray(1, 10, 2, 0,
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx", true);
+            AddLightToArray(5, 10, 2, 0,
                 "Point Light", new Vector3(1),
                 LightShader,
                 new Vector3(4, 5, 3),
                 new Vector3(0f),
-                importedData, importindices);
+                importedLightData, importindices);
 
             ConstructObjects();
             ConstructLights();
             PBRShader.SetFloat("NoiseAmount", NoiseAmount);
+
+            SetupGrid();
 
             GenFBO(CameraWidth, CameraHeight);
             GenScreenRect();
@@ -182,6 +195,7 @@ namespace Engine
 
             // Draw all lights
             DrawLights(projection, view);
+            DrawGrid(projection, view);
 
             /*
             GL.Disable(EnableCap.DepthTest);
@@ -328,6 +342,9 @@ namespace Engine
         private void MouseInput()
         {
             CursorState = CursorState.Grabbed;
+
+            if (Pitch > 360) Pitch = 0;
+            if (Pitch < -360) Pitch = 0;
 
             Pitch += MouseState.Delta.X * sensitivity;
             Yaw -= MouseState.Delta.Y * sensitivity;

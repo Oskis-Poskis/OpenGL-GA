@@ -7,6 +7,7 @@ using System;
 
 using static Engine.Importer.Import;
 using static Engine.RenderEngine.Rendering;
+using System.Windows.Forms;
 
 // Mostly used in OnLoad();
 namespace Engine.SettingUP
@@ -18,12 +19,25 @@ namespace Engine.SettingUP
             public Vector3 Position;
             public Vector2 texCoord;
             public Vector3 Normals;
+            public Vector3 Tangents;
+            public Vector3 BiTangents;
 
-            public VertexData(Vector3 position, Vector2 texCoord, Vector3 normals)
+            public VertexData(Vector3 position, Vector2 texCoord, Vector3 normals, Vector3 tangents, Vector3 bitangents)
             {
                 this.Position = position;
                 this.texCoord = texCoord;
                 this.Normals = normals;
+                this.Tangents = tangents;
+                this.BiTangents = bitangents;
+            }
+        }
+
+        public struct LightVertexData
+        {
+            public Vector3 Position;
+            public LightVertexData(Vector3 position)
+            {
+                this.Position = position;
             }
         }
 
@@ -61,7 +75,7 @@ namespace Engine.SettingUP
             public string ID;
             public Vector3 LightColor;
             public Shader Shader;
-            public VertexData[] VertData;
+            public LightVertexData[] LightVertData;
             public int[] Indices;
             public Vector3 Location;
             public Vector3 Rotation;
@@ -91,7 +105,7 @@ namespace Engine.SettingUP
         }
 
         // Add light to rendering list
-        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, LightVertexData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
@@ -103,7 +117,7 @@ namespace Engine.SettingUP
                 ID = MathLib.Functions.RandInt(0, 100000).ToString(),
                 LightColor = lightColor,
                 Shader = shader,
-                VertData = vertices,
+                LightVertData = vertices,
                 Indices = indices,
                 Location = location,
                 Rotation = rotation,
@@ -124,7 +138,7 @@ namespace Engine.SettingUP
                 // Generate and bind Vertex Buffere
                 int VBO = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, Objects[i].VertData.Length * 8 * sizeof(float), Objects[i].VertData, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, Objects[i].VertData.Length * 14 * sizeof(float), Objects[i].VertData, BufferUsageHint.StaticDraw);
                 // Generate and bind Element Buffer
                 int EBO = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
@@ -132,11 +146,15 @@ namespace Engine.SettingUP
 
                 // Set attributes in shaders - vertex positions, UV's and normals
                 GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 14 * sizeof(float), 0);
                 GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aTexCoord"));
-                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aTexCoord"), 2, VertexAttribPointerType.Float, false, 14 * sizeof(float), 3 * sizeof(float));
                 GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aNormal"));
-                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 5 * sizeof(float));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aNormal"), 3, VertexAttribPointerType.Float, false, 14 * sizeof(float), 5 * sizeof(float));
+                GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aTangent"));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aTangent"), 3, VertexAttribPointerType.Float, false, 14 * sizeof(float), 8 * sizeof(float));
+                GL.EnableVertexAttribArray(PBRShader.GetAttribLocation("aBiTangent"));
+                GL.VertexAttribPointer(PBRShader.GetAttribLocation("aBiTangent"), 3, VertexAttribPointerType.Float, false, 14 * sizeof(float), 11 * sizeof(float));
             }
         }
 
@@ -151,7 +169,7 @@ namespace Engine.SettingUP
                 // Generate and bind Vertex Buffere
                 int VBO = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, Lights[i].VertData.Length * 8 * sizeof(float), Lights[i].VertData, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, Lights[i].LightVertData.Length * 3 * sizeof(float), Lights[i].LightVertData, BufferUsageHint.StaticDraw);
                 // Generate and bind Element Buffer
                 int EBO = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
@@ -159,7 +177,7 @@ namespace Engine.SettingUP
 
                 // Set attributes in shaders - vertex positions, UV's and normals
                 GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+                GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             }
         }
 
@@ -170,7 +188,7 @@ namespace Engine.SettingUP
             DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
             DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
             DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/Normal1x1.png", TextureUnit.Texture0);
             DefaultMaps[4] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
         }
 
@@ -246,6 +264,52 @@ namespace Engine.SettingUP
 
             GL.UniformMatrix4(CubeMapShader.GetUniformLocation("transform"), true, ref CubeMapTransform);
             GL.DrawElements(PrimitiveType.Triangles, CubeMapIndices.Length, DrawElementsType.UnsignedInt, 0);
+        }
+
+        static int gridVAO;
+        static int[] gridIndices;
+        static LightVertexData[] gridData;
+        public static void SetupGrid()
+        {
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);
+            gridData = importedLightData;
+            gridIndices = importindices;
+
+            WireframeShader.Use();
+
+            gridVAO = GL.GenVertexArray();
+            GL.BindVertexArray(gridVAO);
+            // Generate and bind Vertex Buffere
+            int VBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, gridData.Length * 3 * sizeof(float), gridData, BufferUsageHint.StaticDraw);
+            // Generate and bind Element Buffer
+            int EBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, gridIndices.Length * sizeof(uint), gridIndices, BufferUsageHint.StaticDraw);
+
+            // Set attributes in shaders - vertex positions, UV's and normals
+            GL.EnableVertexAttribArray(WireframeShader.GetAttribLocation("aPosition"));
+            GL.VertexAttribPointer(WireframeShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+        }
+
+        public static void DrawGrid(Matrix4 projection, Matrix4 view)
+        {
+            WireframeShader.Use();
+            GL.BindVertexArray(gridVAO);
+
+            SetProjView(CubeMapShader, projection, view);
+            Matrix4 GridTrans = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
+            GridTrans *= Matrix4.CreateTranslation(Vector3.Zero);
+
+            WireframeShader.SetVector3("col", new Vector3(0.7f));
+            GL.UniformMatrix4(WireframeShader.GetUniformLocation("transform"), true, ref GridTrans);
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            GL.Disable(EnableCap.CullFace);
+            GL.DrawElements(PrimitiveType.Triangles, gridIndices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.Enable(EnableCap.CullFace);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
 
         public static int FBO, RBO;

@@ -52,7 +52,7 @@ namespace Engine.RenderEngine
                     PBRShader.SetInt("material.albedoTex", 0);
                     PBRShader.SetInt("material.roughnessTex", 1);
                     PBRShader.SetInt("material.metallicTex", 2);
-                    //PBRShader.SetInt("material.normalTex", 3);
+                    PBRShader.SetInt("material.normalTex", 3);
                     PBRShader.SetInt("material.ao", 4);
 
                     if (Objects[i].Material.Maps[0] != 0) PBRmaps[0].Use(TextureUnit.Texture0);
@@ -64,8 +64,8 @@ namespace Engine.RenderEngine
                     if (Objects[i].Material.Maps[2] != 0) PBRmaps[2].Use(TextureUnit.Texture2);
                     else DefaultMaps[2].Use(TextureUnit.Texture2);
 
-                    //if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
-                    //else DefaultMaps[3].Use(TextureUnit.Texture3);
+                    if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
+                    else DefaultMaps[3].Use(TextureUnit.Texture3);
 
                     if (Objects[i].Material.Maps[4] != 0) PBRmaps[4].Use(TextureUnit.Texture4);
                     else DefaultMaps[4].Use(TextureUnit.Texture4);
@@ -94,7 +94,6 @@ namespace Engine.RenderEngine
                                 break;
                         }
                     }
-
 
                     // Set the for loop length in FS shader
                     PBRShader.SetInt("NR_PointLights", numPL);

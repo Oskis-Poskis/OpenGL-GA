@@ -42,6 +42,10 @@
     <Content Include="Resources\3D_Models\Gun\PPSh_main_Metallic.jpg" />
     <Content Include="Resources\3D_Models\Gun\PPSh_main_Normal.jpg" />
     <Content Include="Resources\3D_Models\Gun\PPSh_main_Roughness.jpg" />
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_albedo.jpg" />
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_AO.jpg" />
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_normal.jpg" />
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_roughness.jpg" />
     <Content Include="Resources\Images\Checker.png" />
     <Content Include="Resources\Images\grid.png" />
     <Content Include="Resources\Images\hex.png" />
@@ -87,6 +91,7 @@
     <None Include="Resources\3D_Models\MiniSMG.fbx" />
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Smg-12.fbx" />
+    <None Include="Resources\3D_Models\statue\model.dae" />
   </ItemGroup>
 
 </Project>
