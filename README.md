@@ -45,7 +45,7 @@ List of things I want to implement/do
 This is a list of features to keep track of my progress
 
 ### PBR and normal mapping
->![PBR Normal](/Progress/NormalColored.png) ![PBR Normal 2](/Progress/NormalWire.png)
+>![PBR Normal](/Progress/NormalColored.png) ![PBR Normal 2](/Progress/NormalWIre.png)
 
 ### ImGUI Docking
 >![Docking](/Progress/Docking.png)
