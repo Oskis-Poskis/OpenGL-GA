@@ -60,6 +60,8 @@ namespace Engine
 
         public static bool wireframeonoff = false;
 
+        public static Texture PointLightTexture;
+
         // Window bools
         public static bool showSettings = true;
         public static bool CloseWindow = false;
@@ -125,6 +127,8 @@ namespace Engine
             PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
             PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
             
+            PointLightTexture = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/PointLightTexture.png", TextureUnit.Texture0);
+
             // First model, placeholder at 0 in array so array isnt empty
             LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
             AddObjectToArray("Placeholder at 0", M_Default, new Vector3(3) ,new Vector3(0, 4, 0), new Vector3(0), importedData, importindices);

@@ -619,7 +619,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.Button("Point Light"))
                     {
-                        LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx", true);
+                        LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
                         AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), LightShader, new Vector3(1f), new Vector3(0f), importedLightData, importindices);
                         ConstructLights();
                         selectedLight = 0;

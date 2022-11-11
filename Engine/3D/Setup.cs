@@ -299,6 +299,7 @@ namespace Engine.SettingUP
 
             SetProjView(CubeMapShader, projection, view);
             Matrix4 GridTrans = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
+            GridTrans *= Matrix4.CreateTranslation(0, -0.5f, 0);
             GridTrans *= Matrix4.CreateTranslation(Vector3.Zero);
 
             WireframeShader.SetVector3("col", new Vector3(0.7f));

@@ -130,11 +130,14 @@ namespace Engine.RenderEngine
         {
             for (int i = 0; i < Lights.Count; i++)
             {
+                PointLightTexture.Use(TextureUnit.Texture0);
+
                 Lights[i].Shader.Use();
                 GL.BindVertexArray(VAOlights[i]);
                 SetTransform(Lights[i].Shader, MakeLightTransform(Lights[i].Location, Lights[i].Rotation));
                 SetProjView(Lights[i].Shader, projection, view);
                 GL.Uniform3(Lights[i].Shader.GetUniformLocation("lightcolor"), Lights[i].LightColor);
+                Lights[i].Shader.SetInt("lightTexture", 0);
 
                 GL.DrawElements(PrimitiveType.Triangles, Lights[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }
@@ -167,7 +170,7 @@ namespace Engine.RenderEngine
         static Matrix4 MakeLightTransform(Vector3 location, Vector3 rotation)
         {
             var transform = Matrix4.Identity;
-            transform *= Matrix4.CreateScale(0.25f);
+            transform *= Matrix4.CreateScale((location - position).Length * 0.04f);
             transform *=
                 Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89))) *
                 Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-Pitch - 90)) *
