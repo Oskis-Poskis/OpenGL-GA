@@ -27,8 +27,6 @@ ImGUI Controller Class By NogginBops:
 >https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
 
 # Links
-**Youtube:** [Oskar Kassander](https://www.youtube.com/c/OskarKassander/featured)
-
 **Reddit:** [oskis69](https://www.reddit.com/user/oskis69)
 
 # Features to add
