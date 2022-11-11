@@ -136,7 +136,7 @@ namespace Engine
             LoadModel("./../../../Engine/Engine_Resources/Primitives/CurveWall.fbx");
             AddObjectToArray("Curve", M_Default, new Vector3(1), new Vector3(0), new Vector3(-90, 0, 0), importedData, importindices);
 
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx", true);
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
             AddLightToArray(5, 10, 2, 0, "Point Light", new Vector3(1), LightShader, new Vector3(4, 5, 3), new Vector3(0f), importedLightData, importindices);
 
             ConstructObjects();

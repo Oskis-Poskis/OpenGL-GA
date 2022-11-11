@@ -10,12 +10,12 @@ namespace Engine.Importer
     class Import
     {
         static Scene m_model;
-        public static LightVertexData[] importedLightData;
+        public static VertPosData[] importedLightData;
         public static VertexData[] importedData;
         public static int[] importindices;
         public static string importname;
 
-        public static void LoadModel(string path, bool isLight = false)
+        public static void LoadModel(string path, bool vertPosOnly = false)
         {
             AssimpContext importer = new AssimpContext();
             importer.SetConfig(new NormalSmoothingAngleConfig(2f));
@@ -23,12 +23,12 @@ namespace Engine.Importer
                 PostProcessPreset.TargetRealTimeMaximumQuality |
                 PostProcessSteps.FlipWindingOrder | PostProcessSteps.GenerateSmoothNormals);
 
-            importedLightData = new LightVertexData[m_model.Meshes[0].Vertices.Count];
+            importedLightData = new VertPosData[m_model.Meshes[0].Vertices.Count];
             importedData = new VertexData[m_model.Meshes[0].Vertices.Count];
             importindices = m_model.Meshes[0].GetIndices();
             importname = m_model.Meshes[0].Name;
 
-            if (isLight == false)
+            if (vertPosOnly == false)
             {
                 for (int i = 0; i < m_model.Meshes[0].Vertices.Count; i++)
                 {
@@ -54,11 +54,11 @@ namespace Engine.Importer
                 }
             }
 
-            if (isLight == true)
+            if (vertPosOnly == true)
             {
                 for (int i = 0; i < m_model.Meshes[0].Vertices.Count; i++)
                 {
-                    importedLightData[i] = new LightVertexData(FromVector(m_model.Meshes[0].Vertices[i]));
+                    importedLightData[i] = new VertPosData(FromVector(m_model.Meshes[0].Vertices[i]));
                 }
             }
 

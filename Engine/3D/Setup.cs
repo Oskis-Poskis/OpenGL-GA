@@ -32,10 +32,10 @@ namespace Engine.SettingUP
             }
         }
 
-        public struct LightVertexData
+        public struct VertPosData
         {
             public Vector3 Position;
-            public LightVertexData(Vector3 position)
+            public VertPosData(Vector3 position)
             {
                 this.Position = position;
             }
@@ -75,7 +75,7 @@ namespace Engine.SettingUP
             public string ID;
             public Vector3 LightColor;
             public Shader Shader;
-            public LightVertexData[] LightVertData;
+            public VertPosData[] LightVertData;
             public int[] Indices;
             public Vector3 Location;
             public Vector3 Rotation;
@@ -105,7 +105,7 @@ namespace Engine.SettingUP
         }
 
         // Add light to rendering list
-        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, LightVertexData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, VertPosData[] vertices, int[] indices)
         {
             Light _light = new Light
             {
@@ -131,7 +131,6 @@ namespace Engine.SettingUP
         {
             for (int i = 0; i < Objects.Count; i++)
             {
-                Console.WriteLine(VAO.Count);
                 // Generate and bind Vertex Array
                 VAO[i] = GL.GenVertexArray();
                 GL.BindVertexArray(VAO[i]);
@@ -268,7 +267,7 @@ namespace Engine.SettingUP
 
         static int gridVAO;
         static int[] gridIndices;
-        static LightVertexData[] gridData;
+        static VertPosData[] gridData;
         public static void SetupGrid()
         {
             LoadModel("./../../../Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);

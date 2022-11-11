@@ -3,6 +3,8 @@ using OpenTK.Mathematics;
 
 using static Engine.SettingUP.Setup;
 using static Engine.Main;
+using System.Drawing;
+using System;
 
 // Mostly used in OnRenderFrame();
 namespace Engine.RenderEngine
@@ -130,7 +132,7 @@ namespace Engine.RenderEngine
             {
                 Lights[i].Shader.Use();
                 GL.BindVertexArray(VAOlights[i]);
-                SetTransform(Lights[i].Shader, MakeLightTransform(new Vector3(1.0f), Lights[i].Location, Lights[i].Rotation));
+                SetTransform(Lights[i].Shader, MakeLightTransform(Lights[i].Location, Lights[i].Rotation));
                 SetProjView(Lights[i].Shader, projection, view);
                 GL.Uniform3(Lights[i].Shader.GetUniformLocation("lightcolor"), Lights[i].LightColor);
 
@@ -162,14 +164,14 @@ namespace Engine.RenderEngine
             return transform;
         }
 
-        static Matrix4 MakeLightTransform(Vector3 scale, Vector3 location, Vector3 rotation)
+        static Matrix4 MakeLightTransform(Vector3 location, Vector3 rotation)
         {
             var transform = Matrix4.Identity;
-            transform *= Matrix4.CreateScale(scale);
+            transform *= Matrix4.CreateScale(0.25f);
             transform *=
-                Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotation.X)) *
-                Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
+                Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Math.Clamp(Yaw, -89, 89))) *
+                Matrix4.CreateRotationY(MathHelper.DegreesToRadians(-Pitch - 90)) *
+                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(0));
             transform *= Matrix4.CreateTranslation(location);
 
             return transform;

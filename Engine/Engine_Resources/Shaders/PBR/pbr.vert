@@ -9,7 +9,6 @@ layout (location = 4) in vec3 aBiTangent;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 transform;
-uniform bool outline;
 
 out vec2 texCoord;
 out vec3 FragPos;
@@ -18,8 +17,7 @@ out mat3 TBN;
 
 void main(void)
 {
-    if (outline == true) gl_Position = vec4(aPosition + aNormal * 0.025, 1.0) * transform * view * projection;
-    else gl_Position = vec4(aPosition, 1.0) * transform * view * projection;
+    gl_Position = vec4(aPosition, 1) * transform * view * projection;
     
     FragPos = vec3(vec4(aPosition, 1.0) * transform);
     Normal = aNormal * mat3(transpose(inverse(transform)));

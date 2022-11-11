@@ -153,17 +153,15 @@ out vec4 fragColor;
 void main()
 {
     vec3 albedo = material.albedo * texture(material.albedoTex, texCoord).rgb;
-
     vec3 normal = texture(material.normalTex, texCoord).rgb * 2 - 1;
     normal = normalize(TBN * normal);
-
     float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
     float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
     float ao = material.ao * texture(material.aoTex, texCoord).r;
 
     vec3 N = normal;
     vec3 V = normalize(viewPos - FragPos);
-    vec3 R = reflect(-V, N);
+    //vec3 R = reflect(-V, N);
     //vec3 R = reflect(-V, N);
     //vec3 R = refract(-V, N, 1/1.52);
 
