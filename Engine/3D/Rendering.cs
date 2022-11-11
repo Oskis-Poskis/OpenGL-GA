@@ -16,7 +16,7 @@ namespace Engine.RenderEngine
         public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
-        public static int selectedObject = 0;
+        public static int selectedObject = 1;
         public static int selectedLight = 0;
 
         public static float NoiseAmount = 0.5f;
@@ -33,7 +33,7 @@ namespace Engine.RenderEngine
         {
             if (overrideShader == false)
             {
-                for (int i = 0; i < Objects.Count; i++)
+                for (int i = 1; i < Objects.Count; i++)
                 {
                     PBRShader.Use();
                     GL.BindVertexArray(VAO[i]);
@@ -158,7 +158,7 @@ namespace Engine.RenderEngine
                 Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
                 Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
             transform *= Matrix4.CreateTranslation(location);
-            
+
             return transform;
         }
 

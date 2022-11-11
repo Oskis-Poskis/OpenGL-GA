@@ -230,6 +230,7 @@ namespace Engine.UserInterface
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Text("Objects: " + (Objects.Count).ToString());
                 ImGui.Text("Point Lights: " + (numPL).ToString());
+                ImGui.Text("Selected Object: " + selectedObject.ToString());
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -291,111 +292,116 @@ namespace Engine.UserInterface
         {
             // Object Properties
             ImGui.Begin("Object Properties");
-            ImGui.Text(Objects[selectedObject].Name);
-            string inpstr = Objects[selectedObject].Name;
-            if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30))
+            if (Objects.Count > 1)
             {
-                Objects[selectedObject].Name = inpstr;
-            }
-
-            ImGui.SameLine(ImGui.GetWindowWidth() - 60);
-
-            if (ImGui.Button("Delete"))
-            {
-                if (selectedObject > 0)
+                ImGui.Text(Objects[selectedObject].Name);
+                string inpstr = Objects[selectedObject].Name;
+                if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30))
                 {
-                    Objects.RemoveAt(selectedObject);
-                    VAO.RemoveAt(selectedObject);
-                    selectedObject -= 1;
-                }
-            }
-
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-            ImGui.Separator();
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-            //  ----- Transform -----
-            if (ImGui.TreeNode("Transform"))
-            {
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                // Location
-                System.Numerics.Vector3 _loc = new System.Numerics.Vector3(
-                    Objects[selectedObject].Location.X,
-                    Objects[selectedObject].Location.Y,
-                    Objects[selectedObject].Location.Z);
-                ImGui.Text("Location");
-                if (ImGui.DragFloat3("##Location", ref _loc, 0.1f))
-                {
-                    Objects[selectedObject].Location = new Vector3(_loc.X, _loc.Y, _loc.Z);
+                    Objects[selectedObject].Name = inpstr;
                 }
 
-                ImGui.SameLine();
-                ImGui.PushID(0);
-                if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
+                ImGui.SameLine(ImGui.GetWindowWidth() - 60);
+
+                if (ImGui.Button("Delete"))
                 {
-                    Objects[selectedObject].Location = new Vector3(0.0f);
+                    if (selectedObject != 0)
+                    {
+                        Objects.RemoveAt(selectedObject);
+                        VAO.RemoveAt(selectedObject);
+                        if (selectedObject > 1) selectedObject -= 1;
+                    }
                 }
-                ImGui.PopID();
 
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                // Rotation
-                System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
-                    Objects[selectedObject].Rotation.X,
-                    Objects[selectedObject].Rotation.Y,
-                    Objects[selectedObject].Rotation.Z);
-                ImGui.Text("Rotation");
-                if (ImGui.DragFloat3("##Rotation", ref _rot))
+                //  ----- Transform -----
+                if (ImGui.TreeNode("Transform") && Objects.Count != 1)
                 {
-                    Objects[selectedObject].Rotation = new Vector3(_rot.X, _rot.Y, _rot.Z);
-                }
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    // Location
+                    System.Numerics.Vector3 _loc = new System.Numerics.Vector3(
+                        Objects[selectedObject].Location.X,
+                        Objects[selectedObject].Location.Y,
+                        Objects[selectedObject].Location.Z);
+                    ImGui.Text("Location");
+                    if (ImGui.DragFloat3("##Location", ref _loc, 0.1f))
+                    {
+                        Objects[selectedObject].Location = new Vector3(_loc.X, _loc.Y, _loc.Z);
+                    }
 
-                ImGui.SameLine();
-                ImGui.PushID(1);
-                if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
-                {
-                    Objects[selectedObject].Rotation = new Vector3(0);
+                    ImGui.SameLine();
+                    ImGui.PushID(0);
+                    if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
+                    {
+                        Objects[selectedObject].Location = new Vector3(0.0f);
+                    }
+                    ImGui.PopID();
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    // Rotation
+                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
+                        Objects[selectedObject].Rotation.X,
+                        Objects[selectedObject].Rotation.Y,
+                        Objects[selectedObject].Rotation.Z);
+                    ImGui.Text("Rotation");
+                    if (ImGui.DragFloat3("##Rotation", ref _rot))
+                    {
+                        Objects[selectedObject].Rotation = new Vector3(_rot.X, _rot.Y, _rot.Z);
+                    }
+
+                    ImGui.SameLine();
+                    ImGui.PushID(1);
+                    if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
+                    {
+                        Objects[selectedObject].Rotation = new Vector3(0);
+                    }
+                    ImGui.PopID();
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    // Scale
+                    System.Numerics.Vector3 _scale = new System.Numerics.Vector3(
+                        Objects[selectedObject].Scale.X,
+                        Objects[selectedObject].Scale.Y,
+                        Objects[selectedObject].Scale.Z);
+                    ImGui.Text("Scale");
+                    if (ImGui.DragFloat3("##Scale", ref _scale, 0.1f))
+                    {
+                        Objects[selectedObject].Scale = new Vector3(_scale.X, _scale.Y, _scale.Z);
+                    }
+
+                    ImGui.SameLine();
+                    ImGui.PushID(2);
+                    if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
+                    {
+                        Objects[selectedObject].Scale = new Vector3(1.0f);
+                    }
+                    ImGui.PopID();
+
+                    ImGui.TreePop();
                 }
-                ImGui.PopID();
 
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                // Scale
-                System.Numerics.Vector3 _scale = new System.Numerics.Vector3(
-                    Objects[selectedObject].Scale.X,
-                    Objects[selectedObject].Scale.Y,
-                    Objects[selectedObject].Scale.Z);
-                ImGui.Text("Scale");
-                if (ImGui.DragFloat3("##Scale", ref _scale, 0.1f))
+                if (ImGui.TreeNode("Information"))
                 {
-                    Objects[selectedObject].Scale = new Vector3(_scale.X, _scale.Y, _scale.Z);
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Text("Vertices: " + (Objects[selectedObject].VertData.Length).ToString());
+                    ImGui.Text("Triangles: " + (Objects[selectedObject].Indices.Length / 3).ToString());
                 }
-
-                ImGui.SameLine();
-                ImGui.PushID(2);
-                if (ImGui.ImageButton((IntPtr)resetButton, new System.Numerics.Vector2(20), new System.Numerics.Vector2(0, 0), new System.Numerics.Vector2(1, 1), 0))
-                {
-                    Objects[selectedObject].Scale = new Vector3(1.0f);
-                }
-                ImGui.PopID();
-
-                ImGui.TreePop();
             }
 
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-            ImGui.Separator();
-            ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-            if (ImGui.TreeNode("Information"))
-            {
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Text("Vertices: " + (Objects[selectedObject].VertData.Length).ToString());
-                ImGui.Text("Triangles: " + (Objects[selectedObject].Indices.Length / 3).ToString());
-            }
+            else ImGui.Text("No Object Selected :(");
 
             ImGui.End();
         }
@@ -589,7 +595,7 @@ namespace Engine.UserInterface
                         OpenFileDialog selectFile = new OpenFileDialog
                         {
                             Title = "Select File",
-                            Filter = "FBX Files (*.fbx)|*.fbx"
+                            Filter = "Formats:|*.FBX;*.OBJ;*.DAE"
                         };
                         selectFile.ShowDialog();
 
@@ -602,7 +608,7 @@ namespace Engine.UserInterface
                             new Vector3(180f, 90f, 0f), // Rotation
                             importedData, importindices);
                         ConstructObjects();
-                        selectedObject = Objects.Count - 1;
+                        if (Objects.Count > 1) selectedObject = Objects.Count - 1;
                     }
 
                     ImGui.EndTabItem();
@@ -651,7 +657,7 @@ namespace Engine.UserInterface
             ImGui.Separator();
             ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
 
-            for (int i = 0; i < Objects.Count; i++)
+            for (int i = 1; i < Objects.Count; i++)
             {
                 _objects[i] = Objects[i].Name;
 

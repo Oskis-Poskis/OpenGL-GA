@@ -105,7 +105,6 @@ namespace Engine
         {
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
-            //GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
             GL.LineWidth(2f);
@@ -120,42 +119,25 @@ namespace Engine
             IsVisible = true;
 
             LoadDefaultMaps();
-            /*
-            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
-            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_roughness.png", TextureUnit.Texture0);
-            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_metallic.png", TextureUnit.Texture0);
-            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_normal-ogl.png", TextureUnit.Texture0);
-            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/Images/rusted-steel_albedo.png", TextureUnit.Texture0);
-            */
-            
             PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_albedo.jpg", TextureUnit.Texture0);
             PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
             PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
             PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
             PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
             
+            // First model, placeholder at 0 in array so array isnt empty
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            AddObjectToArray("Placeholder at 0", M_Default, new Vector3(3) ,new Vector3(0, 4, 0), new Vector3(0), importedData, importindices);
+            //////////////////////////////////////////////////////////
+
 
             LoadModel("./../../../Resources/3D_Models/statue/model.dae");
-            AddObjectToArray(importname, M_Misc,
-                new Vector3(3),          // Scale
-                new Vector3(0, 4, 0),    // Location
-                new Vector3(0),          // Rotation
-                importedData, importindices);
-
+            AddObjectToArray(importname, M_Misc, new Vector3(3), new Vector3(0, 4, 0), new Vector3(0), importedData, importindices);
             LoadModel("./../../../Engine/Engine_Resources/Primitives/CurveWall.fbx");
-            AddObjectToArray("Curve", M_Default,
-                new Vector3(1),     // Scale
-                new Vector3(0),    // Location
-                new Vector3(-90, 0, 0),    // Rotation
-                importedData, importindices);
+            AddObjectToArray("Curve", M_Default, new Vector3(1), new Vector3(0), new Vector3(-90, 0, 0), importedData, importindices);
 
             LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx", true);
-            AddLightToArray(5, 10, 2, 0,
-                "Point Light", new Vector3(1),
-                LightShader,
-                new Vector3(4, 5, 3),
-                new Vector3(0f),
-                importedLightData, importindices);
+            AddLightToArray(5, 10, 2, 0, "Point Light", new Vector3(1), LightShader, new Vector3(4, 5, 3), new Vector3(0f), importedLightData, importindices);
 
             ConstructObjects();
             ConstructLights();
