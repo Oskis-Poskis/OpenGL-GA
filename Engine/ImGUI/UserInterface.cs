@@ -46,7 +46,7 @@ namespace Engine.UserInterface
 
             ImageResult _image;
             using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            OpenTK.Windowing.Common.Input.Image _icon = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
+            OpenTK.Windowing.Common.Input.Image _icon = new(_image.Width, _image.Height, _image.Data);
             LoadedIcon = new OpenTK.Windowing.Common.Input.WindowIcon(_icon);
         }
         public static void LoadTheme()
@@ -262,7 +262,7 @@ namespace Engine.UserInterface
 
         public static void LoadMaterialEditor(int selectedObject, float spacing)
         {
-            System.Numerics.Vector3 _albedo = new System.Numerics.Vector3(
+            System.Numerics.Vector3 _albedo = new(
                 Objects[selectedObject].Material.albedo.X,
                 Objects[selectedObject].Material.albedo.Y,
                 Objects[selectedObject].Material.albedo.Z);
@@ -271,10 +271,10 @@ namespace Engine.UserInterface
             float _ao = Objects[selectedObject].Material.ao;
 
             ImGui.Begin("Material Editor");
-            ImGui.ColorEdit3("Albedo", ref _albedo);
-            ImGui.SliderFloat("Roughness", ref _roughness, 0, 1);
-            ImGui.SliderFloat("Metallic", ref _metallic, 0, 1);
-            ImGui.SliderFloat("AO", ref _ao, 0, 1);
+            ImGui.ColorEdit3("Albedo Tint", ref _albedo);
+            ImGui.SliderFloat("Roughness Multiplier", ref _roughness, 0, 1);
+            ImGui.SliderFloat("Metallic Multiplier", ref _metallic, 0, 1);
+            ImGui.SliderFloat("AO Multiplier", ref _ao, 0, 1);
 
             Objects[selectedObject].Material = new Material
             {
@@ -322,7 +322,7 @@ namespace Engine.UserInterface
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     // Location
-                    System.Numerics.Vector3 _loc = new System.Numerics.Vector3(
+                    System.Numerics.Vector3 _loc = new(
                         Objects[selectedObject].Location.X,
                         Objects[selectedObject].Location.Y,
                         Objects[selectedObject].Location.Z);
@@ -345,7 +345,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Rotation
-                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
+                    System.Numerics.Vector3 _rot = new(
                         Objects[selectedObject].Rotation.X,
                         Objects[selectedObject].Rotation.Y,
                         Objects[selectedObject].Rotation.Z);
@@ -368,7 +368,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Scale
-                    System.Numerics.Vector3 _scale = new System.Numerics.Vector3(
+                    System.Numerics.Vector3 _scale = new(
                         Objects[selectedObject].Scale.X,
                         Objects[selectedObject].Scale.Y,
                         Objects[selectedObject].Scale.Z);
@@ -438,7 +438,7 @@ namespace Engine.UserInterface
             {
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 // Location
-                System.Numerics.Vector3 _loc = new System.Numerics.Vector3(
+                System.Numerics.Vector3 _loc = new(
                     Lights[selectedLight].Location.X,
                     Lights[selectedLight].Location.Y,
                     Lights[selectedLight].Location.Z);
@@ -461,7 +461,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Rotation
-                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(
+                    System.Numerics.Vector3 _rot = new(
                         Lights[selectedLight].Rotation.X,
                         Lights[selectedLight].Rotation.Y,
                         Lights[selectedLight].Rotation.Z);
@@ -489,7 +489,7 @@ namespace Engine.UserInterface
             {
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                System.Numerics.Vector3 _color = new System.Numerics.Vector3(
+                System.Numerics.Vector3 _color = new(
                     Lights[selectedLight].LightColor.X,
                     Lights[selectedLight].LightColor.Y,
                     Lights[selectedLight].LightColor.Z);
@@ -502,10 +502,11 @@ namespace Engine.UserInterface
 
                 if (Lights[selectedLight].Type == 0)
                 {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Separator();
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    //ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    //ImGui.Separator();
+                    //ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
+                    /*
                     float falloff = Lights[selectedLight].FallOff;
                     float radius = Lights[selectedLight].Radius;
                     ImGui.Text("Radius");
@@ -519,6 +520,7 @@ namespace Engine.UserInterface
                     {
                         Lights[selectedLight].FallOff = falloff;
                     }
+                    */
                 }
 
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
@@ -592,7 +594,7 @@ namespace Engine.UserInterface
 
                     if (ImGui.Button("Import Mesh"))
                     {
-                        OpenFileDialog selectFile = new OpenFileDialog
+                        OpenFileDialog selectFile = new()
                         {
                             Title = "Select File",
                             Filter = "Formats:|*.FBX;*.OBJ;*.DAE"
@@ -620,7 +622,7 @@ namespace Engine.UserInterface
                     if (ImGui.Button("Point Light"))
                     {
                         LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-                        AddLightToArray(1, 5, 1, 0, "Point Light", new Vector3(1f), LightShader, new Vector3(1f), new Vector3(0f), importedLightData, importindices);
+                        AddLightToArray(5, 0, "Point Light", new Vector3(1f), new Vector3(1f), new Vector3(0f), importedLightData, importindices);
                         ConstructLights();
                         selectedLight = 0;
                     }

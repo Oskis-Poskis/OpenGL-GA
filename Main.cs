@@ -44,7 +44,7 @@ namespace Engine
         public static Material M_Default = new Material
         {
             albedo = new Vector3(1),
-            roughness = 0.25f,
+            roughness = 0.5f,
             metallic = 0,
             ao = 1,
             Maps = new int[] { 0, 0, 0, 0, 0 }
@@ -141,7 +141,7 @@ namespace Engine
             AddObjectToArray("Curve", M_Default, new Vector3(1), new Vector3(0), new Vector3(-90, 0, 0), importedData, importindices);
 
             LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-            AddLightToArray(5, 10, 2, 0, "Point Light", new Vector3(1), LightShader, new Vector3(4, 5, 3), new Vector3(0f), importedLightData, importindices);
+            AddLightToArray(5, 0, "Point Light", new Vector3(1), new Vector3(4, 5, 3), new Vector3(0f), importedLightData, importindices);
 
             ConstructObjects();
             ConstructLights();
@@ -183,15 +183,13 @@ namespace Engine
             DrawLights(projection, view);
             DrawGrid(projection, view);
 
-            /*
+            
             GL.Disable(EnableCap.DepthTest);
             fboShader.Use();
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
             GL.BindVertexArray(rectVAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            */
-
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             // UI

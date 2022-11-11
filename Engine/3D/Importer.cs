@@ -17,7 +17,7 @@ namespace Engine.Importer
 
         public static void LoadModel(string path, bool vertPosOnly = false)
         {
-            AssimpContext importer = new AssimpContext();
+            AssimpContext importer = new();
             importer.SetConfig(new NormalSmoothingAngleConfig(2f));
             m_model = importer.ImportFile(path,
                 PostProcessPreset.TargetRealTimeMaximumQuality |

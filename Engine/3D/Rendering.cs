@@ -88,8 +88,8 @@ namespace Engine.RenderEngine
                                 PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
                                 PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
                                 PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                                PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
-                                PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
+                                //PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                //PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
                                 break;
 
                             case 1:
@@ -132,12 +132,12 @@ namespace Engine.RenderEngine
             {
                 PointLightTexture.Use(TextureUnit.Texture0);
 
-                Lights[i].Shader.Use();
+                LightShader.Use();
                 GL.BindVertexArray(VAOlights[i]);
-                SetTransform(Lights[i].Shader, MakeLightTransform(Lights[i].Location, Lights[i].Rotation));
-                SetProjView(Lights[i].Shader, projection, view);
-                GL.Uniform3(Lights[i].Shader.GetUniformLocation("lightcolor"), Lights[i].LightColor);
-                Lights[i].Shader.SetInt("lightTexture", 0);
+                SetTransform(LightShader, MakeLightTransform(Lights[i].Location, Lights[i].Rotation));
+                SetProjView(LightShader, projection, view);
+                GL.Uniform3(LightShader.GetUniformLocation("lightcolor"), Lights[i].LightColor);
+                LightShader.SetInt("lightTexture", 0);
 
                 GL.DrawElements(PrimitiveType.Triangles, Lights[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
             }

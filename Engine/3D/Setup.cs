@@ -68,28 +68,25 @@ namespace Engine.SettingUP
         public class Light
         {
             public float Strength;
-            public float Radius;
-            public float FallOff;
             public int Type;
             public string Name;
             public string ID;
             public Vector3 LightColor;
-            public Shader Shader;
             public VertPosData[] LightVertData;
             public int[] Indices;
             public Vector3 Location;
             public Vector3 Rotation;
         }
 
-        public static List<Object> Objects = new List<Object>();
-        public static List<int> VAO = new List<int>();
-        public static List<Light> Lights = new List<Light>();
-        public static List<int> VAOlights = new List<int>();
+        public static List<Object> Objects = new();
+        public static List<int> VAO = new();
+        public static List<Light> Lights = new();
+        public static List<int> VAOlights = new();
 
         // Add 3D object to rendering list
         public static void AddObjectToArray(string name, Material material, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
-            Object _object = new Object
+            Object _object = new()
             {
                 ID = MathLib.Functions.RandInt(0, 100000).ToString(),
                 Name = name,
@@ -105,18 +102,15 @@ namespace Engine.SettingUP
         }
 
         // Add light to rendering list
-        public static void AddLightToArray(float strength, float radius, float falloff, int type, string name, Vector3 lightColor, Shader shader, Vector3 location, Vector3 rotation, VertPosData[] vertices, int[] indices)
+        public static void AddLightToArray(float strength, int type, string name, Vector3 lightColor, Vector3 location, Vector3 rotation, VertPosData[] vertices, int[] indices)
         {
-            Light _light = new Light
+            Light _light = new()
             {
                 Strength = strength,
-                Radius = radius,
-                FallOff = falloff,
                 Type = type,
                 Name = name,
                 ID = MathLib.Functions.RandInt(0, 100000).ToString(),
                 LightColor = lightColor,
-                Shader = shader,
                 LightVertData = vertices,
                 Indices = indices,
                 Location = location,
@@ -175,8 +169,8 @@ namespace Engine.SettingUP
                 GL.BufferData(BufferTarget.ElementArrayBuffer, Lights[i].Indices.Length * sizeof(uint), Lights[i].Indices, BufferUsageHint.StaticDraw);
 
                 // Set attributes in shaders - vertex positions, UV's and normals
-                GL.EnableVertexAttribArray(Lights[i].Shader.GetAttribLocation("aPosition"));
-                GL.VertexAttribPointer(Lights[i].Shader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+                GL.EnableVertexAttribArray(LightShader.GetAttribLocation("aPosition"));
+                GL.VertexAttribPointer(LightShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
             }
         }
 
@@ -201,7 +195,7 @@ namespace Engine.SettingUP
             "./../../../Engine/Engine_Resources/Images/CubeMap2/nz.png",
         };
 
-        public static Shader CubeMapShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
+        public static Shader CubeMapShader = new("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
 
         static int CubeMapVAO;
         static int[] CubeMapIndices;
@@ -238,7 +232,7 @@ namespace Engine.SettingUP
             // Generate and bind Vertex Buffere
             int VBO = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, CubeMapData.Length * 8 * sizeof(float), CubeMapData, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, CubeMapData.Length * 14 * sizeof(float), CubeMapData, BufferUsageHint.StaticDraw);
             // Generate and bind Element Buffer
             int EBO = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
@@ -246,7 +240,7 @@ namespace Engine.SettingUP
 
             // Set attributes in shaders - vertex positions, UV's and normals
             GL.EnableVertexAttribArray(CubeMapShader.GetAttribLocation("aPosition"));
-            GL.VertexAttribPointer(CubeMapShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+            GL.VertexAttribPointer(CubeMapShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 14 * sizeof(float), 0);
         }
 
         public static void DrawCubeMapCube(Matrix4 projection, Matrix4 view, Vector3 position)
@@ -297,7 +291,7 @@ namespace Engine.SettingUP
             WireframeShader.Use();
             GL.BindVertexArray(gridVAO);
 
-            SetProjView(CubeMapShader, projection, view);
+            SetProjView(WireframeShader, projection, view);
             Matrix4 GridTrans = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
             GridTrans *= Matrix4.CreateTranslation(0, -0.5f, 0);
             GridTrans *= Matrix4.CreateTranslation(Vector3.Zero);
@@ -312,7 +306,7 @@ namespace Engine.SettingUP
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
 
-        public static int FBO, RBO;
+        public static int FBO; //RBO;
         public static int framebufferTexture, depthTexture;
 
         public static void GenFBO(float CameraWidth, float CameraHeight)
