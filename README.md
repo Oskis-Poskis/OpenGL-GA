@@ -26,9 +26,6 @@ ImGUI Demo:
 ImGUI Controller Class By NogginBops:
 >https://github.com/NogginBops/ImGui.NET_OpenTK_Sample/blob/opentk4.0/Dear%20ImGui%20Sample/ImGuiController.cs
 
-# Links
-**Reddit:** [oskis69](https://www.reddit.com/user/oskis69)
-
 # Features to add
 List of things I want to implement/do
 - Comment all code better
