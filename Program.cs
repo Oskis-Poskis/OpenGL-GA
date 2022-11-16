@@ -7,7 +7,7 @@ namespace Engine
         [STAThread]
         static void Main()
         {
-            using Main game = new Main(2560, 1440, "Axyz");
+            using Main game = new Main(1920, 1080, "Axyz");
             game.Run();
         }
     }

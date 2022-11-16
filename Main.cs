@@ -3,6 +3,8 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System.Text.Json;
+using System.IO;
 using System;
 
 using ImGuiNET;
@@ -12,6 +14,7 @@ using static Engine.Importer.Import;
 using static Engine.RenderEngine.Rendering;
 using static Engine.SettingUP.Setup;
 using Engine.MathLib;
+using System.Text.Json.Serialization;
 
 namespace Engine
 {
@@ -41,22 +44,8 @@ namespace Engine
         }
 
         public static Texture[] PBRmaps = new Texture[5];
-        public static Material M_Default = new Material
-        {
-            albedo = new Vector3(1),
-            roughness = 0.5f,
-            metallic = 0,
-            ao = 1,
-            Maps = new int[] { 0, 0, 0, 0, 0 }
-        };
-        public static Material M_Misc = new Material
-        {
-            albedo = new Vector3(1),
-            roughness = 1,
-            metallic = 1,
-            ao = 1,
-            Maps = new int[] { 1, 1, 0, 1, 1 }
-        };
+        public static Material M_Default = new Material(new Vector3(1), 0.5f, 0, 1, new int[] { 0, 0, 0, 0, 0 });
+        public static Material M_Misc = new Material(new Vector3(1), 1, 1, 1, new int[] { 1, 1, 0, 1, 1 });
 
         public static bool wireframeonoff = false;
 
@@ -126,22 +115,20 @@ namespace Engine
             PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
             PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
             PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
-            
             PointLightTexture = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/PointLightTexture.png", TextureUnit.Texture0);
 
             // First model, placeholder at 0 in array so array isnt empty
             LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddObjectToArray("Placeholder at 0", M_Default, new Vector3(3) ,new Vector3(0, 4, 0), new Vector3(0), importedData, importindices);
+            AddObjectToArray("Scene Root", M_Default, new(1), new(0), new(0), importedVertexData, importindices);
             //////////////////////////////////////////////////////////
 
-
             LoadModel("./../../../Resources/3D_Models/statue/model.dae");
-            AddObjectToArray(importname, M_Misc, new Vector3(3), new Vector3(0, 4, 0), new Vector3(0), importedData, importindices);
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/CurveWall.fbx");
-            AddObjectToArray("Curve", M_Default, new Vector3(1), new Vector3(0), new Vector3(-90, 0, 0), importedData, importindices);
+            AddObjectToArray(importname, M_Misc, new(3), new(0, 4, 0), new(0), importedVertexData, importindices);
+            LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx");
+            AddObjectToArray("Floor", M_Default, new(10), importedLocation, new(-90, 0, 0), importedVertexData, importindices);
 
             LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-            AddLightToArray(5, 0, "Point Light", new Vector3(1), new Vector3(4, 5, 3), new Vector3(0f), importedLightData, importindices);
+            AddLightToArray(5, 0, "Point Light", new(1), new(4, 5, 3), new(0f), importedVertPosData, importindices);
 
             ConstructObjects();
             ConstructLights();
@@ -323,6 +310,18 @@ namespace Engine
             base.OnRenderFrame(args);
         }
 
+        public static void SaveFile(string filename)
+        {
+            var data = Objects;
+            var _options = new JsonSerializerOptions()
+            {
+                WriteIndented = true,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+            var jsonString = JsonSerializer.Serialize(data, _options);
+            File.WriteAllText(filename, jsonString);
+        }
+
         private void MouseInput()
         {
             CursorState = CursorState.Grabbed;
@@ -352,6 +351,7 @@ namespace Engine
                 }
             }
 
+            if (IsKeyPressed(Keys.P)) SaveFile("./../../../textsave.txt");
             if (IsKeyDown(Keys.F)) position = Objects[selectedObject].Location * 1.2f;
 
             // X and Z movement

@@ -182,6 +182,8 @@ void main()
     // Reduce color banding
     color += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
+    float test = max(dot(N, normalize(dirLight.direction)), 0);
+
     // Final Color
     fragColor = vec4(color, 1.0);
 }

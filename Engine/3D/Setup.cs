@@ -7,13 +7,13 @@ using System;
 
 using static Engine.Importer.Import;
 using static Engine.RenderEngine.Rendering;
-using System.Windows.Forms;
 
 // Mostly used in OnLoad();
 namespace Engine.SettingUP
 {
     class Setup
     {
+        [Serializable]
         public struct VertexData
         {
             public Vector3 Position;
@@ -42,6 +42,7 @@ namespace Engine.SettingUP
         }
 
         // Material struct
+        [Serializable]
         public class Material
         {
             public Vector3 albedo;
@@ -49,9 +50,19 @@ namespace Engine.SettingUP
             public float metallic;
             public float ao;
             public int[] Maps;
+
+            public Material(Vector3 albedo, float roughness, float metallic, float ao, int[] maps)
+            {
+                this.albedo = albedo;
+                this.roughness = roughness;
+                this.metallic = metallic;
+                this.ao = ao;
+                Maps = maps;
+            }
         }
 
         // Struct with object data
+        [Serializable]
         public class Object
         {
             public string Name;
@@ -62,6 +73,18 @@ namespace Engine.SettingUP
             public Vector3 Location;
             public Vector3 Rotation;
             public Vector3 Scale;
+
+            public Object(string name, string iD, Material material, VertexData[] vertData, int[] indices, Vector3 location, Vector3 rotation, Vector3 scale)
+            {
+                Name = name;
+                ID = iD;
+                Material = material;
+                VertData = vertData;
+                Indices = indices;
+                Location = location;
+                Rotation = rotation;
+                Scale = scale;
+            }
         }
 
         // Struct with light data
@@ -86,17 +109,15 @@ namespace Engine.SettingUP
         // Add 3D object to rendering list
         public static void AddObjectToArray(string name, Material material, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
-            Object _object = new()
-            {
-                ID = MathLib.Functions.RandInt(0, 100000).ToString(),
-                Name = name,
-                Material = material,
-                VertData = vertices,
-                Indices = indices,
-                Location = location,
-                Rotation = rotation,
-                Scale = scale
-            };
+            Object _object = new(
+                name,
+                MathLib.Functions.RandInt(0, 100000).ToString(),
+                material,
+                vertices,
+                indices,
+                location,
+                rotation,
+                scale);
             VAO.Add(0);
             Objects.Add(_object);
         }
@@ -221,7 +242,7 @@ namespace Engine.SettingUP
             }
 
             LoadModel("./../../../Engine/Engine_Resources/Primitives/CubeMapMesh.fbx");
-            CubeMapData = importedData;
+            CubeMapData = importedVertexData;
             CubeMapIndices = importindices;
 
             CubeMapShader.Use();
@@ -265,7 +286,7 @@ namespace Engine.SettingUP
         public static void SetupGrid()
         {
             LoadModel("./../../../Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);
-            gridData = importedLightData;
+            gridData = importedVertPosData;
             gridIndices = importindices;
 
             WireframeShader.Use();

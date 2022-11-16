@@ -28,7 +28,6 @@ namespace Engine
         private int _indexBufferSize;
 
         //private Texture _fontTexture;
-
         private int _fontTexture;
 
         private int _shader;

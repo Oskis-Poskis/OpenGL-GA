@@ -3,7 +3,6 @@ using OpenTK.Mathematics;
 
 using static Engine.SettingUP.Setup;
 using static Engine.Main;
-using System.Drawing;
 using System;
 
 // Mostly used in OnRenderFrame();
@@ -39,7 +38,10 @@ namespace Engine.RenderEngine
                 {
                     PBRShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    SetTransform(PBRShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetTransform(PBRShader, MakeTransform(
+                        Objects[i].Scale + Objects[0].Scale,
+                        Objects[i].Location + Objects[0].Location,
+                        Objects[i].Rotation + Objects[0].Rotation));
                     SetProjView(PBRShader, projection, view);
 
                     Vector3 ambient = new Vector3(BG_Color.X, BG_Color.Y, BG_Color.Z);

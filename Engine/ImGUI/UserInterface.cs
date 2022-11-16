@@ -52,9 +52,9 @@ namespace Engine.UserInterface
         public static void LoadTheme()
         {
             // Styling
-            ImGui.GetStyle().FrameRounding = 4f;
-            ImGui.GetStyle().FrameBorderSize = 1f;
-            ImGui.GetStyle().TabRounding = 2f;
+            ImGui.GetStyle().FrameRounding = 6;
+            ImGui.GetStyle().FrameBorderSize = 1;
+            ImGui.GetStyle().TabRounding = 2;
             ImGui.GetStyle().FramePadding = new System.Numerics.Vector2(4);
             ImGui.GetStyle().ItemSpacing = new System.Numerics.Vector2(8, 2);
             ImGui.GetStyle().ItemInnerSpacing = new System.Numerics.Vector2(1, 4);
@@ -276,14 +276,7 @@ namespace Engine.UserInterface
             ImGui.SliderFloat("Metallic Multiplier", ref _metallic, 0, 1);
             ImGui.SliderFloat("AO Multiplier", ref _ao, 0, 1);
 
-            Objects[selectedObject].Material = new Material
-            {
-                albedo = new Vector3(_albedo.X, _albedo.Y, _albedo.Z),
-                roughness = _roughness,
-                metallic = _metallic,
-                ao = _ao,
-                Maps = Objects[selectedObject].Material.Maps
-            };
+            Objects[selectedObject].Material = new Material(new Vector3(_albedo.X, _albedo.Y, _albedo.Z), _roughness, _metallic, _ao, Objects[selectedObject].Material.Maps);
 
             ImGui.End();
         }
@@ -292,24 +285,25 @@ namespace Engine.UserInterface
         {
             // Object Properties
             ImGui.Begin("Object Properties");
-            if (Objects.Count > 1)
+            if (Objects.Count > 0)
             {
-                ImGui.Text(Objects[selectedObject].Name);
                 string inpstr = Objects[selectedObject].Name;
-                if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30))
+                if (selectedObject != 0)
                 {
-                    Objects[selectedObject].Name = inpstr;
-                }
+                    ImGui.Text(Objects[selectedObject].Name);
 
-                ImGui.SameLine(ImGui.GetWindowWidth() - 60);
+                    if (ImGui.InputTextWithHint("##Name", inpstr, ref inpstr, 30)) Objects[selectedObject].Name = inpstr;
 
-                if (ImGui.Button("Delete"))
-                {
-                    if (selectedObject != 0)
+                    ImGui.SameLine(ImGui.GetWindowWidth() - 60);
+
+                    if (ImGui.Button("Delete"))
                     {
-                        Objects.RemoveAt(selectedObject);
-                        VAO.RemoveAt(selectedObject);
-                        if (selectedObject > 1) selectedObject -= 1;
+                        if (selectedObject != 0)
+                        {
+                            Objects.RemoveAt(selectedObject);
+                            VAO.RemoveAt(selectedObject);
+                            if (selectedObject > 0) selectedObject -= 1;
+                        }
                     }
                 }
 
@@ -318,7 +312,7 @@ namespace Engine.UserInterface
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                 //  ----- Transform -----
-                if (ImGui.TreeNode("Transform") && Objects.Count != 1)
+                if (ImGui.TreeNode("Transform") && Objects.Count != 0)
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     // Location
@@ -393,12 +387,17 @@ namespace Engine.UserInterface
                 ImGui.Separator();
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                if (ImGui.TreeNode("Information"))
+                if (selectedObject != 0)
                 {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Text("Vertices: " + (Objects[selectedObject].VertData.Length).ToString());
-                    ImGui.Text("Triangles: " + (Objects[selectedObject].Indices.Length / 3).ToString());
+                    if (ImGui.TreeNode("Information"))
+                    {
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Text("Vertices: " + (Objects[selectedObject].VertData.Length).ToString());
+                        ImGui.Text("Triangles: " + (Objects[selectedObject].Indices.Length / 3).ToString());
+                    }
                 }
+                    
+                else ImGui.Text("Scene info here");
             }
 
             else ImGui.Text("No Object Selected :(");
@@ -604,11 +603,7 @@ namespace Engine.UserInterface
                         string path = selectFile.FileName;
 
                         LoadModel(path);
-                        AddObjectToArray(importname, M_Default,
-                            new Vector3(2f),            // Scale
-                            new Vector3(0, 4, 0),       // Location
-                            new Vector3(180f, 90f, 0f), // Rotation
-                            importedData, importindices);
+                        AddObjectToArray(importname, M_Default, importedScale, importedLocation, new Vector3(180f, 90f, 0f), importedVertexData, importindices);
                         ConstructObjects();
                         if (Objects.Count > 1) selectedObject = Objects.Count - 1;
                     }
@@ -622,7 +617,7 @@ namespace Engine.UserInterface
                     if (ImGui.Button("Point Light"))
                     {
                         LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-                        AddLightToArray(5, 0, "Point Light", new Vector3(1f), new Vector3(1f), new Vector3(0f), importedLightData, importindices);
+                        AddLightToArray(5, 0, "Point Light", new Vector3(1f), new Vector3(1f), new Vector3(0f), importedVertPosData, importindices);
                         ConstructLights();
                         selectedLight = 0;
                     }
@@ -659,10 +654,15 @@ namespace Engine.UserInterface
             ImGui.Separator();
             ImGui.Dummy(new System.Numerics.Vector2(0f, 0.2f));
 
-            for (int i = 1; i < Objects.Count; i++)
+            for (int i = 0; i < Objects.Count; i++)
             {
                 _objects[i] = Objects[i].Name;
 
+                if (_objects[i] != "Scene Root")
+                {
+                    ImGui.Dummy(new System.Numerics.Vector2(15, 0));
+                    ImGui.SameLine();
+                }
                 if (ImGui.Selectable(" " + _objects[i] + "##" + Objects[i].ID, selectedObject == i))
                 {
                     selectedObject = i;
