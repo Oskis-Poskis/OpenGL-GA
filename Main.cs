@@ -94,6 +94,8 @@ namespace Engine
         // Runs after Run();
         unsafe protected override void OnLoad()
         {
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
@@ -110,25 +112,25 @@ namespace Engine
             IsVisible = true;
 
             LoadDefaultMaps();
-            PBRmaps[0] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_albedo.jpg", TextureUnit.Texture0);
-            PBRmaps[1] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
-            PBRmaps[2] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
-            PBRmaps[3] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
-            PBRmaps[4] = Texture.LoadFromFile("./../../../Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
-            PointLightTexture = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/PointLightTexture.png", TextureUnit.Texture0);
+            PBRmaps[0] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/DefaultMaterial_albedo.jpg", TextureUnit.Texture0);
+            PBRmaps[1] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
+            PBRmaps[2] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/DefaultMaterial_roughness.jpg", TextureUnit.Texture0);
+            PBRmaps[3] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/DefaultMaterial_normal.jpg", TextureUnit.Texture0);
+            PBRmaps[4] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/DefaultMaterial_AO.jpg", TextureUnit.Texture0);
+            PointLightTexture = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/PointLightTexture.png", TextureUnit.Texture0);
 
             // First model, placeholder at 0 in array so array isnt empty
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
-            AddObjectToArray("Scene Root", M_Default, new(1), new(0), new(0), importedVertexData, importindices);
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/PointLightMesh.fbx");
+            AddObjectToArray("Scene Root", M_Default, new Vector3(1), new Vector3(0), new Vector3(0), importedVertexData, importindices);
             //////////////////////////////////////////////////////////
 
-            LoadModel("./../../../Resources/3D_Models/statue/model.dae");
-            AddObjectToArray(importname, M_Misc, new(3), new(0, 4, 0), new(0), importedVertexData, importindices);
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx");
-            AddObjectToArray("Floor", M_Default, new(10), importedLocation, new(-90, 0, 0), importedVertexData, importindices);
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Resources/3D_Models/statue/model.dae");
+            AddObjectToArray(importname, M_Misc, new Vector3(3), new Vector3(0, 4, 0), new Vector3(0), importedVertexData, importindices);
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/Plane.fbx");
+            AddObjectToArray("Floor", M_Default, new Vector3(10), importedLocation, new Vector3(-90, 0, 0), importedVertexData, importindices);
 
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-            AddLightToArray(5, 0, "Point Light", new(1), new(4, 5, 3), new(0f), importedVertPosData, importindices);
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/Plane.fbx", true);
+            AddLightToArray(5, 0, "Point Light", new Vector3(1), new Vector3(4, 5, 3), new Vector3(0f), importedVertPosData, importindices);
 
             ConstructObjects();
             ConstructLights();
@@ -156,7 +158,7 @@ namespace Engine
             if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
             if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
 
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), CameraWidth / CameraHeight, 0.1f, 100.0f);
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), Math.Abs(CameraWidth / CameraHeight), 0.1f, 100.0f);
             Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
             DrawObjects(projection, view, wireframeonoff);
@@ -169,7 +171,6 @@ namespace Engine
             // Draw all lights
             DrawLights(projection, view);
             DrawGrid(projection, view);
-
             
             GL.Disable(EnableCap.DepthTest);
             fboShader.Use();
@@ -316,7 +317,7 @@ namespace Engine
             var _options = new JsonSerializerOptions()
             {
                 WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
+                //ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
             var jsonString = JsonSerializer.Serialize(data, _options);
             File.WriteAllText(filename, jsonString);

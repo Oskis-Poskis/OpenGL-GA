@@ -2,28 +2,43 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>OpenTK_GA</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<UseWindowsForms>true</UseWindowsForms>
 	<ApplicationIcon>icon.ico</ApplicationIcon>
-	<StartupObject />
+	<StartupObject>Engine.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>send</ErrorReport>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>send</ErrorReport>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>send</ErrorReport>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,30 +51,54 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Engine\Engine_Resources\Images\failedtoload.png" />
-    <Content Include="Resources\3D_Models\Gun\PPSh_main_AO.jpg" />
-    <Content Include="Resources\3D_Models\Gun\PPSh_main_BaseColor.jpg" />
-    <Content Include="Resources\3D_Models\Gun\PPSh_main_Metallic.jpg" />
-    <Content Include="Resources\3D_Models\Gun\PPSh_main_Normal.jpg" />
-    <Content Include="Resources\3D_Models\Gun\PPSh_main_Roughness.jpg" />
-    <Content Include="Resources\3D_Models\statue\DefaultMaterial_albedo.jpg" />
-    <Content Include="Resources\3D_Models\statue\DefaultMaterial_AO.jpg" />
-    <Content Include="Resources\3D_Models\statue\DefaultMaterial_normal.jpg" />
-    <Content Include="Resources\3D_Models\statue\DefaultMaterial_roughness.jpg" />
-    <Content Include="Resources\Images\Checker.png" />
-    <Content Include="Resources\Images\grid.png" />
-    <Content Include="Resources\Images\hex.png" />
-    <Content Include="Resources\Images\rusted-steel_albedo.png" />
-    <Content Include="Resources\Images\rusted-steel_metallic.png" />
-    <Content Include="Resources\Images\rusted-steel_normal-ogl.png" />
-    <Content Include="Resources\Images\rusted-steel_roughness.png" />
+	<Content Include="Resources\**" />
+    <Content Include="Engine\Engine_Resources\Images\failedtoload.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+	<Content Include="Engine\Engine_Resources\Images\reset.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_AO.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_BaseColor.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Metallic.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Normal.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\Gun\PPSh_main_Roughness.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_albedo.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_AO.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_normal.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\3D_Models\statue\DefaultMaterial_roughness.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\Checker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\grid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Images\hex.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 	
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="4.1.0" />
-    <PackageReference Include="BulletSharp.x64" Version="0.12.0" />
     <PackageReference Include="ImGui.NET" Version="1.88.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OpenTK" Version="4.7.5" />
     <PackageReference Include="StbImageSharp" Version="2.27.13" />
   </ItemGroup>
@@ -93,6 +132,147 @@
     <None Include="Resources\3D_Models\Monkey.fbx" />
     <None Include="Resources\3D_Models\Smg-12.fbx" />
     <None Include="Resources\3D_Models\statue\model.dae" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Content Update="Resources\3D_Models\Crate.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\Cube.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\Gun\gun.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\MiniSMG.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\Monkey.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\Smg-12.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\3D_Models\statue\model.dae">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+	
+  <ItemGroup>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\nx.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\ny.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\nz.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\px.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\py.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\pz.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap2\reset.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\back.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\bottom.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\front.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\left.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\right.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\CubeMap\top.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\Normal1x1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\PointLightTexture.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Images\White1x1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\CubeMapMesh.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\CubeMapSphere.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\CurveWall.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\FloorGrid.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\Plane.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\PointLightMesh.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\Sphere.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Primitives\Torus.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\CubeMap.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\CubeMap.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\framebuffer.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\framebuffer.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\Wireframe.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Misc\Wireframe.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\Old\phong.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\PBR\light.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\PBR\light.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\PBR\pbr.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\PBR\pbr.geom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Engine\Engine_Resources\Shaders\PBR\pbr.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

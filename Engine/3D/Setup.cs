@@ -101,15 +101,15 @@ namespace Engine.SettingUP
             public Vector3 Rotation;
         }
 
-        public static List<Object> Objects = new();
-        public static List<int> VAO = new();
-        public static List<Light> Lights = new();
-        public static List<int> VAOlights = new();
+        public static List<Object> Objects = new List<Object>();
+        public static List<int> VAO = new List<int>();
+        public static List<Light> Lights = new List<Light>();
+        public static List<int> VAOlights = new List<int>();
 
         // Add 3D object to rendering list
         public static void AddObjectToArray(string name, Material material, Vector3 scale, Vector3 location, Vector3 rotation, VertexData[] vertices, int[] indices)
         {
-            Object _object = new(
+            Object _object = new Object(
                 name,
                 MathLib.Functions.RandInt(0, 100000).ToString(),
                 material,
@@ -125,7 +125,7 @@ namespace Engine.SettingUP
         // Add light to rendering list
         public static void AddLightToArray(float strength, int type, string name, Vector3 lightColor, Vector3 location, Vector3 rotation, VertPosData[] vertices, int[] indices)
         {
-            Light _light = new()
+            Light _light = new Light()
             {
                 Strength = strength,
                 Type = type,
@@ -199,24 +199,24 @@ namespace Engine.SettingUP
 
         public static void LoadDefaultMaps()
         {
-            DefaultMaps[0] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[1] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[2] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
-            DefaultMaps[3] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/Normal1x1.png", TextureUnit.Texture0);
-            DefaultMaps[4] = Texture.LoadFromFile("./../../../Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[0] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[1] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[2] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
+            DefaultMaps[3] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/Normal1x1.png", TextureUnit.Texture0);
+            DefaultMaps[4] = Texture.LoadFromFile(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/White1x1.png", TextureUnit.Texture0);
         }
 
         static readonly string[] cubeMapTextureString = new string[6]
         {
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/px.png",
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/nx.png",
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/py.png",
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/ny.png",
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/pz.png",
-            "./../../../Engine/Engine_Resources/Images/CubeMap2/nz.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/px.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/nx.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/py.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/ny.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/pz.png",
+            AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/CubeMap2/nz.png",
         };
 
-        public static Shader CubeMapShader = new("./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.vert", "./../../../Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
+        public static Shader CubeMapShader = new Shader(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/CubeMap.vert", AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/CubeMap.frag");
 
         static int CubeMapVAO;
         static int[] CubeMapIndices;
@@ -241,7 +241,7 @@ namespace Engine.SettingUP
                 GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0, PixelFormat.Rgb, PixelType.UnsignedByte, image.Data);
             }
 
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/CubeMapMesh.fbx");
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/CubeMapMesh.fbx");
             CubeMapData = importedVertexData;
             CubeMapIndices = importindices;
 
@@ -285,7 +285,7 @@ namespace Engine.SettingUP
         static VertPosData[] gridData;
         public static void SetupGrid()
         {
-            LoadModel("./../../../Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);
+            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);
             gridData = importedVertPosData;
             gridIndices = importindices;
 

@@ -33,7 +33,7 @@ namespace Engine.UserInterface
             resetButton = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, resetButton);
             StbImage.stbi_set_flip_vertically_on_load(0);
-            using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/reset.png"))
+            using (Stream stream = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/reset.png"))
             {
                 ImageResult image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
@@ -45,8 +45,8 @@ namespace Engine.UserInterface
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
             ImageResult _image;
-            using (Stream stream = File.OpenRead("./../../../Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
-            OpenTK.Windowing.Common.Input.Image _icon = new(_image.Width, _image.Height, _image.Data);
+            using (Stream stream = File.OpenRead(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Images/icon.png")) _image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
+            OpenTK.Windowing.Common.Input.Image _icon = new OpenTK.Windowing.Common.Input.Image(_image.Width, _image.Height, _image.Data);
             LoadedIcon = new OpenTK.Windowing.Common.Input.WindowIcon(_icon);
         }
         public static void LoadTheme()
@@ -125,18 +125,8 @@ namespace Engine.UserInterface
         {
             ImGui.Begin("Game");
 
-            if (ImGui.GetWindowWidth() < 10 | ImGui.GetWindowHeight() < 10)
-            {
-                CameraWidth = 1920;
-                CameraHeight = 1080;
-            }
-
-            else
-            {
-                CameraWidth = ImGui.GetWindowWidth();
-                CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
-            }
-            
+            CameraWidth = ImGui.GetWindowWidth();
+            CameraHeight = ImGui.GetWindowHeight() - ImGui.GetIO().FontGlobalScale * 71;
 
             isMainHovered = ImGui.IsWindowHovered();
 
@@ -262,7 +252,7 @@ namespace Engine.UserInterface
 
         public static void LoadMaterialEditor(int selectedObject, float spacing)
         {
-            System.Numerics.Vector3 _albedo = new(
+            System.Numerics.Vector3 _albedo = new System.Numerics.Vector3(
                 Objects[selectedObject].Material.albedo.X,
                 Objects[selectedObject].Material.albedo.Y,
                 Objects[selectedObject].Material.albedo.Z);
@@ -316,7 +306,7 @@ namespace Engine.UserInterface
                 {
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     // Location
-                    System.Numerics.Vector3 _loc = new(
+                    System.Numerics.Vector3 _loc = new System.Numerics.Vector3(
                         Objects[selectedObject].Location.X,
                         Objects[selectedObject].Location.Y,
                         Objects[selectedObject].Location.Z);
@@ -339,10 +329,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Rotation
-                    System.Numerics.Vector3 _rot = new(
-                        Objects[selectedObject].Rotation.X,
-                        Objects[selectedObject].Rotation.Y,
-                        Objects[selectedObject].Rotation.Z);
+                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(Objects[selectedObject].Rotation.X, Objects[selectedObject].Rotation.Y, Objects[selectedObject].Rotation.Z);
                     ImGui.Text("Rotation");
                     if (ImGui.DragFloat3("##Rotation", ref _rot))
                     {
@@ -362,10 +349,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Scale
-                    System.Numerics.Vector3 _scale = new(
-                        Objects[selectedObject].Scale.X,
-                        Objects[selectedObject].Scale.Y,
-                        Objects[selectedObject].Scale.Z);
+                    System.Numerics.Vector3 _scale = new System.Numerics.Vector3(Objects[selectedObject].Scale.X, Objects[selectedObject].Scale.Y, Objects[selectedObject].Scale.Z);
                     ImGui.Text("Scale");
                     if (ImGui.DragFloat3("##Scale", ref _scale, 0.1f))
                     {
@@ -437,10 +421,7 @@ namespace Engine.UserInterface
             {
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                 // Location
-                System.Numerics.Vector3 _loc = new(
-                    Lights[selectedLight].Location.X,
-                    Lights[selectedLight].Location.Y,
-                    Lights[selectedLight].Location.Z);
+                System.Numerics.Vector3 _loc = new System.Numerics.Vector3(Lights[selectedLight].Location.X, Lights[selectedLight].Location.Y, Lights[selectedLight].Location.Z);
                 ImGui.Text("Location");
                 if (ImGui.DragFloat3("##Location", ref _loc, 0.1f))
                 {
@@ -460,10 +441,7 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
                     // Rotation
-                    System.Numerics.Vector3 _rot = new(
-                        Lights[selectedLight].Rotation.X,
-                        Lights[selectedLight].Rotation.Y,
-                        Lights[selectedLight].Rotation.Z);
+                    System.Numerics.Vector3 _rot = new System.Numerics.Vector3(Lights[selectedLight].Rotation.X, Lights[selectedLight].Rotation.Y, Lights[selectedLight].Rotation.Z);
                     ImGui.Text("Rotation");
                     if (ImGui.DragFloat3("##Rotation", ref _rot))
                     {
@@ -488,10 +466,7 @@ namespace Engine.UserInterface
             {
                 ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                System.Numerics.Vector3 _color = new(
-                    Lights[selectedLight].LightColor.X,
-                    Lights[selectedLight].LightColor.Y,
-                    Lights[selectedLight].LightColor.Z);
+                System.Numerics.Vector3 _color = new System.Numerics.Vector3(Lights[selectedLight].LightColor.X, Lights[selectedLight].LightColor.Y, Lights[selectedLight].LightColor.Z);
                 ImGui.Text("Light Color");
                 if (ImGui.ColorEdit3("##Light Color", ref _color))
                 {
@@ -593,7 +568,7 @@ namespace Engine.UserInterface
 
                     if (ImGui.Button("Import Mesh"))
                     {
-                        OpenFileDialog selectFile = new()
+                        OpenFileDialog selectFile = new OpenFileDialog()
                         {
                             Title = "Select File",
                             Filter = "Formats:|*.FBX;*.OBJ;*.DAE"
@@ -616,8 +591,8 @@ namespace Engine.UserInterface
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     if (ImGui.Button("Point Light"))
                     {
-                        LoadModel("./../../../Engine/Engine_Resources/Primitives/Plane.fbx", true);
-                        AddLightToArray(5, 0, "Point Light", new Vector3(1f), new Vector3(1f), new Vector3(0f), importedVertPosData, importindices);
+                        LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/Plane.fbx", true);
+                        AddLightToArray(5, 0, "Point Light", new Vector3(1f), new Vector3(0f), new Vector3(0f), importedVertPosData, importindices);
                         ConstructLights();
                         selectedLight = 0;
                     }

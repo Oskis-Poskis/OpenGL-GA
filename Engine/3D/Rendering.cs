@@ -12,9 +12,9 @@ namespace Engine.RenderEngine
     {
         public static int numPL;
 
-        public static Shader PBRShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/pbr.vert", "./../../../Engine/Engine_Resources/shaders/PBR/pbr.frag");
-        public static Shader LightShader = new Shader("./../../../Engine/Engine_Resources/shaders/PBR/light.vert", "./../../../Engine/Engine_Resources/shaders/PBR/light.frag");
-        public static Shader WireframeShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.vert", "./../../../Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
+        public static Shader PBRShader = new Shader(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/PBR/pbr.vert", AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/PBR/pbr.frag");
+        public static Shader LightShader = new Shader(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/PBR/light.vert", AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/PBR/light.frag");
+        public static Shader WireframeShader = new Shader(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/Wireframe.vert", AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/Wireframe.frag");
 
         public static System.Numerics.Vector3 BG_Color = new System.Numerics.Vector3(0f);
         public static int selectedObject = 1;
@@ -186,7 +186,7 @@ namespace Engine.RenderEngine
             return transform;
         }
 
-        public static Shader fboShader = new Shader("./../../../Engine/Engine_Resources/shaders/Misc/framebuffer.vert", "./../../../Engine/Engine_Resources/shaders/Misc/framebuffer.frag");
+        public static Shader fboShader = new Shader(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/framebuffer.vert", AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/shaders/Misc/framebuffer.frag");
         public static int rectVAO, rectVBO;
         static readonly float[] rectVerts = new float[]
         {

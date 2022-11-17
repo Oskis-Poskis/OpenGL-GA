@@ -25,7 +25,7 @@ namespace Engine.Importer
             Vector3D tempLocation;
             Assimp.Quaternion tempRotation;
 
-            AssimpContext importer = new();
+            AssimpContext importer = new AssimpContext();
             importer.SetConfig(new NormalSmoothingAngleConfig(2f));
             m_model = importer.ImportFile(path,
                 PostProcessPreset.TargetRealTimeMaximumQuality |
@@ -38,8 +38,8 @@ namespace Engine.Importer
 
             m_model.RootNode.Transform.Decompose(out tempScale, out tempRotation, out tempLocation);
 
-            importedScale = new(tempScale.X, tempScale.Y, tempScale.Z);
-            importedLocation = new(tempLocation.X, tempLocation.Y, tempLocation.Z);
+            importedScale = new Vector3(tempScale.X, tempScale.Y, tempScale.Z);
+            importedLocation = new Vector3(tempLocation.X, tempLocation.Y, tempLocation.Z);
 
             if (vertPosOnly == false)
             {
