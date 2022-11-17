@@ -157,7 +157,7 @@ void main()
     normal = normalize(TBN * normal);
     float roughness = material.roughness * texture(material.roughnessTex, texCoord).r;
     float metallic = material.metallic * texture(material.metallicTex, texCoord).r;
-    float ao = material.ao * texture(material.aoTex, texCoord).r;
+    vec3 ao = material.ao * texture(material.aoTex, texCoord).rgb;
 
     vec3 N = normal;
     vec3 V = normalize(viewPos - FragPos);

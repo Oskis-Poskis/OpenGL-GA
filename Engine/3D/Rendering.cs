@@ -39,7 +39,7 @@ namespace Engine.RenderEngine
                     PBRShader.Use();
                     GL.BindVertexArray(VAO[i]);
                     SetTransform(PBRShader, MakeTransform(
-                        Objects[i].Scale + Objects[0].Scale,
+                        Objects[i].Scale * Objects[0].Scale,
                         Objects[i].Location + Objects[0].Location,
                         Objects[i].Rotation + Objects[0].Rotation));
                     SetProjView(PBRShader, projection, view);
@@ -109,11 +109,14 @@ namespace Engine.RenderEngine
 
             else
             {
-                for (int i = 0; i < Objects.Count; i++)
+                for (int i = 1; i < Objects.Count; i++)
                 {
                     WireframeShader.Use();
                     GL.BindVertexArray(VAO[i]);
-                    SetTransform(WireframeShader, MakeTransform(Objects[i].Scale, Objects[i].Location, Objects[i].Rotation));
+                    SetTransform(WireframeShader, MakeTransform(
+                        Objects[i].Scale * Objects[0].Scale,
+                        Objects[i].Location + Objects[0].Location,
+                        Objects[i].Rotation + Objects[0].Rotation));
                     SetProjView(WireframeShader, projection, view);
 
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
@@ -158,12 +161,13 @@ namespace Engine.RenderEngine
 
         static Matrix4 MakeTransform(Vector3 scale, Vector3 location, Vector3 rotation)
         {
-            var transform = Matrix4.Identity;
-            transform *= Matrix4.CreateScale(scale);
-            transform *=
-                Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotation.X)) *
-                Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotation.Y)) *
-                Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(rotation.Z));
+            var transform = Matrix4.CreateScale(scale);
+            Quaternion QuatRot = new Quaternion(
+                MathHelper.DegreesToRadians(rotation.X),
+                MathHelper.DegreesToRadians(rotation.Y),
+                MathHelper.DegreesToRadians(rotation.Z));
+            Matrix4 Mat4Rot = Matrix4.CreateFromQuaternion(QuatRot);
+            transform *= Mat4Rot;
             transform *= Matrix4.CreateTranslation(location);
 
             return transform;
