@@ -144,10 +144,15 @@ namespace Engine.UserInterface
             ImGui.BeginMainMenuBar();
             if (ImGui.BeginMenu("File"))
             {
-                if (ImGui.MenuItem("Quit", "Alt+F4"))
+                if (ImGui.MenuItem("Save", "Ctrl + S")) SaveFile(AppDomain.CurrentDomain.BaseDirectory + "defaultscene.ascene");
+                ImGui.Separator();
+                if (ImGui.MenuItem("Load"))
                 {
-                    CloseWindow = true;
+                    LoadSave(AppDomain.CurrentDomain.BaseDirectory + "defaultscene.ascene");
                 }
+
+                ImGui.Separator();
+                if (ImGui.MenuItem("Quit", "Alt+F4")) CloseWindow = true;
 
                 ImGui.EndMenu();
             }
@@ -577,10 +582,13 @@ namespace Engine.UserInterface
 
                         string path = selectFile.FileName;
 
-                        LoadModel(path);
-                        AddObjectToArray(importname, M_Default, importedScale, importedLocation, new Vector3(180f, 90f, 0f), importedVertexData, importindices);
-                        ConstructObjects();
-                        if (Objects.Count > 1) selectedObject = Objects.Count - 1;
+                        if (File.Exists(path))
+                        {
+                            LoadModel(path);
+                            AddObjectToArray(importname, M_Default, importedScale, importedLocation, new Vector3(180f, 90f, 0f), importedVertexData, importindices);
+                            ConstructObjects();
+                            if (Objects.Count > 1) selectedObject = Objects.Count - 1;
+                        }
                     }
 
                     ImGui.EndTabItem();

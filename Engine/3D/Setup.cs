@@ -32,6 +32,24 @@ namespace Engine.SettingUP
             }
         }
 
+        public struct ConvertedVertexData
+        {
+            public System.Numerics.Vector3 Position;
+            public System.Numerics.Vector2 texCoord;
+            public System.Numerics.Vector3 Normals;
+            public System.Numerics.Vector3 Tangents;
+            public System.Numerics.Vector3 BiTangents;
+
+            public ConvertedVertexData(System.Numerics.Vector3 position, System.Numerics.Vector2 texCoord, System.Numerics.Vector3 normals, System.Numerics.Vector3 tangents, System.Numerics.Vector3 bitangents)
+            {
+                this.Position = position;
+                this.texCoord = texCoord;
+                this.Normals = normals;
+                this.Tangents = tangents;
+                this.BiTangents = bitangents;
+            }
+        }
+
         public struct VertPosData
         {
             public Vector3 Position;
@@ -61,6 +79,26 @@ namespace Engine.SettingUP
             }
         }
 
+        // Material struct
+        [Serializable]
+        public class ConvertedMaterial
+        {
+            public System.Numerics.Vector3 albedo;
+            public float roughness;
+            public float metallic;
+            public float ao;
+            public int[] Maps;
+
+            public ConvertedMaterial(System.Numerics.Vector3 albedo, float roughness, float metallic, float ao, int[] maps)
+            {
+                this.albedo = albedo;
+                this.roughness = roughness;
+                this.metallic = metallic;
+                this.ao = ao;
+                Maps = maps;
+            }
+        }
+
         // Struct with object data
         [Serializable]
         public class Object
@@ -75,6 +113,31 @@ namespace Engine.SettingUP
             public Vector3 Scale;
 
             public Object(string name, string iD, Material material, VertexData[] vertData, int[] indices, Vector3 location, Vector3 rotation, Vector3 scale)
+            {
+                Name = name;
+                ID = iD;
+                Material = material;
+                VertData = vertData;
+                Indices = indices;
+                Location = location;
+                Rotation = rotation;
+                Scale = scale;
+            }
+        }
+
+        [Serializable]
+        public class ConvertedObject
+        {
+            public string Name;
+            public string ID;
+            public ConvertedMaterial Material;
+            public ConvertedVertexData[] VertData;
+            public int[] Indices;
+            public System.Numerics.Vector3 Location;
+            public System.Numerics.Vector3 Rotation;
+            public System.Numerics.Vector3 Scale;
+
+            public ConvertedObject(string name, string iD, ConvertedMaterial material, ConvertedVertexData[] vertData, int[] indices, System.Numerics.Vector3 location, System.Numerics.Vector3 rotation, System.Numerics.Vector3 scale)
             {
                 Name = name;
                 ID = iD;
@@ -278,53 +341,6 @@ namespace Engine.SettingUP
 
             GL.UniformMatrix4(CubeMapShader.GetUniformLocation("transform"), true, ref CubeMapTransform);
             GL.DrawElements(PrimitiveType.Triangles, CubeMapIndices.Length, DrawElementsType.UnsignedInt, 0);
-        }
-
-        static int gridVAO;
-        static int[] gridIndices;
-        static VertPosData[] gridData;
-        public static void SetupGrid()
-        {
-            LoadModel(AppDomain.CurrentDomain.BaseDirectory + "Engine/Engine_Resources/Primitives/FloorGrid.fbx", true);
-            gridData = importedVertPosData;
-            gridIndices = importindices;
-
-            WireframeShader.Use();
-
-            gridVAO = GL.GenVertexArray();
-            GL.BindVertexArray(gridVAO);
-            // Generate and bind Vertex Buffere
-            int VBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, gridData.Length * 3 * sizeof(float), gridData, BufferUsageHint.StaticDraw);
-            // Generate and bind Element Buffer
-            int EBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, gridIndices.Length * sizeof(uint), gridIndices, BufferUsageHint.StaticDraw);
-
-            // Set attributes in shaders - vertex positions, UV's and normals
-            GL.EnableVertexAttribArray(WireframeShader.GetAttribLocation("aPosition"));
-            GL.VertexAttribPointer(WireframeShader.GetAttribLocation("aPosition"), 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-        }
-
-        public static void DrawGrid(Matrix4 projection, Matrix4 view)
-        {
-            WireframeShader.Use();
-            GL.BindVertexArray(gridVAO);
-
-            SetProjView(WireframeShader, projection, view);
-            Matrix4 GridTrans = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
-            GridTrans *= Matrix4.CreateTranslation(0, -0.5f, 0);
-            GridTrans *= Matrix4.CreateTranslation(Vector3.Zero);
-
-            WireframeShader.SetVector3("col", new Vector3(0.7f));
-            GL.UniformMatrix4(WireframeShader.GetUniformLocation("transform"), true, ref GridTrans);
-
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            GL.Disable(EnableCap.CullFace);
-            GL.DrawElements(PrimitiveType.Triangles, gridIndices.Length, DrawElementsType.UnsignedInt, 0);
-            GL.Enable(EnableCap.CullFace);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
 
         public static int FBO; //RBO;

@@ -33,100 +33,106 @@ namespace Engine.RenderEngine
         // Draw the array of objects
         public static void DrawObjects(Matrix4 projection, Matrix4 view, bool overrideShader)
         {
-            if (overrideShader == false)
+            if (true)
             {
-                for (int i = 1; i < Objects.Count; i++)
+                if (overrideShader == false)
                 {
-                    PBRShader.Use();
-                    GL.BindVertexArray(VAO[i]);
-                    SetTransform(PBRShader, MakeTransform(
-                        Objects[i].Scale * Objects[0].Scale,
-                        Objects[i].Location + Objects[0].Location,
-                        Objects[i].Rotation + Objects[0].Rotation));
-                    SetProjView(PBRShader, projection, view);
-
-                    Vector3 ambient = new Vector3(BG_Color.X, BG_Color.Y, BG_Color.Z);
-                    PBRShader.SetVector3("material.ambient", ambient);
-                    PBRShader.SetVector3("viewPos", position);
-
-                    PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
-                    PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
-                    PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
-                    PBRShader.SetFloat("material.ao", Objects[i].Material.ao);
-
-                    PBRShader.SetInt("material.albedoTex", 0);
-                    PBRShader.SetInt("material.roughnessTex", 1);
-                    PBRShader.SetInt("material.metallicTex", 2);
-                    PBRShader.SetInt("material.normalTex", 3);
-                    PBRShader.SetInt("material.ao", 4);
-
-                    if (Objects[i].Material.Maps[0] != 0) PBRmaps[0].Use(TextureUnit.Texture0);
-                    else DefaultMaps[0].Use(TextureUnit.Texture0);
-
-                    if (Objects[i].Material.Maps[1] != 0) PBRmaps[1].Use(TextureUnit.Texture1);
-                    else DefaultMaps[1].Use(TextureUnit.Texture1);
-
-                    if (Objects[i].Material.Maps[2] != 0) PBRmaps[2].Use(TextureUnit.Texture2);
-                    else DefaultMaps[2].Use(TextureUnit.Texture2);
-
-                    if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
-                    else DefaultMaps[3].Use(TextureUnit.Texture3);
-
-                    if (Objects[i].Material.Maps[4] != 0) PBRmaps[4].Use(TextureUnit.Texture4);
-                    else DefaultMaps[4].Use(TextureUnit.Texture4);
-
-                    PBRShader.SetVector3("dirLight.direction", new Vector3(LightDirection.X, LightDirection.Y, LightDirection.Z));
-                    PBRShader.SetVector3("dirLight.color", new Vector3(LightColor.X, LightColor.Y, LightColor.Z));
-
-                    numPL = 0;
-
-                    // Lights
-                    for (int j = 0; j < Lights.Count; j++)
+                    for (int i = 1; i < Objects.Count; i++)
                     {
-                        switch (Lights[j].Type)
+                        PBRShader.Use();
+                        GL.BindVertexArray(VAO[i]);
+                        SetTransform(PBRShader, MakeTransform(
+                            Objects[i].Scale * Objects[0].Scale,
+                            Objects[i].Location + Objects[0].Location,
+                            Objects[i].Rotation + Objects[0].Rotation));
+                        SetProjView(PBRShader, projection, view);
+
+                        Vector3 ambient = new Vector3(BG_Color.X, BG_Color.Y, BG_Color.Z);
+                        PBRShader.SetVector3("material.ambient", ambient);
+                        PBRShader.SetVector3("viewPos", position);
+
+                        PBRShader.SetVector3("material.albedo", Objects[i].Material.albedo);
+                        PBRShader.SetFloat("material.roughness", Objects[i].Material.roughness);
+                        PBRShader.SetFloat("material.metallic", Objects[i].Material.metallic);
+                        PBRShader.SetFloat("material.ao", Objects[i].Material.ao);
+
+                        PBRShader.SetInt("material.albedoTex", 0);
+                        PBRShader.SetInt("material.roughnessTex", 1);
+                        PBRShader.SetInt("material.metallicTex", 2);
+                        PBRShader.SetInt("material.normalTex", 3);
+                        PBRShader.SetInt("material.ao", 4);
+
+                        if (Objects[i].Material.Maps[0] != 0) PBRmaps[0].Use(TextureUnit.Texture0);
+                        else DefaultMaps[0].Use(TextureUnit.Texture0);
+
+                        if (Objects[i].Material.Maps[1] != 0) PBRmaps[1].Use(TextureUnit.Texture1);
+                        else DefaultMaps[1].Use(TextureUnit.Texture1);
+
+                        if (Objects[i].Material.Maps[2] != 0) PBRmaps[2].Use(TextureUnit.Texture2);
+                        else DefaultMaps[2].Use(TextureUnit.Texture2);
+
+                        if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
+                        else DefaultMaps[3].Use(TextureUnit.Texture3);
+
+                        if (Objects[i].Material.Maps[4] != 0) PBRmaps[4].Use(TextureUnit.Texture4);
+                        else DefaultMaps[4].Use(TextureUnit.Texture4);
+
+                        PBRShader.SetVector3("dirLight.direction", new Vector3(LightDirection.X, LightDirection.Y, LightDirection.Z));
+                        PBRShader.SetVector3("dirLight.color", new Vector3(LightColor.X, LightColor.Y, LightColor.Z));
+
+                        numPL = 0;
+
+                        // Lights
+                        for (int j = 0; j < Lights.Count; j++)
                         {
-                            // Set each Point Light in FS
-                            case 0:
-                                numPL += 1;
-                                PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
-                                PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
-                                PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
-                                //PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
-                                //PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
-                                break;
+                            switch (Lights[j].Type)
+                            {
+                                // Set each Point Light in FS
+                                case 0:
+                                    numPL += 1;
+                                    PBRShader.SetVector3("pointLights[" + j + "].lightColor", Lights[j].LightColor);
+                                    PBRShader.SetVector3("pointLights[" + j + "].lightPos", Lights[j].Location);
+                                    PBRShader.SetFloat("pointLights[" + j + "].strength", Lights[j].Strength);
+                                    //PBRShader.SetFloat("pointLights[" + j + "].radius", Lights[j].Radius);
+                                    //PBRShader.SetFloat("pointLights[" + j + "].falloff", Lights[j].FallOff);
+                                    break;
 
-                            case 1:
-                                break;
+                                case 1:
+                                    break;
+                            }
                         }
+
+                        // Set the for loop length in FS shader
+                        PBRShader.SetInt("NR_PointLights", numPL);
+
+                        // Draw objects with indices
+                        GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                     }
-
-                    // Set the for loop length in FS shader
-                    PBRShader.SetInt("NR_PointLights", numPL);
-
-                    // Draw objects with indices
-                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
-            }
 
-            else
-            {
-                for (int i = 1; i < Objects.Count; i++)
+                else
                 {
-                    WireframeShader.Use();
-                    GL.BindVertexArray(VAO[i]);
-                    SetTransform(WireframeShader, MakeTransform(
-                        Objects[i].Scale * Objects[0].Scale,
-                        Objects[i].Location + Objects[0].Location,
-                        Objects[i].Rotation + Objects[0].Rotation));
-                    SetProjView(WireframeShader, projection, view);
+                    for (int i = 1; i < Objects.Count; i++)
+                    {
+                        WireframeShader.Use();
+                        GL.BindVertexArray(VAO[i]);
+                        SetTransform(WireframeShader, MakeTransform(
+                            Objects[i].Scale * Objects[0].Scale,
+                            Objects[i].Location + Objects[0].Location,
+                            Objects[i].Rotation + Objects[0].Rotation));
+                        SetProjView(WireframeShader, projection, view);
 
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    WireframeShader.SetVector3("col", new Vector3(1));
-                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                        WireframeShader.SetVector3("col", new Vector3(1));
+                        GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
 
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    WireframeShader.SetVector3("col", new Vector3(0.3f));
-                    GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                        WireframeShader.SetVector3("col", new Vector3(0));
+                        WireframeShader.SetInt("normalTex", 3);
+                        if (Objects[i].Material.Maps[3] != 0) PBRmaps[3].Use(TextureUnit.Texture3);
+                        else DefaultMaps[3].Use(TextureUnit.Texture3);
+                        GL.DrawElements(PrimitiveType.Triangles, Objects[i].Indices.Length, DrawElementsType.UnsignedInt, 0);
+                    }
                 }
             }
         }

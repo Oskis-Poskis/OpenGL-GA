@@ -1,7 +1,7 @@
 ﻿#version 330 core
 in vec2 texCoord;
 in vec3 FragPos;
-in vec3 Normal;
+//in vec3 Normal;
 in mat3 TBN;
 
 struct Material
@@ -178,8 +178,6 @@ void main()
 
     // Reduce color banding
     color += mix(-NoiseCalc, NoiseCalc, random(texCoord));
-
-    float test = max(dot(N, normalize(dirLight.direction)), 0);
 
     // Final Color
     fragColor = vec4(color, 1.0);

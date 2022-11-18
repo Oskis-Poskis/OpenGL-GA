@@ -15,6 +15,11 @@ using static Engine.RenderEngine.Rendering;
 using static Engine.SettingUP.Setup;
 using Engine.MathLib;
 using System.Text.Json.Serialization;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using Engine.SettingUP;
+using Object = Engine.SettingUP.Setup.Object;
+using System.Linq;
 
 namespace Engine
 {
@@ -136,8 +141,6 @@ namespace Engine
             ConstructLights();
             PBRShader.SetFloat("NoiseAmount", NoiseAmount);
 
-            SetupGrid();
-
             GenFBO(CameraWidth, CameraHeight);
             GenScreenRect();
             SetUpCubeMap();
@@ -170,7 +173,6 @@ namespace Engine
 
             // Draw all lights
             DrawLights(projection, view);
-            DrawGrid(projection, view);
             
             GL.Disable(EnableCap.DepthTest);
             fboShader.Use();
@@ -316,16 +318,129 @@ namespace Engine
             base.OnRenderFrame(args);
         }
 
+        public static System.Numerics.Vector3 Vec3toSN(Vector3 v)
+        {
+            return new System.Numerics.Vector3(v.X, v.Y, v.Z);
+        }
+
+        public static System.Numerics.Vector2 Vec2toSN(Vector2 v)
+        {
+            return new System.Numerics.Vector2(v.X, v.Y);
+        }
+
+        public static Vector3 SNtoVec3(System.Numerics.Vector3 v)
+        {
+            return new Vector3(v.X, v.Y, v.Z);
+        }
+
+        public static Vector2 SNtoVec2(System.Numerics.Vector2 v)
+        {
+            return new Vector2(v.X, v.Y);
+        }
+
+        public static ConvertedVertexData[] ConvertVertexData(VertexData[] v)
+        {
+            ConvertedVertexData[] convertArray = new ConvertedVertexData[v.Length];
+
+            for (int i = 0; i < convertArray.Length; i++)
+            {
+                convertArray[i] = new ConvertedVertexData(Vec3toSN(v[i].Position), Vec2toSN(v[i].texCoord), Vec3toSN(v[i].Normals), Vec3toSN(v[i].Tangents), Vec3toSN(v[i].BiTangents));
+            }
+
+            return convertArray;
+        }
+
+        public static VertexData[] RevertVertexData(ConvertedVertexData[] v)
+        {
+            VertexData[] convertArray = new VertexData[v.Length];
+
+            for (int i = 0; i < convertArray.Length; i++)
+            {
+                convertArray[i] = new VertexData(SNtoVec3(v[i].Position), SNtoVec2(v[i].texCoord), SNtoVec3(v[i].Normals), SNtoVec3(v[i].Tangents), SNtoVec3(v[i].BiTangents));
+            }
+
+            return convertArray;
+        }
+
         public static void SaveFile(string filename)
         {
-            var data = Objects;
+            ConvertedObject[] convertedObject = new ConvertedObject[Objects.Count];
+            for (int i = 0; i < convertedObject.Length; i++)
+            {
+                convertedObject[i] = new ConvertedObject(
+                Objects[i].Name,
+                Objects[i].ID,
+                new ConvertedMaterial(Vec3toSN(
+                    Objects[i].Material.albedo),
+                    Objects[i].Material.roughness,
+                    Objects[i].Material.metallic,
+                    Objects[i].Material.ao,
+                    Objects[i].Material.Maps),
+                ConvertVertexData(Objects[i].VertData), Objects[i].Indices,
+                Vec3toSN(Objects[i].Location),
+                Vec3toSN(Objects[i].Rotation),
+                Vec3toSN(Objects[i].Scale));
+            }
+
             var _options = new JsonSerializerOptions()
             {
                 WriteIndented = true,
-                //ReferenceHandler = ReferenceHandler.IgnoreCycles
+                ReferenceHandler = ReferenceHandler.Preserve,
+                IncludeFields = true,
             };
-            var jsonString = JsonSerializer.Serialize(data, _options);
-            File.WriteAllText(filename, jsonString);
+
+            string jsonString = "";
+
+            try
+            {
+                jsonString = JsonSerializer.Serialize(convertedObject, _options);
+                File.WriteAllText(filename, jsonString);
+                Console.WriteLine("Saved file to " + filename);
+            }
+
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error info: " + ex.Message);
+            }
+        }
+
+        public static void LoadSave(string filename)
+        {
+            string loadedjson = File.ReadAllText(filename);
+            ConvertedObject[] loadedSave = JsonSerializer.Deserialize<ConvertedObject[]>(loadedjson, new JsonSerializerOptions() { IncludeFields = true });
+            Object[] revertedObject = new Object[loadedSave.Length];
+
+            for (int i = 0; i < revertedObject.Length; i++)
+            {
+                revertedObject[i] = new Object(
+                    loadedSave[i].Name,
+                    loadedSave[i].ID,
+                    new Material(SNtoVec3(
+                        loadedSave[i].Material.albedo),
+                        loadedSave[i].Material.roughness,
+                        loadedSave[i].Material.metallic,
+                        loadedSave[i].Material.ao,
+                        loadedSave[i].Material.Maps),
+                    RevertVertexData(loadedSave[i].VertData), loadedSave[i].Indices,
+                    SNtoVec3(loadedSave[i].Location),
+                    SNtoVec3(loadedSave[i].Rotation),
+                    SNtoVec3(loadedSave[i].Scale));
+            }
+
+            List<Object> newObjectsArray = revertedObject.ToList();
+            while (VAO.Count < newObjectsArray.Count)
+            {
+                VAO.Add(0);
+            }
+
+            Objects = newObjectsArray;
+
+            Console.WriteLine(VAO.Count);
+            Console.WriteLine(Objects.Count);
+
+            ConstructObjects();
+
+            Console.WriteLine("Loaded save from " + filename);
         }
 
         private void MouseInput()
@@ -357,8 +472,7 @@ namespace Engine
                 }
             }
 
-            if (IsKeyPressed(Keys.P)) SaveFile("./../../../textsave.txt");
-            if (IsKeyDown(Keys.F)) position = Objects[selectedObject].Location * 1.2f;
+            if (IsKeyDown(Keys.F)) position = Objects[selectedObject].Location;
 
             // X and Z movement
             if (IsKeyDown(Keys.W)) position += front * speed * (float)args.Time;
