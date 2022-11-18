@@ -27,6 +27,7 @@ namespace Engine.RenderEngine
         // Post processing
         public static bool ChromaticAbberationOnOff = false;
         public static float ChromaticAbberationOffset = 0.005f;
+        public static float exposure = 1;
         public static bool showCubeMap = false;
 
         // Draw the array of objects
@@ -218,6 +219,7 @@ namespace Engine.RenderEngine
             // PP
             fboShader.SetBool("ChromaticAbberationOnOff", ChromaticAbberationOnOff);
             fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
+            fboShader.SetFloat("exposure", exposure);
         }
     }
 }

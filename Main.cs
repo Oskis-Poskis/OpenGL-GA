@@ -238,6 +238,11 @@ namespace Engine
                         }
                     }
 
+                    if (ImGui.SliderFloat("Exposure", ref exposure, 0, 5))
+                    {
+                        fboShader.SetFloat("exposure", exposure);
+                    }
+
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
                     ImGui.Separator();
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));

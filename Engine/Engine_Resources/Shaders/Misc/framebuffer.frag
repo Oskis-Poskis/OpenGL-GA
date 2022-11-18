@@ -5,11 +5,13 @@ out vec4 fragColor;
 
 uniform bool ChromaticAbberationOnOff;
 uniform float ChromaticAbberationOffset;
+uniform float exposure;
 uniform sampler2D framebufferTexture;
 
 void main()
 {
-    vec3 result = texture(framebufferTexture, texCoord).rgb;
+    const float gamma = 2.2;
+    vec3 color = texture(framebufferTexture, texCoord).rgb;
 
     if (ChromaticAbberationOnOff == true)
     {
@@ -17,8 +19,13 @@ void main()
         float gValue = texture(framebufferTexture, texCoord).g;
         float bValue = texture(framebufferTexture, texCoord - vec2(ChromaticAbberationOffset, 0)).b;
 
-        result = vec3(rValue, gValue, bValue);
+        color = vec3(rValue, gValue, bValue);
     }
+
+    // Exposure
+    vec3 result = vec3(1) - exp(-color * exposure);
+    // Gamma correct
+    result = pow(result, vec3(1 / gamma));
 
     fragColor = vec4(result, 1);
 }
