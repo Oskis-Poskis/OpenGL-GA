@@ -179,6 +179,9 @@ void main()
     // Reduce color banding
     color += mix(-NoiseCalc, NoiseCalc, random(texCoord));
 
+    vec3 result = vec3(1) - exp(-color);
+    result = pow(result, vec3(1 / 2.2));
+
     // Final Color
-    fragColor = vec4(color, 1.0);
+    fragColor = vec4(result, 1.0);
 }

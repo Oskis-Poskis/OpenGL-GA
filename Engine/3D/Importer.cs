@@ -45,7 +45,7 @@ namespace Engine.Importer
             {
                 for (int i = 0; i < m_model.Meshes[0].Vertices.Count; i++)
                 {
-                    if (m_model.Meshes[0].HasTextureCoords(0) == true && m_model.Meshes[0].HasTangentBasis == true)
+                    if (m_model.Meshes[0].HasTextureCoords(0) == true)
                     {
                         importedVertexData[i] = new VertexData(
                         FromVector(m_model.Meshes[0].Vertices[i]),

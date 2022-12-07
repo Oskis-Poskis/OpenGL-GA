@@ -10,6 +10,9 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 transform;
 
+uniform bool selectedObj;
+uniform float outlineOffset;
+
 out vec2 texCoord;
 out vec3 FragPos;
 out vec3 Normal;
@@ -18,8 +21,11 @@ out mat3 TBN;
 void main(void)
 {
     gl_Position = vec4(aPosition, 1) * transform * view * projection;
-    
+
+    float test = outlineOffset;
+
     FragPos = vec3(vec4(aPosition, 1.0) * transform);
+
     Normal = aNormal * mat3(transpose(inverse(transform)));
     texCoord = aTexCoord;
 

@@ -5,7 +5,6 @@ out vec4 fragColor;
 
 uniform bool ChromaticAbberationOnOff;
 uniform float ChromaticAbberationOffset;
-uniform float exposure;
 uniform sampler2D framebufferTexture;
 
 void main()
@@ -22,12 +21,7 @@ void main()
         color = vec3(rValue, gValue, bValue);
     }
 
-    // Exposure
-    vec3 result = vec3(1) - exp(-color * exposure);
-    // Gamma correct
-    result = pow(result, vec3(1 / gamma));
-
-    fragColor = vec4(result, 1);
+    fragColor = vec4(color, 1);
 }
 
 /*

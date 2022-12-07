@@ -49,12 +49,11 @@ namespace Engine
         }
 
         public static Texture[] PBRmaps = new Texture[5];
+        public static Texture PointLightTexture;
         public static Material M_Default = new Material(new Vector3(1), 0.5f, 0, 1, new int[] { 0, 0, 0, 0, 0 });
         public static Material M_Misc = new Material(new Vector3(1), 1, 1, 1, new int[] { 1, 1, 0, 1, 1 });
 
         public static bool wireframeonoff = false;
-
-        public static Texture PointLightTexture;
 
         // Window bools
         public static bool showSettings = true;
@@ -103,6 +102,7 @@ namespace Engine
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.PolygonOffsetFill);
             GL.CullFace(CullFaceMode.Front);
             GL.ClearColor(new Color4(0.5f, 0.5f, 0.5f, 1f));
             GL.LineWidth(2f);
@@ -149,10 +149,15 @@ namespace Engine
             base.OnLoad();
         }
 
+        Matrix4 projection;
+        static bool UIon = true;
+
         // Render loop
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+            if (UIon == true) GL.BindFramebuffer(FramebufferTarget.Framebuffer, FBO);
+            else GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
             GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
@@ -161,7 +166,9 @@ namespace Engine
             if (IsMouseButtonDown(MouseButton.Right) | IsKeyDown(Keys.LeftAlt)) MouseInput();
             if (IsMouseButtonReleased(MouseButton.Right) | IsKeyReleased(Keys.LeftAlt)) CursorState = CursorState.Normal;
 
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), Math.Abs(CameraWidth / CameraHeight), 0.1f, 100.0f);
+            if (UIon == true) projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), Math.Abs(CameraWidth / CameraHeight), 0.1f, 100.0f);
+            else projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOV), Math.Abs(WindowWidth / WindowHeight), 0.1f, 100.0f);
+
             Matrix4 view = Matrix4.LookAt(position, position + front, up);
 
             DrawObjects(projection, view, wireframeonoff);
@@ -172,149 +179,147 @@ namespace Engine
             if (showCubeMap == true) DrawCubeMapCube(projection, view, position);
 
             // Draw all lights
-            DrawLights(projection, view);
-            
-            GL.Disable(EnableCap.DepthTest);
-            fboShader.Use();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
-            GL.BindVertexArray(rectVAO);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-
-            // UI
-            UIController.Update(this, (float)args.Time);
-            ImGui.DockSpaceOverViewport();
-            WindowOnOffs();
-
-            if (showSettings)
+            if (UIon == true)
             {
-                // Settings
-                ImGui.Begin("Settings");
+                DrawLights(projection, view);
 
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                GL.Disable(EnableCap.DepthTest);
+                fboShader.Use();
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, framebufferTexture);
+                GL.BindVertexArray(rectVAO);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-                if (ImGui.TreeNode("Rendering"))
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                // UI
+                UIController.Update(this, (float)args.Time);
+                ImGui.DockSpaceOverViewport();
+                WindowOnOffs();
+
+                if (showSettings)
                 {
+                    // Settings
+                    ImGui.Begin("Settings");
+
                     ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.Checkbox("V-Sync", ref vsynconoff))
+
+                    if (ImGui.TreeNode("Rendering"))
                     {
-                        if (vsynconoff == false) VSync = VSyncMode.Off;
-                        if (vsynconoff == true) VSync = VSyncMode.On;
-                    }
-                    ImGui.Checkbox("Wireframe", ref wireframeonoff);
-                    ImGui.TreePop();
-                }
-
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-
-                if (ImGui.TreeNode("Camera"))
-                {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.SliderInt("Field of View", ref FOV, 10, 179);
-                    ImGui.SliderFloat("Sensitivity", ref sensitivity, 0.1f, 2.0f, "%.1f");
-                    ImGui.SliderInt("Speed", ref speed, 1, 30);
-                    ImGui.TreePop();
-                }
-
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                if (ImGui.TreeNode("Post Processing"))
-                {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.Checkbox("Chromatic Abberation", ref ChromaticAbberationOnOff))
-                    {
-                        fboShader.SetBool("ChromaticAbberationOnOff", ChromaticAbberationOnOff);
-                    }
-
-                    if (ChromaticAbberationOnOff == true)
-                    {
-                        if (ImGui.SliderFloat("##Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        if (ImGui.Checkbox("V-Sync", ref vsynconoff))
                         {
-                            fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
+                            if (vsynconoff == false) VSync = VSyncMode.Off;
+                            if (vsynconoff == true) VSync = VSyncMode.On;
                         }
-                    }
-
-                    if (ImGui.SliderFloat("Exposure", ref exposure, 0, 5))
-                    {
-                        fboShader.SetFloat("exposure", exposure);
-                    }
-
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Separator();
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                    ImGui.Text("Noise Amount"); ImGui.SameLine(); UserInterface.GUI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PBRShader.SetFloat("NoiseAmount", NoiseAmount);
-                    ImGui.TreePop();
-                }
-
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                if (ImGui.TreeNode("Lightning"))
-                {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Text("Sun Direction");
-                    ImGui.SliderFloat3("##SunDirection", ref LightDirection, -1, 1);
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Text("Sun Color");
-                    ImGui.ColorEdit3("##SunColor", ref LightColor);
-
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Separator();
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                    ImGui.Text("Background Color");
-                    if (ImGui.ColorEdit3("Background Color", ref BG_Color, ImGuiColorEditFlags.NoLabel))
-                    {
-                        GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
-                    }
-                    ImGui.Text("Show Cubemap");
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    ImGui.Checkbox("##Show Cubemap", ref showCubeMap);
-                    ImGui.TreePop();
-                }
-
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-
-                if (ImGui.TreeNode("Editor"))
-                {
-                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                    if (ImGui.SliderFloat("Font Size", ref fontSize, 0.1f, 2.0f, "%.2f"))
-                    {
-                        ImGui.GetIO().FontGlobalScale = fontSize;
-
+                        ImGui.Checkbox("Wireframe", ref wireframeonoff);
                         ImGui.TreePop();
                     }
 
-                    ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f");
-                }
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
-                ImGui.Separator();
-                ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
 
-                ImGui.End();
+
+                    if (ImGui.TreeNode("Camera"))
+                    {
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.SliderInt("Field of View", ref FOV, 10, 179);
+                        ImGui.SliderFloat("Sensitivity", ref sensitivity, 0.1f, 2.0f, "%.1f");
+                        ImGui.SliderInt("Speed", ref speed, 1, 30);
+                        ImGui.TreePop();
+                    }
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    if (ImGui.TreeNode("Post Processing"))
+                    {
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        if (ImGui.Checkbox("Chromatic Abberation", ref ChromaticAbberationOnOff))
+                        {
+                            fboShader.SetBool("ChromaticAbberationOnOff", ChromaticAbberationOnOff);
+                        }
+
+                        if (ChromaticAbberationOnOff == true)
+                        {
+                            if (ImGui.SliderFloat("##Chromatic Abberation Offset", ref ChromaticAbberationOffset, 0, 0.05f, "%.3f"))
+                            {
+                                fboShader.SetFloat("ChromaticAbberationOffset", ChromaticAbberationOffset);
+                            }
+                        }
+
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Separator();
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                        ImGui.Text("Noise Amount"); ImGui.SameLine(); UserInterface.GUI.HelpMarker("Values around 0.5 reduce banding \nHigh values causes visible noise");
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        if (ImGui.SliderFloat("##NA", ref NoiseAmount, 0.01f, 10.0f, "%.2f")) PBRShader.SetFloat("NoiseAmount", NoiseAmount);
+                        ImGui.TreePop();
+                    }
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    if (ImGui.TreeNode("Lightning"))
+                    {
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Text("Sun Direction");
+                        ImGui.SliderFloat3("##SunDirection", ref LightDirection, -1, 1);
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Text("Sun Color");
+                        ImGui.ColorEdit3("##SunColor", ref LightColor);
+
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Separator();
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                        ImGui.Text("Background Color");
+                        if (ImGui.ColorEdit3("Background Color", ref BG_Color, ImGuiColorEditFlags.NoLabel))
+                        {
+                            GL.ClearColor(new Color4(BG_Color.X, BG_Color.Y, BG_Color.Z, 1f));
+                        }
+                        ImGui.Text("Show Cubemap");
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        ImGui.Checkbox("##Show Cubemap", ref showCubeMap);
+                        ImGui.TreePop();
+                    }
+
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    if (ImGui.TreeNode("Editor"))
+                    {
+                        ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                        if (ImGui.SliderFloat("Font Size", ref fontSize, 0.1f, 2.0f, "%.2f"))
+                        {
+                            ImGui.GetIO().FontGlobalScale = fontSize;
+
+                            ImGui.TreePop();
+                        }
+
+                        ImGui.SliderFloat("Spacing", ref spacing, 1f, 10f, "%.1f");
+                    }
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+                    ImGui.Separator();
+                    ImGui.Dummy(new System.Numerics.Vector2(0f, spacing));
+
+                    ImGui.End();
+                }
+
+                LoadGameWindow(ref CameraWidth, ref CameraHeight);
+                UIController.Render();
+                ImGuiController.CheckGLError("End of frame");
             }
 
             // Close editor
             if (IsKeyDown(Keys.Escape) | CloseWindow == true) Close();
 
-            LoadGameWindow(ref CameraWidth, ref CameraHeight);
-            UIController.Render();
-            ImGuiController.CheckGLError("End of frame");
-
             Context.SwapBuffers();            
-
             base.OnRenderFrame(args);
         }
 
@@ -385,23 +390,13 @@ namespace Engine
             var _options = new JsonSerializerOptions()
             {
                 WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.Preserve,
                 IncludeFields = true,
+                //DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             };
 
-            string jsonString = "";
-
-            try
-            {
-                jsonString = JsonSerializer.Serialize(convertedObject, _options);
-                File.WriteAllText(filename, jsonString);
-                Console.WriteLine("Saved file to " + filename);
-            }
-
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error info: " + ex.Message);
-            }
+            string jsonString = JsonSerializer.Serialize(convertedObject, _options);
+            File.WriteAllText(filename, jsonString);
+            Console.WriteLine("Saved file to " + filename);
         }
 
         public static void LoadSave(string filename)
@@ -471,6 +466,8 @@ namespace Engine
                     selectedObject -= 1;
                 }
             }
+
+            if (IsKeyPressed(Keys.K)) UIon = Functions.ToggleBool(UIon);
 
             if (IsKeyDown(Keys.F)) position = Objects[selectedObject].Location;
 
